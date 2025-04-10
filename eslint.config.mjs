@@ -2,7 +2,6 @@
 
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
-import perfectionist from "eslint-plugin-perfectionist";
 import jest from "eslint-plugin-jest";
 export default tseslint.config(
     {
@@ -22,7 +21,6 @@ export default tseslint.config(
             },
         },
     },
-    perfectionist.configs["recommended-natural"],
     {
         files: ["tests/**/*.{js,ts,jsx,tsx}"],
         ...jest.configs["flat/recommended"],
