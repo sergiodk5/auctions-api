@@ -4,3 +4,4 @@ dotenv.config();
 
 export const SERVER_PORT = process.env.PORT ?? 8090;
 export const DATABASE_URL = process.env.DATABASE_URL ?? 'postgres://postgres:postgres@localhost:5432/postgres';
+export const JWT_SECRET = process.env.JWT_SECRET ?? 'your_jwt_secret' as string;

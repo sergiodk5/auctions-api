@@ -15,21 +15,21 @@ export function validateData(schema: z.ZodObject<any, any>) {
                     message: `${issue.path.join('.')} is ${issue.message}`,
                 }));
 
-                console.log("Validation errors:", errorMessages);
-
                 res.status(400).json({
                     success: false,
                     data: null,
                     message: errorMessages,
                 });
-            } else {
-                console.error("Unexpected error during validation:", error);
-                res.status(500).json({
-                    success: false,
-                    data: null,
-                    message: "Internal server error",
-                });
+
+                return;
             }
+
+            console.error("Unexpected error during validation:", error);
+            res.status(500).json({
+                success: false,
+                data: null,
+                message: "Internal server error",
+            });
         }
     };
 }

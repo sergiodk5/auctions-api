@@ -2,6 +2,7 @@ import { Request, Response } from "express-serve-static-core";
 import { db } from "@/config/database";
 import { usersTable } from "@/db/usersSchema";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 
 async function getAllUsers(_req: Request, res: Response) {
     try {
@@ -61,53 +62,27 @@ async function getUserById(req: Request, res: Response) {
     }
 }
 
-async function getUserByEmail(req: Request, res: Response) {
-    const email = req.params.email;
-    if (!email) {
-        res.status(400).json({
-            success: false,
-            data: null,
-            message: "Invalid user email"
-        });
-
-        return;
-    }
-
+async function createUser(req: Request, res: Response) {
     try {
-        const users = await db
+        const data = req.body.cleanBody;
+        const existingUser = await db
             .select()
             .from(usersTable)
-            .where(eq(usersTable.email, email));
+            .where(eq(usersTable.email, data.email));
 
-        if (!users.length) {
-            res.status(404).json({
+        if (existingUser.length) {
+            res.status(409).json({
                 success: false,
                 data: null,
-                message: "User not found"
+                message: "User with this email already exists"
             });
 
             return;
         }
 
-        res.status(200).json({
-            success: true,
-            data: users[0],
-            message: "User fetched successfully"
-        });
+        data.password = await bcrypt.hash(data.password, 10);
 
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        res.status(500).json({
-            success: false,
-            data: null,
-            message: "Failed to fetch user"
-        });
-    }
-}
-
-async function createUser(req: Request, res: Response) {
-    try {
-        const results = await db.insert(usersTable).values(req.body.cleanBody).returning();
+        const results = await db.insert(usersTable).values(data).returning();
 
         if (!results.length) {
             res.status(400).json({
@@ -180,41 +155,44 @@ async function deleteUser(req: Request, res: Response) {
             data: null,
             message: "Invalid user ID"
         });
-    } else {
-        try {
-            const results = await db
-                .delete(usersTable)
-                .where(eq(usersTable.id, userId))
-                .returning();
 
-            if (!results.length) {
-                return res.status(404).json({
-                    success: false,
-                    data: null,
-                    message: "User not found"
-                });
-            } else {
-                res.status(200).json({
-                    success: true,
-                    data: null,
-                    message: "User deleted successfully"
-                });
-            }
-        } catch (error) {
-            console.error("Error deleting user:", error);
-            res.status(500).json({
+        return;
+    }
+
+    try {
+        const results = await db
+            .delete(usersTable)
+            .where(eq(usersTable.id, userId))
+            .returning();
+
+        if (!results.length) {
+            res.status(404).json({
                 success: false,
                 data: null,
-                message: "Failed to delete user"
+                message: "User not found"
             });
+
+            return;
         }
+
+        res.status(200).json({
+            success: true,
+            data: null,
+            message: "User deleted successfully"
+        });
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        res.status(500).json({
+            success: false,
+            data: null,
+            message: "Failed to delete user"
+        });
     }
 }
 
 export default {
     getAllUsers,
     getUserById,
-    getUserByEmail,
     createUser,
     updateUser,
     deleteUser,

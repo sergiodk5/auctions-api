@@ -1,3 +1,4 @@
+import authRouter from "@/routes/auth";
 import productRoutes from "@/routes/product";
 import userRoutes from "@/routes/user";
 import cors from "cors";
@@ -15,6 +16,7 @@ app.get("/", (_req: Request, res: Response) => {
     res.send("Hello World");
 });
 
+app.use("/auth", authRouter);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
 
