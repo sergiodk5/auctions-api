@@ -12,7 +12,7 @@
         "isolatedModules": true
     },
     "include": ["src/**/*.ts"],
-    "exclude": ["node_modules", "dist", "coverage"],
+    "exclude": ["node_modules", "dist", "coverage", "drizzle.config.ts"],
     "ts-node": {
         "files": true
     }

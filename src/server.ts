@@ -1,11 +1,7 @@
 import "module-alias/register";
 import app from "@/app";
-import dotenv from "dotenv";
+import { SERVER_PORT } from "@/config/env";
 
-dotenv.config();
-
-const PORT = process.env.PORT ?? 3000;
-
-app.listen(PORT, () => {
-    console.log(`Server running on ${PORT.toString()}`);
+app.listen(SERVER_PORT, () => {
+    console.log(`Server running on ${SERVER_PORT.toString()}`);
 });
