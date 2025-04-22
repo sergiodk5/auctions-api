@@ -2,22 +2,23 @@ import authRouter from "@/routes/auth";
 import productRoutes from "@/routes/product";
 import userRoutes from "@/routes/user";
 import cors from "cors";
-import express, { Request, Response } from "express";
+import express from "express";
+import cookieParser from "cookie-parser";
+import statusRoutes from "@/routes/status";
+import jsonErrorHandler from "@/middlewares/jsonErrorHandler";
 
 const app = express();
 
-app.use(cors({
-    credentials: true,
-}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors({ credentials: true }));
+app.use(cookieParser());
 
-app.get("/", (_req: Request, res: Response) => {
-    res.send("Hello World");
-});
-
+app.use("/status", statusRoutes);
 app.use("/auth", authRouter);
 app.use("/products", productRoutes);
 app.use("/users", userRoutes);
+
+app.use(jsonErrorHandler);
 
 export default app;
