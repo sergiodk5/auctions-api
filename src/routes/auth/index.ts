@@ -7,6 +7,8 @@ const authRouter = Router();
 
 authRouter.post("/register", validateData(createUserSchema), authController.registerUser);
 authRouter.post("/login", validateData(loginSchema), authController.loginUser);
-authRouter.post("/logout", (req, res) => { });
+authRouter.post("/logout", (_req, res) => {
+    res.status(200).json({ message: "Logout successful" });
+});
 
 export default authRouter;
