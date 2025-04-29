@@ -1,115 +1,63 @@
 import { Request, Response } from "express-serve-static-core";
-import { db } from "@/config/database";
-import { usersTable } from "@/db/usersSchema";
-import { eq } from "drizzle-orm";
-import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "@/config/env";
+import { AuthService } from "@/services/auth.service";
+import { UserRepository } from "@/repositories/UserRepository";
+import { TokenRepository } from "@/repositories/TokenRepository";
 
-async function registerUser(req: Request, res: Response) {
-    try {
-        const data = req.body.cleanBody;
-        const existingUser = await db
-            .select()
-            .from(usersTable)
-            .where(eq(usersTable.email, data.email));
+const authService = new AuthService(new UserRepository(), new TokenRepository());
 
-        if (existingUser.length) {
-            res.status(409).json({
-                success: false,
-                data: null,
-                message: "User with this email already exists"
-            });
+export class AuthController {
+    async register(req: Request, res: Response) {
+        try {
+            const user = await authService.register(req.body.cleanBody);
+            res.status(201).json({ success: true, data: user });
+        } catch (e) {
+            res.status(409).json({ success: false, message: "Email already in use" });
+        }
+    }
 
+    async login(req: Request, res: Response) {
+        try {
+            const { user, accessToken, refreshToken } = await authService.login(
+                req.body.cleanBody.email,
+                req.body.cleanBody.password,
+            );
+            res.json({ success: true, data: { user, accessToken, refreshToken } });
+        } catch {
+            res.status(401).json({ success: false, message: "Invalid credentials" });
+        }
+    }
+
+    async refresh(req: Request, res: Response) {
+        try {
+            const { accessToken, refreshToken } = await authService.refresh(req.body.refreshToken);
+            res.json({ success: true, data: { accessToken, refreshToken } });
+        } catch {
+            res.status(403).json({ success: false, message: "Access denied" });
+        }
+    }
+
+    async revoke(req: Request, res: Response) {
+        const { jti } = (req as any).user;
+        await authService.revokeAccess(jti, 15 * 60);
+        res.sendStatus(204);
+    }
+
+    async logout(req: Request, res: Response): Promise<void> {
+        const auth = req.headers.authorization;
+        if (!auth) {
+            res.status(403).json({ success: false, message: "No authorization header" });
             return;
         }
-
-        data.password = await bcrypt.hash(data.password, 10);
-
-        const [user] = await db.insert(usersTable).values(data).returning();
-
-        if (!user) {
-            res.status(400).json({
-                success: false,
-                data: null,
-                message: "Failed to create user"
-            });
-
+        const [scheme, token] = auth.split(" ");
+        if (scheme !== "Bearer") {
+            res.status(403).json({ success: false, message: "Invalid authorization scheme" });
             return;
         }
-
-        delete (user as { password?: string }).password;
-
-        res.status(201).json({
-            success: true,
-            data: user,
-            message: "User created successfully"
-        });
-    } catch (error) {
-        console.error("Error creating user:", error);
-        res.status(500).json({
-            success: false,
-            data: null,
-            message: "Failed to create user"
-        });
+        const { jti, exp } = jwt.decode(token) as any;
+        await authService.logout(jti, exp, req.body.refreshToken);
+        res.sendStatus(204);
     }
 }
 
-async function loginUser(req: Request, res: Response) {
-    const { email, password } = req.body.cleanBody;
-
-    try {
-        const [user] = await db
-            .select()
-            .from(usersTable)
-            .where(eq(usersTable.email, email));
-
-        if (!user) {
-            res.status(401).json({
-                success: false,
-                data: null,
-                message: "Authentication failed"
-            });
-
-            return;
-        }
-
-        const matched = await bcrypt.compare(password, user.password);
-
-        if (!matched) {
-            res.status(401).json({
-                success: false,
-                data: null,
-                message: "Authentication failed"
-            });
-
-            return;
-        }
-
-        delete (user as { password?: string }).password;
-
-        const token = jwt.sign(
-            { id: user.id, email: user.email },
-            JWT_SECRET,
-            { expiresIn: "1h" }
-        );
-
-        res.status(200).json({
-            success: true,
-            data: { ...user, token },
-            message: "User fetched successfully"
-        });
-    } catch (error) {
-        console.error("Error fetching user:", error);
-        res.status(500).json({
-            success: false,
-            data: null,
-            message: "Failed to login user"
-        });
-    }
-}
-
-export default {
-    registerUser,
-    loginUser,
-}
+export default new AuthController();

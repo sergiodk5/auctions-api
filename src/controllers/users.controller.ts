@@ -1,199 +1,77 @@
 import { Request, Response } from "express-serve-static-core";
-import { db } from "@/config/database";
-import { usersTable } from "@/db/usersSchema";
-import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
+import { UserService } from "@/services/user.service";
+import { UserRepository } from "@/repositories/UserRepository";
+import { CreateUserDto, UpdateUserDto } from "@/types/user";
 
-async function getAllUsers(_req: Request, res: Response) {
-    try {
-        const users = await db.select().from(usersTable);
+const userService = new UserService(new UserRepository());
 
-        res.status(200).json({
-            success: true,
-            data: users,
-            message: "Users fetched successfully"
-        });
-    } catch (error) {
-        console.error("Error fetching users:", error);
-        res.status(500).json({
-            success: false,
-            data: null,
-            message: "Failed to fetch users"
-        });
-    }
-}
-
-async function getUserById(req: Request, res: Response) {
-    const userId = parseInt(req.params.id, 10);
-    if (isNaN(userId)) {
-        res.status(400).json({
-            success: false,
-            data: null,
-            message: "Invalid user ID"
-        });
-    } else {
+export class UsersController {
+    async getAllUsers(_req: Request, res: Response): Promise<void> {
         try {
-            const users = await db
-                .select()
-                .from(usersTable)
-                .where(eq(usersTable.id, userId));
-
-            if (!users.length) {
-                res.status(404).json({
-                    success: false,
-                    data: null,
-                    message: "User not found"
-                });
-            } else {
-                res.status(200).json({
-                    success: true,
-                    data: users[0],
-                    message: "User fetched successfully"
-                });
-            }
-        } catch (error) {
-            console.error("Error fetching user:", error);
-            res.status(500).json({
-                success: false,
-                data: null,
-                message: "Failed to fetch user"
-            });
+            const users = await userService.getAllUsers();
+            res.status(200).json({ success: true, data: users });
+        } catch {
+            res.status(500).json({ success: false, message: "Failed to fetch users" });
         }
     }
-}
 
-async function createUser(req: Request, res: Response) {
-    try {
-        const data = req.body.cleanBody;
-        const existingUser = await db
-            .select()
-            .from(usersTable)
-            .where(eq(usersTable.email, data.email));
-
-        if (existingUser.length) {
-            res.status(409).json({
-                success: false,
-                data: null,
-                message: "User with this email already exists"
-            });
-
+    async getUserById(req: Request, res: Response): Promise<void> {
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id)) {
+            res.status(400).json({ success: false, message: "Invalid user ID" });
             return;
         }
-
-        data.password = await bcrypt.hash(data.password, 10);
-
-        const results = await db.insert(usersTable).values(data).returning();
-
-        if (!results.length) {
-            res.status(400).json({
-                success: false,
-                data: null,
-                message: "Failed to create user"
-            });
-        } else {
-            res.status(201).json({
-                success: true,
-                data: results[0],
-                message: "User created successfully"
-            });
-        }
-    } catch (error) {
-        console.error("Error creating user:", error);
-        res.status(500).json({
-            success: false,
-            data: null,
-            message: "Failed to create user"
-        });
-    }
-}
-
-async function updateUser(req: Request, res: Response) {
-    const userId = parseInt(req.params.id, 10);
-    if (isNaN(userId)) {
-        res.status(400).json({
-            success: false,
-            data: null,
-            message: "Invalid user ID"
-        });
-    } else {
         try {
-            const results = await db
-                .update(usersTable)
-                .set(req.body.cleanBody)
-                .where(eq(usersTable.id, userId))
-                .returning();
-
-            if (!results.length) {
-                res.status(404).json({
-                    success: false,
-                    data: null,
-                    message: "User not found"
-                });
-            } else {
-                res.status(200).json({
-                    success: true,
-                    data: results[0],
-                    message: "User updated successfully"
-                });
-            }
-        } catch (error) {
-            console.error("Error updating user:", error);
-            res.status(500).json({
-                success: false,
-                data: null,
-                message: "Failed to update user"
-            });
+            const user = await userService.getUserById(id);
+            res.status(200).json({ success: true, data: user });
+        } catch (e) {
+            res.status(404).json({ success: false, message: "User not found" });
         }
     }
-}
 
-async function deleteUser(req: Request, res: Response) {
-    const userId = parseInt(req.params.id, 10);
-    if (isNaN(userId)) {
-        res.status(400).json({
-            success: false,
-            data: null,
-            message: "Invalid user ID"
-        });
-
-        return;
+    async createUser(req: Request, res: Response): Promise<void> {
+        const data = req.body.cleanBody as CreateUserDto;
+        try {
+            const user = await userService.createUser(data);
+            res.status(201).json({ success: true, data: user });
+        } catch (e) {
+            // @ts-expect-error: TypeScript doesn't know about the custom error
+            if (e.message === "UserExists") {
+                res.status(409).json({ success: false, message: "Email already exists" });
+            } else {
+                res.status(500).json({ success: false, message: "Failed to create user" });
+            }
+        }
     }
 
-    try {
-        const results = await db
-            .delete(usersTable)
-            .where(eq(usersTable.id, userId))
-            .returning();
-
-        if (!results.length) {
-            res.status(404).json({
-                success: false,
-                data: null,
-                message: "User not found"
-            });
-
+    async updateUser(req: Request, res: Response): Promise<void> {
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id)) {
+            res.status(400).json({ success: false, message: "Invalid user ID" });
             return;
         }
+        const data = req.body.cleanBody as UpdateUserDto;
+        try {
+            const user = await userService.updateUser(id, data);
+            res.status(200).json({ success: true, data: user });
+        } catch (e) {
+            res.status(404).json({ success: false, message: "User not found" });
+        }
+    }
 
-        res.status(200).json({
-            success: true,
-            data: null,
-            message: "User deleted successfully"
-        });
-    } catch (error) {
-        console.error("Error deleting user:", error);
-        res.status(500).json({
-            success: false,
-            data: null,
-            message: "Failed to delete user"
-        });
+    async deleteUser(req: Request, res: Response): Promise<void> {
+        const id = parseInt(req.params.id, 10);
+        if (isNaN(id)) {
+            res.status(400).json({ success: false, message: "Invalid user ID" });
+            return;
+        }
+        try {
+            await userService.deleteUser(id);
+            res.status(200).json({ success: true, message: "User deleted successfully" });
+        } catch (e) {
+            res.status(404).json({ success: false, message: "User not found" });
+        }
     }
 }
 
-export default {
-    getAllUsers,
-    getUserById,
-    createUser,
-    updateUser,
-    deleteUser,
-}
+export default new UsersController();

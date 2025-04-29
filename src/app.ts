@@ -1,10 +1,10 @@
-import authRouter from "@/routes/auth";
-import productRoutes from "@/routes/product";
-import userRoutes from "@/routes/user";
+import authRouter from "@/routes/auth.routes";
+import productRoutes from "@/routes/product.routes";
+import userRoutes from "@/routes/user.routes";
 import cors from "cors";
 import express from "express";
 import cookieParser from "cookie-parser";
-import statusRoutes from "@/routes/status";
+import statusRoutes from "@/routes/status.routes";
 import jsonErrorHandler from "@/middlewares/jsonErrorHandler";
 
 const app = express();

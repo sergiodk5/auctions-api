@@ -39,7 +39,7 @@
         "@types/supertest": "^6.0.3",
         "@typescript-eslint/eslint-plugin": "^8.31.0",
         "@typescript-eslint/parser": "^8.31.0",
-        "drizzle-kit": "^0.30.6",
+        "drizzle-kit": "^0.31.0",
         "eslint": "^9.25.1",
         "eslint-config-prettier": "^10.1.2",
         "eslint-plugin-jest": "^28.11.0",
@@ -68,6 +68,9 @@
         "lodash": "^4.17.21",
         "module-alias": "^2.2.3",
         "pg": "^8.14.1",
+        "rate-limiter-flexible": "^7.1.0",
+        "redis": "^4.7.0",
+        "uuid": "^11.1.0",
         "zod": "^3.24.3"
     },
     "_moduleAliases": {
