@@ -1,35 +1,30 @@
 import { Request, Response, NextFunction } from "express-serve-static-core";
-import { z, ZodError } from "zod";
+import { ZodObject, ZodRawShape } from "zod";
 import _ from "lodash";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/di/types";
+import { type IValidationService } from "@/services/validation.service";
 
-export function validateData(schema: z.ZodObject<any, any>) {
-    return (req: Request, res: Response, next: NextFunction) => {
-        try {
-            schema.parse(req.body);
-            const cleanBody = _.pick(req.body, Object.keys(schema.shape));
-            req.body.cleanBody = cleanBody;
-            next();
-        } catch (error) {
-            if (error instanceof ZodError) {
-                const errorMessages = error.errors.map((issue: any) => ({
-                    message: `${issue.path.join(".")} is ${issue.message}`,
-                }));
+export interface IValidationMiddleware {
+    validate<T extends ZodRawShape>(schema: ZodObject<T>): (req: Request, res: Response, next: NextFunction) => void;
+}
 
-                res.status(400).json({
-                    success: false,
-                    data: null,
-                    message: errorMessages,
-                });
+@injectable()
+export class ValidationMiddleware {
+    constructor(@inject(TYPES.IValidationService) private validator: IValidationService) {}
 
+    public validate<T extends ZodRawShape>(schema: ZodObject<T>) {
+        const parse = this.validator.validateSchema(schema);
+
+        return (req: Request, res: Response, next: NextFunction) => {
+            try {
+                const clean = parse(req.body);
+                (req as any).body.cleanBody = clean;
+                next();
+            } catch (err) {
+                this.validator.handleError(res, err);
                 return;
             }
-
-            console.error("Unexpected error during validation:", error);
-            res.status(500).json({
-                success: false,
-                data: null,
-                message: "Internal server error",
-            });
-        }
-    };
+        };
+    }
 }

@@ -1,14 +1,24 @@
 import { Request, Response } from "express-serve-static-core";
-import { UserService } from "@/services/user.service";
-import { UserRepository } from "@/repositories/UserRepository";
+import type { IUserService } from "@/services/user.service.ts";
 import { CreateUserDto, UpdateUserDto } from "@/types/user";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/di/types";
 
-const userService = new UserService(new UserRepository());
+export interface IUsersController {
+    getAllUsers(req: Request, res: Response): Promise<void>;
+    getUserById(req: Request, res: Response): Promise<void>;
+    createUser(req: Request, res: Response): Promise<void>;
+    updateUser(req: Request, res: Response): Promise<void>;
+    deleteUser(req: Request, res: Response): Promise<void>;
+}
 
-export class UsersController {
+@injectable()
+export default class UsersController implements IUsersController {
+    constructor(@inject(TYPES.IUserService) private readonly userService: IUserService) {}
+
     async getAllUsers(_req: Request, res: Response): Promise<void> {
         try {
-            const users = await userService.getAllUsers();
+            const users = await this.userService.getAllUsers();
             res.status(200).json({ success: true, data: users });
         } catch {
             res.status(500).json({ success: false, message: "Failed to fetch users" });
@@ -22,7 +32,7 @@ export class UsersController {
             return;
         }
         try {
-            const user = await userService.getUserById(id);
+            const user = await this.userService.getUserById(id);
             res.status(200).json({ success: true, data: user });
         } catch (e) {
             res.status(404).json({ success: false, message: "User not found" });
@@ -32,7 +42,7 @@ export class UsersController {
     async createUser(req: Request, res: Response): Promise<void> {
         const data = req.body.cleanBody as CreateUserDto;
         try {
-            const user = await userService.createUser(data);
+            const user = await this.userService.createUser(data);
             res.status(201).json({ success: true, data: user });
         } catch (e) {
             // @ts-expect-error: TypeScript doesn't know about the custom error
@@ -52,7 +62,7 @@ export class UsersController {
         }
         const data = req.body.cleanBody as UpdateUserDto;
         try {
-            const user = await userService.updateUser(id, data);
+            const user = await this.userService.updateUser(id, data);
             res.status(200).json({ success: true, data: user });
         } catch (e) {
             res.status(404).json({ success: false, message: "User not found" });
@@ -66,12 +76,10 @@ export class UsersController {
             return;
         }
         try {
-            await userService.deleteUser(id);
+            await this.userService.deleteUser(id);
             res.status(200).json({ success: true, message: "User deleted successfully" });
         } catch (e) {
             res.status(404).json({ success: false, message: "User not found" });
         }
     }
 }
-
-export default new UsersController();

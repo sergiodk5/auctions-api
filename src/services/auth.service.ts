@@ -1,16 +1,27 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import { IUserRepository } from "@/repositories/IUserRepository";
-import { ITokenRepository } from "@/repositories/ITokenRepository";
+import type { IUserRepository } from "@/repositories/UserRepository";
+import type { ITokenRepository } from "@/repositories/TokenRepository";
 import { CreateUserDto, User } from "@/types/user";
 import { AuthLoginDto, AuthTokensDto, JwtRefreshPayload } from "@/types/auth";
 import { comparePassword } from "@/utils/password";
 import { ACCESS_LIFETIME, REFRESH_IDLE_TTL, JWT_SECRET, JWT_REFRESH_SECRET } from "@/config/env";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/di/types";
 
-export class AuthService {
+export interface IAuthService {
+    register(data: CreateUserDto): Promise<User>;
+    login(email: string, password: string): Promise<AuthLoginDto>;
+    refresh(refreshToken: string): Promise<AuthTokensDto>;
+    revokeAccess(jti: string, ttl: number): Promise<void>;
+    logout(accessJti: string, accessExp: number, refreshToken: string): Promise<void>;
+}
+
+@injectable()
+export default class AuthService {
     constructor(
-        private userRepo: IUserRepository,
-        private tokenRepo: ITokenRepository,
+        @inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository,
+        @inject(TYPES.ITokenRepository) private readonly tokenRepo: ITokenRepository,
     ) {}
 
     async register(data: CreateUserDto): Promise<User> {

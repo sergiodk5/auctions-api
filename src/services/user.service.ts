@@ -1,8 +1,19 @@
-import { IUserRepository } from "@/repositories/IUserRepository";
+import { inject, injectable } from "inversify";
+import type { IUserRepository } from "@/repositories/UserRepository";
 import { CreateUserDto, UpdateUserDto, User } from "@/types/user";
+import { TYPES } from "@/di/types";
 
-export class UserService {
-    constructor(private userRepo: IUserRepository) {}
+export interface IUserService {
+    getAllUsers(): Promise<User[]>;
+    getUserById(id: number): Promise<User>;
+    createUser(data: CreateUserDto): Promise<User>;
+    updateUser(id: number, data: UpdateUserDto): Promise<User>;
+    deleteUser(id: number): Promise<void>;
+}
+
+@injectable()
+export default class UserService implements IUserService {
+    constructor(@inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository) {}
 
     async getAllUsers(): Promise<User[]> {
         return this.userRepo.findAll();

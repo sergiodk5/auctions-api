@@ -10,7 +10,10 @@
             "@/*": ["src/*"]
         },
         "isolatedModules": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "types": ["reflect-metadata"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist", "coverage", "drizzle.config.ts"],

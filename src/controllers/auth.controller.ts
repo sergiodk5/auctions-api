@@ -1,15 +1,24 @@
 import { Request, Response } from "express-serve-static-core";
 import jwt from "jsonwebtoken";
-import { AuthService } from "@/services/auth.service";
-import { UserRepository } from "@/repositories/UserRepository";
-import { TokenRepository } from "@/repositories/TokenRepository";
+import IAuthService from "@/services/auth.service";
+import { inject, injectable } from "inversify";
+import { TYPES } from "@/di/types";
 
-const authService = new AuthService(new UserRepository(), new TokenRepository());
+export interface IAuthController {
+    register(req: Request, res: Response): Promise<void>;
+    login(req: Request, res: Response): Promise<void>;
+    refresh(req: Request, res: Response): Promise<void>;
+    revoke(req: Request, res: Response): Promise<void>;
+    logout(req: Request, res: Response): Promise<void>;
+}
 
-export class AuthController {
+@injectable()
+export default class AuthController implements IAuthController {
+    constructor(@inject(TYPES.IAuthService) private readonly authService: IAuthService) {}
+
     async register(req: Request, res: Response) {
         try {
-            const user = await authService.register(req.body.cleanBody);
+            const user = await this.authService.register(req.body.cleanBody);
             res.status(201).json({ success: true, data: user });
         } catch (e) {
             res.status(409).json({ success: false, message: "Email already in use" });
@@ -18,7 +27,7 @@ export class AuthController {
 
     async login(req: Request, res: Response) {
         try {
-            const { user, accessToken, refreshToken } = await authService.login(
+            const { user, accessToken, refreshToken } = await this.authService.login(
                 req.body.cleanBody.email,
                 req.body.cleanBody.password,
             );
@@ -30,7 +39,7 @@ export class AuthController {
 
     async refresh(req: Request, res: Response) {
         try {
-            const { accessToken, refreshToken } = await authService.refresh(req.body.refreshToken);
+            const { accessToken, refreshToken } = await this.authService.refresh(req.body.refreshToken);
             res.json({ success: true, data: { accessToken, refreshToken } });
         } catch {
             res.status(403).json({ success: false, message: "Access denied" });
@@ -39,7 +48,7 @@ export class AuthController {
 
     async revoke(req: Request, res: Response) {
         const { jti } = (req as any).user;
-        await authService.revokeAccess(jti, 15 * 60);
+        await this.authService.revokeAccess(jti, 15 * 60);
         res.sendStatus(204);
     }
 
@@ -55,9 +64,7 @@ export class AuthController {
             return;
         }
         const { jti, exp } = jwt.decode(token) as any;
-        await authService.logout(jti, exp, req.body.refreshToken);
+        await this.authService.logout(jti, exp, req.body.refreshToken);
         res.sendStatus(204);
     }
 }
-
-export default new AuthController();

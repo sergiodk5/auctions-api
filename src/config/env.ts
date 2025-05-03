@@ -14,7 +14,9 @@ export const getEnv = (key: string, defaultValue: string): string => {
 
 export const SERVER_PORT = getEnv("PORT", "8090");
 export const DATABASE_URL = getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/postgres");
-export const REDIS_URL = getEnv("REDIS_URL", "cache://default:redispassword@localhost:6379");
+export const REDIS_HOST = getEnv("REDIS_HOST", "localhost");
+export const REDIS_PORT = getEnv("REDIS_PORT", "6379");
+export const REDIS_PASSWORD = getEnv("REDIS_PASSWORD", "redispassword");
 export const JWT_SECRET = getEnv("JWT_SECRET", "your_jwt_secret");
 export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET", "your_jwt_refresh_secret");
 export const ACCESS_LIFETIME = "15m";

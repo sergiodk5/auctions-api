@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import authRouter from "@/routes/auth.routes";
 import productRoutes from "@/routes/product.routes";
 import userRoutes from "@/routes/user.routes";

@@ -1,18 +1,31 @@
-import { db } from "@/config/database";
+import { inject, injectable } from "inversify";
 import { usersTable } from "@/db/usersSchema";
 import { eq } from "drizzle-orm";
-import { IUserRepository } from "./IUserRepository";
 import { CreateUserDto, User } from "@/types/user";
 import { hashPassword } from "@/utils/password";
+import { TYPES } from "@/di/types";
+import { type IDatabaseService } from "@/services/database.service";
 
-export class UserRepository implements IUserRepository {
+export interface IUserRepository {
+    findAll(): Promise<User[]>;
+    findById(id: number): Promise<User | undefined>;
+    findByEmail(email: string): Promise<User | undefined>;
+    create(data: CreateUserDto): Promise<User>;
+    update(id: number, data: Partial<CreateUserDto>): Promise<User | undefined>;
+    delete(id: number): Promise<boolean>;
+}
+
+@injectable()
+export default class UserRepository implements IUserRepository {
+    constructor(@inject(TYPES.IDatabaseService) private readonly databaseService: IDatabaseService) {}
+
     async findAll(): Promise<User[]> {
-        const users = await db.select().from(usersTable);
+        const users = await this.databaseService.db.select().from(usersTable);
         return users;
     }
 
     async findById(id: number): Promise<User | undefined> {
-        const [user] = await db
+        const [user] = await this.databaseService.db
             .select({ id: usersTable.id, email: usersTable.email })
             .from(usersTable)
             .where(eq(usersTable.id, id));
@@ -20,7 +33,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async findByEmail(email: string): Promise<User | undefined> {
-        const [user] = await db
+        const [user] = await this.databaseService.db
             .select({ id: usersTable.id, email: usersTable.email })
             .from(usersTable)
             .where(eq(usersTable.email, email));
@@ -29,7 +42,7 @@ export class UserRepository implements IUserRepository {
 
     async create(data: CreateUserDto): Promise<User> {
         const hashed = await hashPassword(data.password);
-        const [user] = await db
+        const [user] = await this.databaseService.db
             .insert(usersTable)
             .values({ email: data.email, password: hashed })
             .returning({ id: usersTable.id, email: usersTable.email });
@@ -37,7 +50,7 @@ export class UserRepository implements IUserRepository {
     }
 
     async update(id: number, data: Partial<CreateUserDto>): Promise<User | undefined> {
-        const [user] = await db
+        const [user] = await this.databaseService.db
             .update(usersTable)
             .set(data)
             .where(eq(usersTable.id, id))
@@ -46,7 +59,10 @@ export class UserRepository implements IUserRepository {
     }
 
     async delete(id: number): Promise<boolean> {
-        const result = await db.delete(usersTable).where(eq(usersTable.id, id)).returning({ id: usersTable.id });
+        const result = await this.databaseService.db
+            .delete(usersTable)
+            .where(eq(usersTable.id, id))
+            .returning({ id: usersTable.id });
 
         return !!result;
     }

@@ -1,5 +1,5 @@
-import { UserService } from "@/services/user.service";
-import { IUserRepository } from "@/repositories/IUserRepository";
+import UserService from "@/services/user.service";
+import { IUserRepository } from "@/repositories/UserRepository";
 import { CreateUserDto, UpdateUserDto, User } from "@/types/user";
 
 describe("UserService Unit Tests", () => {
