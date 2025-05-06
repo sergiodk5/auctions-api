@@ -2,9 +2,10 @@ jest.mock("jsonwebtoken", () => ({
     verify: jest.fn(),
 }));
 
-import "reflect-metadata";
+import { JWT_SECRET } from "@/config/env";
 import AuthGuardMiddleware from "@/middlewares/auth.guard";
 import jwt from "jsonwebtoken";
+import "reflect-metadata";
 
 describe("AuthGuardMiddleware", () => {
     let tokenRepo: { isAccessTokenRevoked: jest.Mock };
@@ -56,7 +57,7 @@ describe("AuthGuardMiddleware", () => {
 
         await middleware.handle(req, res, next);
 
-        expect(jwt.verify).toHaveBeenCalledWith("badtoken", process.env.JWT_SECRET);
+        expect(jwt.verify).toHaveBeenCalledWith("badtoken", JWT_SECRET);
         expect(console.error).toHaveBeenCalledWith("Token verification error:", expect.any(Error));
         expect(res.status).toHaveBeenCalledWith(403);
         expect(next).not.toHaveBeenCalled();
