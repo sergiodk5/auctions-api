@@ -1,5 +1,6 @@
-import { pgTable, integer, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import z from "zod";
 
 export const usersTable = pgTable("users", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -15,3 +16,14 @@ export const loginSchema = createInsertSchema(usersTable)
         password: true,
     })
     .strict();
+
+// Forgot-password payload
+export const forgotPasswordSchema = z.object({
+    email: z.string().email(),
+});
+
+// Reset-password payload
+export const resetPasswordSchema = z.object({
+    token: z.string(),
+    password: z.string().min(8),
+});

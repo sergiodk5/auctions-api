@@ -2,7 +2,7 @@ version: "3"
 
 services:
   psql:
-    image: postgres:latest
+    image: postgres:15-alpine
     container_name: postgres
     restart: always
     environment:
@@ -15,7 +15,7 @@ services:
       - psql:/var/lib/postgresql/data
 
   cache:
-    image: redis:latest
+    image: redis:7-alpine
     container_name: redis
     restart: always
     ports:
@@ -32,6 +32,14 @@ services:
       - "8080:8080"
     depends_on:
       - psql
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: mailhog
+    restart: always
+    ports:
+      - "1025:1025"
+      - "8025:8025"
 
 volumes:
   psql:

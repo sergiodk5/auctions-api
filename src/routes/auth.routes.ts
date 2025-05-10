@@ -1,10 +1,10 @@
-import { createUserSchema, loginSchema } from "@/db/usersSchema";
-import { Router } from "express";
-import container from "@/di/container";
 import { IAuthController } from "@/controllers/auth.controller";
+import { createUserSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema } from "@/db/usersSchema";
+import container from "@/di/container";
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
 import { IValidationMiddleware } from "@/middlewares/ValidationMiddleware";
+import { Router } from "express";
 
 const authGuardMiddleware = container.get<IMiddleware>(TYPES.IAuthGuardMiddleware);
 const refreshRateLimiter = container.get<IMiddleware>(TYPES.IRefreshRateLimiter);
@@ -39,6 +39,17 @@ authRouter.post(
     "/logout",
     authGuardMiddleware.handle.bind(authGuardMiddleware),
     authController.logout.bind(authController),
+);
+
+authRouter.post(
+    "/forgot-password",
+    validationMiddleware.validate(forgotPasswordSchema),
+    authController.forgotPassword.bind(authController),
+);
+authRouter.post(
+    "/reset-password",
+    validationMiddleware.validate(resetPasswordSchema),
+    authController.resetPassword.bind(authController),
 );
 
 export default authRouter;

@@ -18,7 +18,22 @@ export const REDIS_HOST = getEnv("REDIS_HOST", "localhost");
 export const REDIS_PORT = getEnv("REDIS_PORT", "6379");
 export const REDIS_PASSWORD = getEnv("REDIS_PASSWORD", "redispassword");
 export const JWT_SECRET = getEnv("JWT_SECRET", "your_jwt_secret");
-export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET", "your_jwt_refresh_secret");
+export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET", "    ");
 export const ACCESS_LIFETIME = "15m";
 export const REFRESH_IDLE_TTL = 7 * 24 * 3600; // seconds
 export const REFRESH_ABSOLUTE_TTL = 30 * 24 * 3600; // seconds
+
+export const SMTP_HOST = getEnv("SMTP_HOST", "mailhog");
+export const SMTP_PORT = getEnv("SMTP_PORT", "1025");
+export const SMTP_SECURE = getEnv("SMTP_SECURE", "false") === "true";
+export const SMTP_USER = getEnv("SMTP_USER", "user");
+export const SMTP_PASS = getEnv("SMTP_PASS", "password");
+
+export const MAILER_PROVIDER = getEnv("MAILER_PROVIDER", "sendgrid");
+export const SENDGRID_API_KEY = getEnv("SENDGRID_API_KEY", "your-sendgrid-api-key");
+
+export const JWT_RESET_SECRET = getEnv("JWT_RESET_SECRET", "your_jwt_reset_secret");
+export const RESET_PASSWORD_TTL = 3600;
+export const FRONTEND_URL = getEnv("FRONTEND_URL", "http://localhost:3000");
+
+export const NODE_ENV = getEnv("NODE_ENV", "development");

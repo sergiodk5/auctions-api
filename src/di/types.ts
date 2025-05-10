@@ -9,6 +9,8 @@ const TYPES = {
     IUserService: Symbol.for("IUserService"),
     IAuthService: Symbol.for("IAuthService"),
 
+    IMailerService: Symbol.for("IMailerService"),
+
     IUsersController: Symbol.for("IUsersController"),
     IAuthController: Symbol.for("IAuthController"),
 
