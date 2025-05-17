@@ -1,5 +1,5 @@
-import { pgTable, uuid, timestamp, integer } from "drizzle-orm/pg-core";
-import { usersTable } from "@/db/usersSchema";
+import { usersTable } from "@/db/users.schema";
+import { integer, pgTable, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const refreshFamiliesTable = pgTable("refresh_families", {
     familyId: uuid("family_id").primaryKey().defaultRandom(),

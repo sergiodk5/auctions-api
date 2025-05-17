@@ -8,13 +8,13 @@ import {
     RESET_PASSWORD_TTL,
 } from "@/config/env";
 import { TYPES } from "@/di/types";
-import type { ITokenRepository } from "@/repositories/TokenRepository";
-import type { IUserRepository } from "@/repositories/UserRepository";
+import type { ITokenRepository } from "@/repositories/token.repository";
+import type { IUserRepository } from "@/repositories/user.repository";
 import { type ICacheService } from "@/services/cache.service";
 import { type IMailer } from "@/services/IMailer";
 import { AuthLoginDto, AuthTokensDto, JwtRefreshPayload } from "@/types/auth";
 import { CreateUserDto, User } from "@/types/user";
-import { comparePassword, hashPassword } from "@/utils/password";
+import { comparePassword, hashPassword } from "@/utils/password.util";
 import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";

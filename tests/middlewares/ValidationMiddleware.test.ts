@@ -1,6 +1,6 @@
+import { ValidationMiddleware } from "@/middlewares/validation.middleware";
 import "reflect-metadata";
 import { z, ZodObject } from "zod";
-import { ValidationMiddleware } from "@/middlewares/ValidationMiddleware";
 
 describe("ValidationMiddleware", () => {
     let mockValidator: {

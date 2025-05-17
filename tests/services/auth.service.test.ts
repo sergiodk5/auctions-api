@@ -1,11 +1,11 @@
-import "reflect-metadata";
+import { ACCESS_LIFETIME, JWT_REFRESH_SECRET, JWT_SECRET, REFRESH_IDLE_TTL } from "@/config/env";
+import { ITokenRepository } from "@/repositories/token.repository";
+import { IUserRepository } from "@/repositories/user.repository";
 import AuthService from "@/services/auth.service";
-import { IUserRepository } from "@/repositories/UserRepository";
-import { ITokenRepository } from "@/repositories/TokenRepository";
-import * as passwordUtils from "@/utils/password";
+import * as passwordUtils from "@/utils/password.util";
 import jwt from "jsonwebtoken";
+import "reflect-metadata";
 import { v4 as uuidv4 } from "uuid";
-import { ACCESS_LIFETIME, REFRESH_IDLE_TTL, JWT_SECRET, JWT_REFRESH_SECRET } from "@/config/env";
 
 jest.mock("jsonwebtoken");
 jest.mock("uuid");

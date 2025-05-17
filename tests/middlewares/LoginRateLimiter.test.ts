@@ -10,7 +10,7 @@ jest.mock("rate-limiter-flexible", () => ({
     })),
 }));
 
-import LoginRateLimiter from "@/middlewares/LoginRateLimiter";
+import LoginRateLimiter from "@/middlewares/login-rate-limiter";
 
 describe("LoginRateLimiter", () => {
     let middleware: LoginRateLimiter;

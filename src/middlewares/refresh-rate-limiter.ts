@@ -1,7 +1,7 @@
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
 import { type ICacheService } from "@/services/cache.service";
-import { Request, Response, NextFunction } from "express-serve-static-core";
+import { NextFunction, Request, Response } from "express-serve-static-core";
 import { inject, injectable } from "inversify";
 import { RateLimiterRedis } from "rate-limiter-flexible";
 
@@ -11,7 +11,7 @@ export default class RefreshRateLimiter implements IMiddleware {
 
     constructor(@inject(TYPES.ICacheService) private readonly cacheService: ICacheService) {
         this.limiter = new RateLimiterRedis({
-            storeClient: cacheService.client,
+            storeClient: this.cacheService.client,
             keyPrefix: "rl_refresh",
             points: 20,
             duration: 60,

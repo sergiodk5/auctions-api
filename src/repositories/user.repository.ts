@@ -1,10 +1,10 @@
-import { inject, injectable } from "inversify";
-import { usersTable } from "@/db/usersSchema";
-import { eq } from "drizzle-orm";
-import { CreateUserDto, User } from "@/types/user";
-import { hashPassword } from "@/utils/password";
+import { usersTable } from "@/db/users.schema";
 import { TYPES } from "@/di/types";
 import { type IDatabaseService } from "@/services/database.service";
+import { CreateUserDto, User } from "@/types/user";
+import { hashPassword } from "@/utils/password.util";
+import { eq } from "drizzle-orm";
+import { inject, injectable } from "inversify";
 
 export interface IUserRepository {
     findAll(): Promise<User[]>;

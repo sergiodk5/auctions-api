@@ -1,7 +1,7 @@
-import { inject, injectable } from "inversify";
-import type { IUserRepository } from "@/repositories/UserRepository";
-import { CreateUserDto, UpdateUserDto, User } from "@/types/user";
 import { TYPES } from "@/di/types";
+import type { IUserRepository } from "@/repositories/user.repository";
+import { CreateUserDto, UpdateUserDto, User } from "@/types/user";
+import { inject, injectable } from "inversify";
 
 export interface IUserService {
     getAllUsers(): Promise<User[]>;

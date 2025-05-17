@@ -1,6 +1,5 @@
+import jsonErrorHandler from "@/middlewares/json-error-handler";
 import "reflect-metadata";
-import jsonErrorHandler from "@/middlewares/jsonErrorHandler";
-import { ErrorRequestHandler } from "express-serve-static-core";
 
 describe("jsonErrorHandler", () => {
     let req: any;

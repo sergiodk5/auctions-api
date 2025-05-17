@@ -5,7 +5,7 @@ dotenv.config({ path: ".env" });
 
 export default defineConfig({
     out: "./migrations",
-    schema: ["./src/db/usersSchema.ts", "./src/db/tokensSchema.ts"],
+    schema: ["./src/db/users.schema.ts", "./src/db/tokens.schema.ts"],
     dialect: "postgresql",
     dbCredentials: {
         url: process.env.DATABASE_URL!,

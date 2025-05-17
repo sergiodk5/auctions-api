@@ -1,7 +1,7 @@
-import "reflect-metadata";
+import { IUserRepository } from "@/repositories/user.repository";
 import UserService from "@/services/user.service";
-import { IUserRepository } from "@/repositories/UserRepository";
 import { CreateUserDto, UpdateUserDto, User } from "@/types/user";
+import "reflect-metadata";
 
 describe("UserService", () => {
     let mockRepo: jest.Mocked<IUserRepository>;

@@ -4,11 +4,11 @@ import UsersController, { IUsersController } from "@/controllers/users.controlle
 import { TYPES } from "@/di/types";
 import AuthGuardMiddleware from "@/middlewares/auth.guard";
 import IMiddleware from "@/middlewares/IMiddleware";
-import LoginRateLimiter from "@/middlewares/LoginRateLimiter";
-import RefreshRateLimiter from "@/middlewares/RefreshRateLimiter";
-import { IValidationMiddleware, ValidationMiddleware } from "@/middlewares/ValidationMiddleware";
-import TokenRepository, { ITokenRepository } from "@/repositories/TokenRepository";
-import UserRepository, { IUserRepository } from "@/repositories/UserRepository";
+import LoginRateLimiter from "@/middlewares/login-rate-limiter";
+import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
+import { IValidationMiddleware, ValidationMiddleware } from "@/middlewares/validation.middleware";
+import TokenRepository, { ITokenRepository } from "@/repositories/token.repository";
+import UserRepository, { IUserRepository } from "@/repositories/user.repository";
 import AuthService, { IAuthService } from "@/services/auth.service";
 import CacheService, { ICacheService } from "@/services/cache.service";
 import DatabaseService, { IDatabaseService } from "@/services/database.service";

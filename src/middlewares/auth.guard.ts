@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express-serve-static-core";
-import jwt from "jsonwebtoken";
-import { JwtAccessPayload } from "@/types/auth";
 import { JWT_SECRET } from "@/config/env";
-import IMiddleware from "@/middlewares/IMiddleware";
 import { TYPES } from "@/di/types";
+import IMiddleware from "@/middlewares/IMiddleware";
+import { type ITokenRepository } from "@/repositories/token.repository";
+import { JwtAccessPayload } from "@/types/auth";
+import { NextFunction, Request, Response } from "express-serve-static-core";
 import { inject, injectable } from "inversify";
-import { type ITokenRepository } from "@/repositories/TokenRepository";
+import jwt from "jsonwebtoken";
 
 @injectable()
 export default class AuthGuardMiddleware implements IMiddleware {

@@ -1,8 +1,8 @@
+import { REFRESH_ABSOLUTE_TTL, REFRESH_IDLE_TTL } from "@/config/env";
+import { refreshFamiliesTable, refreshTokensTable } from "@/db/tokens.schema";
+import TokenRepository, { ITokenRepository } from "@/repositories/token.repository";
+import { and, eq, isNull } from "drizzle-orm";
 import "reflect-metadata";
-import TokenRepository, { ITokenRepository } from "@/repositories/TokenRepository";
-import { refreshFamiliesTable, refreshTokensTable } from "@/db/tokensSchema";
-import { eq, and, isNull } from "drizzle-orm";
-import { REFRESH_IDLE_TTL, REFRESH_ABSOLUTE_TTL } from "@/config/env";
 
 describe("TokenRepository", () => {
     let mockDb: any;

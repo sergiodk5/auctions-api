@@ -1,5 +1,5 @@
 import { inject, injectable } from "inversify";
-import { refreshFamiliesTable, refreshTokensTable } from "@/db/tokensSchema";
+import { refreshFamiliesTable, refreshTokensTable } from "@/db/tokens.schema";
 import { eq, isNull, and } from "drizzle-orm";
 import { REFRESH_IDLE_TTL, REFRESH_ABSOLUTE_TTL } from "@/config/env";
 import { TYPES } from "@/di/types";

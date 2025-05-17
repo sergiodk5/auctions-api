@@ -1,12 +1,12 @@
-import "reflect-metadata";
-import authRouter from "@/routes/auth.routes";
-import productRoutes from "@/routes/product.routes";
-import userRoutes from "@/routes/user.routes";
+import jsonErrorHandler from "@/middlewares/json-error-handler";
+import authRoute from "@/routes/auth.route";
+import productRoute from "@/routes/product.route";
+import statusRoute from "@/routes/status.route";
+import userRoute from "@/routes/user.route";
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import cookieParser from "cookie-parser";
-import statusRoutes from "@/routes/status.routes";
-import jsonErrorHandler from "@/middlewares/jsonErrorHandler";
+import "reflect-metadata";
 
 const app = express();
 
@@ -15,10 +15,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cors({ credentials: true }));
 app.use(cookieParser());
 
-app.use("/status", statusRoutes);
-app.use("/auth", authRouter);
-app.use("/products", productRoutes);
-app.use("/users", userRoutes);
+app.use("/status", statusRoute);
+app.use("/auth", authRoute);
+app.use("/products", productRoute);
+app.use("/users", userRoute);
 
 app.use(jsonErrorHandler);
 

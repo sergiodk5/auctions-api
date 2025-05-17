@@ -10,7 +10,7 @@ jest.mock("rate-limiter-flexible", () => ({
     })),
 }));
 
-import RefreshRateLimiter from "@/middlewares/RefreshRateLimiter";
+import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
 
 describe("RefreshRateLimiter", () => {
     let middleware: RefreshRateLimiter;
