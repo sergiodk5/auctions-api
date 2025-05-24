@@ -79,8 +79,15 @@ jobs:
           FRONTEND_URL: http://localhost:3000
           MAILER_FROM_DOMAIN: test.com
 
-      - name: Run tests
-        run: npm run test
+      - name: Verify services are running
+        run: |
+          # Test PostgreSQL connection
+          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres_test -c "SELECT version();"
+          # Test Redis connection
+          redis-cli -h localhost -p 6379 ping
+
+      - name: Run tests with coverage
+        run: npm run test:ci
         env:
           NODE_ENV: test
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
@@ -100,6 +107,12 @@ jobs:
           SENDGRID_API_KEY: test_api_key
           FRONTEND_URL: http://localhost:3000
           MAILER_FROM_DOMAIN: test.com
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: false
 
       - name: Run TypeScript type checking
         run: npm run type-check
