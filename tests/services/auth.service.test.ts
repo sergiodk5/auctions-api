@@ -3,7 +3,7 @@ import { ITokenRepository } from "@/repositories/token.repository";
 import { IUserRepository } from "@/repositories/user.repository";
 import AuthService from "@/services/auth.service";
 import { ICacheService } from "@/services/cache.service";
-import { IMailer } from "@/services/IMailer";
+import { IMailerService } from "@/services/IMailerService";
 import * as passwordUtils from "@/utils/password.util";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
@@ -17,7 +17,7 @@ describe("AuthService", () => {
     let userRepo: jest.Mocked<IUserRepository>;
     let tokenRepo: jest.Mocked<ITokenRepository>;
     let cacheSvc: jest.Mocked<ICacheService>;
-    let mailer: jest.Mocked<IMailer>;
+    let mailer: jest.Mocked<IMailerService>;
     let svc: AuthService;
 
     beforeEach(() => {

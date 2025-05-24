@@ -11,7 +11,7 @@ import { TYPES } from "@/di/types";
 import type { ITokenRepository } from "@/repositories/token.repository";
 import type { IUserRepository } from "@/repositories/user.repository";
 import { type ICacheService } from "@/services/cache.service";
-import { type IMailer } from "@/services/IMailer";
+import { type IMailerService } from "@/services/IMailerService";
 import { AuthLoginDto, AuthTokensDto, JwtRefreshPayload } from "@/types/auth";
 import { CreateUserDto, User } from "@/types/user";
 import { comparePassword, hashPassword } from "@/utils/password.util";
@@ -33,7 +33,7 @@ export default class AuthService {
         @inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository,
         @inject(TYPES.ITokenRepository) private readonly tokenRepo: ITokenRepository,
         @inject(TYPES.ICacheService) private cacheSvc: ICacheService,
-        @inject(TYPES.IMailerService) private mailer: IMailer,
+        @inject(TYPES.IMailerService) private mailer: IMailerService,
     ) {}
 
     public async register(data: CreateUserDto): Promise<User> {
