@@ -109,98 +109,70 @@ Integration testing will be handled by a separate system with:
 - End-to-end testing workflows
 - Performance and load testing
 - Security testing
-    - Test Redis connectivity
 
-4. **Testing**
+## Workflow Configuration
 
-    - Run comprehensive test suite with coverage
-    - Upload coverage reports to Codecov
-
-5. **Code Quality**
-    - TypeScript type checking
-    - ESLint linting
-    - Prettier formatting checks
-
-## Environment Variables
-
-The CI environment uses the following test configuration:
+The GitHub Actions workflow (`.github/workflows/ci.yml`) is configured with:
 
 ```yaml
-NODE_ENV: test
-DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-REDIS_HOST: localhost
-REDIS_PORT: 6379
-REDIS_PASSWORD: ""
-JWT_SECRET: test_jwt_secret
-JWT_REFRESH_SECRET: test_jwt_refresh_secret
-JWT_RESET_SECRET: test_jwt_reset_secret
-SMTP_HOST: localhost
-SMTP_PORT: 1025
-SMTP_SECURE: false
-SMTP_USER: test
-SMTP_PASS: test
-MAILER_PROVIDER: sendgrid
-SENDGRID_API_KEY: test_api_key
-FRONTEND_URL: http://localhost:3000
-MAILER_FROM_DOMAIN: test.com
+name: CI
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+
+jobs:
+    unit-tests:
+        runs-on: ubuntu-latest
+        steps:
+            - Checkout code
+            - Setup Node.js
+            - Install dependencies
+            - Run quality checks (TypeScript, ESLint, Prettier)
+            - Run unit tests with coverage
+            - Upload coverage reports
 ```
 
-## Test Scripts
+## Available Test Scripts
 
-The project includes specialized test scripts for CI:
+The project includes these test scripts:
 
-- `npm run test` - Run all tests
-- `npm run test:ci` - CI-optimized test run with coverage and forced exit
+- `npm test` - Run all tests (unit + integration)
 - `npm run test:unit` - Run only unit tests
-- `npm run test:integration` - Run only integration tests
+- `npm run test:integration` - Run only integration tests (requires database)
 - `npm run test:coverage` - Run tests with coverage report
-
-## Local Testing
-
-To test the CI setup locally, you can use the provided script:
-
-```bash
-./scripts/test-ci-setup.sh
-```
-
-This script validates:
-
-- PostgreSQL connectivity
-- Redis connectivity
-- Database migrations
-- Test execution
+- `npm run test:watch` - Run tests in watch mode
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Hanging Processes**
+1. **Test Failures**
 
-    - Integration tests include proper cleanup with `afterAll` hooks
-    - Database connections are properly closed
-    - Use `--forceExit` flag in CI environment
+    - Check that all mocks are properly configured
+    - Ensure test isolation (no shared state between tests)
+    - Verify TypeScript compilation passes
 
-2. **Service Health Checks**
-
-    - Services include comprehensive health checks
-    - Health checks run every 10 seconds with 5 retries
-    - Pipeline waits for services to be healthy before proceeding
-
-3. **Database Connection Issues**
-    - Test database is created separately from the default database
-    - Connection strings use explicit test database names
-    - PostgreSQL client tools are installed in the CI environment
+2. **Coverage Issues**
+    - Coverage reports are generated in the `coverage/` directory
+    - Codecov uploads may fail without affecting the build
+    - Check Jest configuration for coverage thresholds
 
 ### Monitoring
 
 - Check GitHub Actions tab for pipeline status
-- Coverage reports are available in Codecov (when configured)
-- Failed steps include detailed logs for debugging
+- Coverage reports are available in Codecov
+- All quality checks must pass for the pipeline to succeed
 
-## Security Considerations
+## Migration from Complex CI
 
-- Test environment uses non-production secrets
-- Database credentials are isolated to the CI environment
-- Redis runs without authentication in test mode
-- SMTP settings point to localhost for testing
+This simplified approach replaces the previous complex CI that included:
+
+- PostgreSQL and Redis services
+- Database migrations and setup
+- Integration testing in CI
+- Multiple environment variables and service configurations
+
+The new approach focuses on fast feedback and reliability while moving integration testing to dedicated infrastructure.
