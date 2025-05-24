@@ -13,14 +13,19 @@ const usersController = container.get<IUsersController>(TYPES.IUsersController);
 const userRoute = express.Router();
 
 userRoute.use(authGuardMiddleware.handle.bind(authGuardMiddleware));
+
 userRoute.get("/", usersController.getAllUsers.bind(usersController));
+
 userRoute.post("/", validationMiddleware.validate(createUserSchema), usersController.createUser.bind(usersController));
+
 userRoute.get("/:id", usersController.getUserById.bind(usersController));
+
 userRoute.put(
     "/:id",
     validationMiddleware.validate(updateUserSchema),
     usersController.updateUser.bind(usersController),
 );
+
 userRoute.delete("/:id", usersController.deleteUser.bind(usersController));
 
 export default userRoute;

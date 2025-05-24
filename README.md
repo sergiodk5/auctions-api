@@ -12,6 +12,29 @@ A robust, TypeScript-based REST API for auction management with comprehensive au
 - **Quality Assurance:** Comprehensive test suite with 139 tests covering unit and integration scenarios
 - **Type Safety:** Full TypeScript implementation with strict type checking
 - **Database Integration:** PostgreSQL with Drizzle ORM for type-safe database operations
+- **API Documentation:** Interactive OpenAPI 3.0 documentation with Swagger UI
+
+## 📚 API Documentation
+
+This project includes comprehensive **OpenAPI 3.0** documentation with **Swagger UI** for interactive API exploration and testing.
+
+### Accessing the Documentation
+
+Once your server is running, access the interactive API documentation at:
+
+```
+http://localhost:8090/api-docs
+```
+
+### Features
+
+- 🔍 **Interactive Testing** - Test all endpoints directly from the browser
+- 🔐 **Authentication Support** - Built-in JWT token authentication for protected endpoints
+- 📋 **Complete Schemas** - Detailed request/response models and validation rules
+- 🏷️ **Organized by Tags** - Endpoints grouped by functionality (Auth, Users, Products, System)
+- 📖 **Comprehensive Examples** - Sample requests and responses for all endpoints
+
+For detailed information about using the API documentation, see [`docs/openapi.md`](docs/openapi.md).
 
 ## Tech Stack
 
@@ -98,24 +121,48 @@ A robust, TypeScript-based REST API for auction management with comprehensive au
     ```
 
 - **Type Checking:**
+
     ```bash
     npm run type-check
     ```
 
+- **View API Documentation:**
+    ```bash
+    # Start the server and visit http://localhost:8090/api-docs
+    npm run dev
+    ```
+
 ## API Endpoints
+
+> 💡 **Complete documentation available at** [`http://localhost:8090/api-docs`](http://localhost:8090/api-docs) when server is running.
 
 ### Authentication
 
 - `POST /auth/register` - Register a new user
 - `POST /auth/login` - User login
 - `POST /auth/refresh` - Refresh JWT token
+- `POST /auth/revoke` - Revoke refresh token
+- `POST /auth/logout` - User logout
 - `POST /auth/verify-email` - Verify email address with token
 - `POST /auth/resend-verification` - Resend email verification
+- `POST /auth/forgot-password` - Request password reset
+- `POST /auth/reset-password` - Reset password with token
 
-### Users
+### Users (🔒 Requires Authentication)
 
-- `GET /users/profile` - Get user profile (authenticated)
-- `PUT /users/profile` - Update user profile (authenticated)
+- `GET /users` - Get all users
+- `POST /users` - Create new user
+- `GET /users/{id}` - Get user by ID
+- `PUT /users/{id}` - Update user
+- `DELETE /users/{id}` - Delete user
+
+### Products
+
+- `GET /products` - Get all products
+- `POST /products` - Create new product
+- `GET /products/{id}` - Get product by ID
+- `PUT /products/{id}` - Update product
+- `DELETE /products/{id}` - Delete product
 
 ### System
 
