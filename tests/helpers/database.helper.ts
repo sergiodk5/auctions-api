@@ -26,6 +26,10 @@ export const cleanupTestDatabase = async () => {
 export const closeTestDatabase = async () => {
     if (pool) {
         await pool.end();
+        pool = null as any;
+    }
+    if (db) {
+        db = null as any;
     }
 };
 

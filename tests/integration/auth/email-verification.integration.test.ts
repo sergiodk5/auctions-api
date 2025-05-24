@@ -31,7 +31,7 @@ describe("Email Verification Integration Tests", () => {
     });
 
     afterAll(async () => {
-        // Close database connection
+        // Close database connection to prevent hanging processes
         await closeTestDatabase();
     });
 
