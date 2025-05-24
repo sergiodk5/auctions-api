@@ -37,3 +37,8 @@ export const RESET_PASSWORD_TTL = 3600;
 export const FRONTEND_URL = getEnv("FRONTEND_URL", "http://localhost:3000");
 
 export const NODE_ENV = getEnv("NODE_ENV", "development");
+export const MAILER_FROM_DOMAIN = getEnv("MAILER_FROM_DOMAIN", "localhost");
+export const TEST_DATABASE_URL = getEnv(
+    "TEST_DATABASE_URL",
+    "postgres://postgres:postgres@localhost:5432/postgres_test",
+);

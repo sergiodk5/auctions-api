@@ -1,8 +1,8 @@
+import "reflect-metadata";
 import { usersTable } from "@/db/users.schema";
 import UserRepository, { IUserRepository } from "@/repositories/user.repository";
 import * as passwordUtils from "@/utils/password.util";
 import { eq } from "drizzle-orm";
-import "reflect-metadata";
 
 describe("UserRepository", () => {
     let mockDb: any;

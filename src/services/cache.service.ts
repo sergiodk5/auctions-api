@@ -1,6 +1,6 @@
+import { NODE_ENV, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config/env";
 import { injectable } from "inversify";
 import { createClient, RedisClientType } from "redis";
-import { REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config/env";
 
 export interface ICacheService {
     client: RedisClientType;
@@ -11,7 +11,7 @@ export default class CacheService implements ICacheService {
     public readonly client: RedisClientType;
 
     constructor() {
-        if (process.env.NODE_ENV === "test") {
+        if (NODE_ENV === "test") {
             // stub for tests
             this.client = {} as RedisClientType;
         } else {

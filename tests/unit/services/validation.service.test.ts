@@ -1,5 +1,5 @@
-import ValidationService from "@/services/validation.service";
 import "reflect-metadata";
+import ValidationService from "@/services/validation.service";
 import { z, ZodError } from "zod";
 
 describe("ValidationService", () => {

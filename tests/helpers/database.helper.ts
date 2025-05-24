@@ -1,13 +1,13 @@
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { TEST_DATABASE_URL } from "../../src/config/env";
 
 let pool: Pool;
 let db: ReturnType<typeof drizzle>;
 
 export const setupTestDatabase = () => {
-    const connectionString =
-        process.env.TEST_DATABASE_URL ?? "postgres://postgres:postgres@localhost:5432/postgres_test";
+    const connectionString = TEST_DATABASE_URL;
     pool = new Pool({ connectionString });
     db = drizzle(pool);
     return db;

@@ -1,3 +1,4 @@
+import { MAILER_FROM_DOMAIN } from "@/config/env";
 import { TYPES } from "@/di/types";
 import { IMailerService } from "@/services/IMailerService";
 import { inject, injectable } from "inversify";
@@ -12,7 +13,7 @@ export class MailerService implements IMailerService {
 
     public async sendWelcomeEmail(to: string, verificationLink: string): Promise<void> {
         await this.transporter.sendMail({
-            from: `"Welcome to Auctions Platform" <no-reply@${process.env.MAILER_FROM_DOMAIN}>`,
+            from: `"Welcome to Auctions Platform" <no-reply@${MAILER_FROM_DOMAIN}>`,
             to,
             subject: "Welcome! Please verify your email address",
             text: `Welcome to our auctions platform! Please verify your email address by visiting: ${verificationLink}`,
@@ -37,7 +38,7 @@ export class MailerService implements IMailerService {
     public async sendPasswordReset(to: string, resetLink: string): Promise<void> {
         // TODO: get the mailer domain from config instead.
         await this.transporter.sendMail({
-            from: `"No Reply" <no-reply@${process.env.MAILER_FROM_DOMAIN}>`,
+            from: `"No Reply" <no-reply@${MAILER_FROM_DOMAIN}>`,
             to,
             subject: "Password Reset Request",
             text: `Reset your password by visiting: ${resetLink}`,

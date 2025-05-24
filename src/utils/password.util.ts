@@ -1,3 +1,4 @@
+import { NODE_ENV } from "@/config/env";
 import bcrypt from "bcryptjs";
 
 export async function hashPassword(password: string): Promise<string> {
@@ -7,7 +8,7 @@ export async function hashPassword(password: string): Promise<string> {
 
         return hashedPassword;
     } catch (error) {
-        if (process.env.NODE_ENV !== "test") {
+        if (NODE_ENV !== "test") {
             console.error("Error hashing password:", error);
         }
         throw new Error("Failed to hash password");

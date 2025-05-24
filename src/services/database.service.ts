@@ -1,4 +1,4 @@
-import { DATABASE_URL } from "@/config/env";
+import { DATABASE_URL, NODE_ENV, TEST_DATABASE_URL } from "@/config/env";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { injectable } from "inversify";
 import { Pool } from "pg";
@@ -14,10 +14,9 @@ export default class DatabaseService implements IDatabaseService {
     constructor() {
         let connectionString: string;
 
-        if (process.env.NODE_ENV === "test") {
+        if (NODE_ENV === "test") {
             // Use a test database for integration tests
-            connectionString =
-                process.env.TEST_DATABASE_URL ?? "postgres://postgres:postgres@localhost:5432/postgres_test";
+            connectionString = TEST_DATABASE_URL;
         } else {
             connectionString = DATABASE_URL;
         }
@@ -27,7 +26,7 @@ export default class DatabaseService implements IDatabaseService {
             console.error("PostgreSQL Pool Error", err);
         });
 
-        if (process.env.NODE_ENV !== "test") {
+        if (NODE_ENV !== "test") {
             pool.connect().catch((err: unknown) => {
                 console.error("PostgreSQL Pool Connection Error", err);
             });

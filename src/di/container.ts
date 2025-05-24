@@ -1,4 +1,13 @@
-import { SENDGRID_API_KEY, SMTP_HOST, SMTP_PASS, SMTP_PORT, SMTP_SECURE, SMTP_USER } from "@/config/env";
+import {
+    MAILER_PROVIDER,
+    NODE_ENV,
+    SENDGRID_API_KEY,
+    SMTP_HOST,
+    SMTP_PASS,
+    SMTP_PORT,
+    SMTP_SECURE,
+    SMTP_USER,
+} from "@/config/env";
 import AuthController, { IAuthController } from "@/controllers/auth.controller";
 import UsersController, { IUsersController } from "@/controllers/users.controller";
 import { TYPES } from "@/di/types";
@@ -29,7 +38,7 @@ const container = new Container({ defaultScope: "Singleton" });
 container
     .bind<import("nodemailer").Transporter>(TYPES.MailerTransporter)
     .toDynamicValue(() => {
-        if (process.env.NODE_ENV === "production" && process.env.MAILER_PROVIDER === "sendgrid") {
+        if (NODE_ENV === "production" && MAILER_PROVIDER === "sendgrid") {
             // SendGrid via API
             return nodemailer.createTransport(
                 nodemailerSendgrid({

@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import jsonErrorHandler from "@/middlewares/json-error-handler";
 import authRoute from "@/routes/auth.route";
 import productRoute from "@/routes/product.route";
@@ -6,7 +7,6 @@ import userRoute from "@/routes/user.route";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import "reflect-metadata";
 
 const app = express();
 
