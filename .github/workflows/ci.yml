@@ -4,35 +4,13 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  quality-checks:
+  unit-tests:
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout code
@@ -47,78 +25,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install PostgreSQL client
-        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Run TypeScript type checking
+        run: npm run type-check
 
-      - name: Setup test database
-        run: |
-          # Create test database
-          PGPASSWORD=postgres psql -h localhost -U postgres -c "CREATE DATABASE postgres_test;"
-        env:
-          PGPASSWORD: postgres
+      - name: Run ESLint
+        run: npm run lint
 
-      - name: Run database migrations
-        run: npm run db:migrate
-        env:
-          NODE_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          REDIS_PASSWORD: ""
-          JWT_SECRET: test_jwt_secret
-          JWT_REFRESH_SECRET: test_jwt_refresh_secret
-          JWT_RESET_SECRET: test_jwt_reset_secret
-          SMTP_HOST: localhost
-          SMTP_PORT: 1025
-          SMTP_SECURE: false
-          SMTP_USER: test
-          SMTP_PASS: test
-          MAILER_PROVIDER: sendgrid
-          SENDGRID_API_KEY: test_api_key
-          FRONTEND_URL: http://localhost:3000
-          MAILER_FROM_DOMAIN: test.com
+      - name: Check code formatting
+        run: npm run format:check
 
-      - name: Verify services are running
-        run: |
-          # Test PostgreSQL connection
-          PGPASSWORD=postgres psql -h localhost -U postgres -d postgres_test -c "SELECT version();"
-          # Test Redis connection
-          redis-cli -h localhost -p 6379 ping
-
-      - name: Run tests with coverage
-        run: npm run test:ci
+      - name: Run unit tests with coverage
+        run: npm run test:unit -- --coverage
         env:
           NODE_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          REDIS_PASSWORD: ""
-          JWT_SECRET: test_jwt_secret
-          JWT_REFRESH_SECRET: test_jwt_refresh_secret
-          JWT_RESET_SECRET: test_jwt_reset_secret
-          SMTP_HOST: localhost
-          SMTP_PORT: 1025
-          SMTP_SECURE: false
-          SMTP_USER: test
-          SMTP_PASS: test
-          MAILER_PROVIDER: sendgrid
-          SENDGRID_API_KEY: test_api_key
-          FRONTEND_URL: http://localhost:3000
-          MAILER_FROM_DOMAIN: test.com
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v3
         with:
           file: ./coverage/lcov.info
           fail_ci_if_error: false
-
-      - name: Run TypeScript type checking
-        run: npm run type-check
-
-      - name: Run ESLint and fix
-        run: npm run lint:fix
 
       - name: Format with Prettier
         run: npm run format

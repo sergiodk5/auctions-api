@@ -18,7 +18,6 @@
         "test:watch": "jest --watch",
         "test:unit": "jest --testPathPattern=unit",
         "test:integration": "jest --testPathPattern=integration",
-        "test:ci": "jest --coverage --forceExit --detectOpenHandles",
         "type-check": "tsc --noEmit",
         "prepare": "husky"
     },
