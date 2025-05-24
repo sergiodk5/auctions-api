@@ -2,6 +2,8 @@ import { ACCESS_LIFETIME, JWT_REFRESH_SECRET, JWT_SECRET, REFRESH_IDLE_TTL } fro
 import { ITokenRepository } from "@/repositories/token.repository";
 import { IUserRepository } from "@/repositories/user.repository";
 import AuthService from "@/services/auth.service";
+import { ICacheService } from "@/services/cache.service";
+import { IMailer } from "@/services/IMailer";
 import * as passwordUtils from "@/utils/password.util";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
@@ -9,11 +11,13 @@ import { v4 as uuidv4 } from "uuid";
 
 jest.mock("jsonwebtoken");
 jest.mock("uuid");
-jest.mock("@/utils/password");
+jest.mock("@/utils/password.util"); // Corrected mock path
 
 describe("AuthService", () => {
     let userRepo: jest.Mocked<IUserRepository>;
     let tokenRepo: jest.Mocked<ITokenRepository>;
+    let cacheSvc: jest.Mocked<ICacheService>;
+    let mailer: jest.Mocked<IMailer>;
     let svc: AuthService;
 
     beforeEach(() => {
@@ -34,8 +38,18 @@ describe("AuthService", () => {
             addToDenyList: jest.fn(),
             isAccessTokenRevoked: jest.fn(),
         };
+        cacheSvc = {
+            client: {
+                get: jest.fn(),
+                set: jest.fn(),
+                del: jest.fn(),
+            } as any, // Keep as any for simplicity if specific RedisClient types are complex to mock
+        };
+        mailer = {
+            sendPasswordReset: jest.fn(),
+        };
 
-        svc = new AuthService(userRepo, tokenRepo);
+        svc = new AuthService(userRepo, tokenRepo, cacheSvc, mailer);
     });
 
     afterEach(() => {
@@ -162,6 +176,72 @@ describe("AuthService", () => {
             await svc.logout("jtc", exp, "bad");
             expect(tokenRepo.addToDenyList).toHaveBeenCalled();
             expect(tokenRepo.revokeFamily).not.toHaveBeenCalled();
+        });
+    });
+
+    describe("requestPasswordReset", () => {
+        const email = "user@example.com";
+
+        it("should throw UserNotFound if user does not exist", async () => {
+            userRepo.findByEmail.mockResolvedValue(undefined); // Corrected from null
+            await expect(svc.requestPasswordReset(email)).rejects.toThrow("UserNotFound");
+        });
+
+        it("should generate a reset token, cache it, and send an email", async () => {
+            const user = { id: 1, email } as any;
+            userRepo.findByEmail.mockResolvedValue(user);
+            (uuidv4 as jest.Mock).mockReturnValue("test-jti");
+            (jwt.sign as jest.Mock).mockReturnValue("reset-token");
+
+            await svc.requestPasswordReset(email);
+
+            expect(uuidv4).toHaveBeenCalled();
+            expect(jwt.sign).toHaveBeenCalledWith(
+                { sub: user.id, jti: "test-jti" },
+                expect.any(String), // JWT_RESET_SECRET
+                { expiresIn: expect.any(Number) }, // RESET_PASSWORD_TTL
+            );
+            expect(cacheSvc.client.set).toHaveBeenCalledWith(
+                "pwreset:jti:test-jti",
+                user.id.toString(),
+                { EX: expect.any(Number) }, // RESET_PASSWORD_TTL
+            );
+            expect(mailer.sendPasswordReset).toHaveBeenCalledWith(
+                email,
+                expect.stringContaining("/reset-password?token=reset-token"),
+            );
+        });
+    });
+
+    describe("resetPassword", () => {
+        const token = "valid-token";
+        const newPassword = "newPassword123";
+        const userId = 1;
+        const jti = "test-jti";
+
+        it("should throw InvalidOrExpiredToken if jwt.verify fails", async () => {
+            (jwt.verify as jest.Mock).mockImplementation(() => {
+                throw new Error("jwt error");
+            });
+            await expect(svc.resetPassword(token, newPassword)).rejects.toThrow("InvalidOrExpiredToken");
+        });
+
+        it("should throw InvalidOrExpiredToken if jti not in cache", async () => {
+            (jwt.verify as jest.Mock).mockReturnValue({ sub: userId, jti });
+            (cacheSvc.client.get as jest.Mock).mockResolvedValue(null); // Corrected: mockResolvedValue on the jest.fn()
+            await expect(svc.resetPassword(token, newPassword)).rejects.toThrow("InvalidOrExpiredToken");
+        });
+
+        it("should reset password, delete jti from cache, and update user", async () => {
+            (jwt.verify as jest.Mock).mockReturnValue({ sub: userId, jti });
+            (cacheSvc.client.get as jest.Mock).mockResolvedValue(userId.toString()); // Corrected: mockResolvedValue on the jest.fn()
+            (passwordUtils.hashPassword as jest.Mock).mockResolvedValue("hashedPassword");
+
+            await svc.resetPassword(token, newPassword);
+
+            expect(cacheSvc.client.del).toHaveBeenCalledWith(`pwreset:jti:${jti}`);
+            expect(passwordUtils.hashPassword).toHaveBeenCalledWith(newPassword);
+            expect(userRepo.update).toHaveBeenCalledWith(userId, { password: "hashedPassword" });
         });
     });
 });
