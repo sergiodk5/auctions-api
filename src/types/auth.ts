@@ -1,5 +1,4 @@
 import { User } from "@/types/user";
-import { Request, Response, NextFunction } from "express-serve-static-core";
 import { JwtPayload } from "jsonwebtoken";
 
 export interface JwtAccessPayload extends JwtPayload {
@@ -24,7 +23,3 @@ export interface AuthTokensDto {
 export interface AuthLoginDto extends AuthTokensDto {
     user: User;
 }
-
-// export interface AuthRequest extends Request {
-//     user: AuthUser; // User information extracted from the JWT
-// }

@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 
 export async function hashPassword(password: string): Promise<string> {
     try {
-        const saltRounds = 10; // You can adjust the number of salt rounds as needed
+        const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         return hashedPassword;

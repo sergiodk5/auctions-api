@@ -41,7 +41,7 @@ describe("UsersController", () => {
 
     describe("getAllUsers", () => {
         it("returns 200 and list of users on success", async () => {
-            const users: User[] = [{ id: 1, email: "a@x.com" }];
+            const users: User[] = [{ id: 1, email: "a@x.com", emailVerified: false }];
             mockUserService.getAllUsers.mockResolvedValue(users);
 
             await controller.getAllUsers(req as Request, res as Response);
@@ -78,7 +78,7 @@ describe("UsersController", () => {
         });
 
         it("returns 200 and user on success", async () => {
-            const user: User = { id: 2, email: "b@x.com" };
+            const user: User = { id: 2, email: "b@x.com", emailVerified: false };
             req.params = { id: "2" };
             mockUserService.getUserById.mockResolvedValue(user);
 
@@ -107,7 +107,7 @@ describe("UsersController", () => {
         const dto: CreateUserDto = { email: "c@x.com", password: "pwd" };
 
         it("returns 201 and new user on success", async () => {
-            const created: User = { id: 4, email: dto.email };
+            const created: User = { id: 4, email: dto.email, emailVerified: false };
             req.body = { cleanBody: dto };
             mockUserService.createUser.mockResolvedValue(created);
 
@@ -164,7 +164,7 @@ describe("UsersController", () => {
         });
 
         it("returns 200 and updated user on success", async () => {
-            const updated: User = { id: 5, email };
+            const updated: User = { id: 5, email, emailVerified: false };
             req.params = { id: "5" };
             req.body = { cleanBody: dto };
             mockUserService.updateUser.mockResolvedValue(updated);

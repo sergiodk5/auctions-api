@@ -10,6 +10,7 @@ describe("UserService Unit Tests", () => {
         create: jest.fn(),
         update: jest.fn(),
         delete: jest.fn(),
+        markEmailAsVerified: jest.fn(),
     };
     const userService = new UserService(mockRepo);
 
@@ -19,7 +20,7 @@ describe("UserService Unit Tests", () => {
 
     describe("getAllUsers", () => {
         it("should return all users", async () => {
-            const users: User[] = [{ id: 1, email: "a@x.com" }];
+            const users: User[] = [{ id: 1, email: "a@x.com", emailVerified: false }];
             mockRepo.findAll.mockResolvedValue(users);
             await expect(userService.getAllUsers()).resolves.toEqual(users);
             expect(mockRepo.findAll).toHaveBeenCalled();
@@ -28,7 +29,7 @@ describe("UserService Unit Tests", () => {
 
     describe("getUserById", () => {
         it("should return user when found", async () => {
-            const user: User = { id: 2, email: "b@y.com" };
+            const user: User = { id: 2, email: "b@y.com", emailVerified: false };
             mockRepo.findById.mockResolvedValue(user);
             await expect(userService.getUserById(2)).resolves.toEqual(user);
             expect(mockRepo.findById).toHaveBeenCalledWith(2);
@@ -44,7 +45,7 @@ describe("UserService Unit Tests", () => {
     describe("createUser", () => {
         const dto: CreateUserDto = { email: "c@z.com", password: "pwd" };
         it("should create new user when email not taken", async () => {
-            const newUser: User = { id: 3, email: "c@z.com" };
+            const newUser: User = { id: 3, email: "c@z.com", emailVerified: false };
             mockRepo.findByEmail.mockResolvedValue(undefined);
             mockRepo.create.mockResolvedValue(newUser);
             await expect(userService.createUser(dto)).resolves.toEqual(newUser);
@@ -53,7 +54,7 @@ describe("UserService Unit Tests", () => {
         });
 
         it("should throw when email already exists", async () => {
-            mockRepo.findByEmail.mockResolvedValue({ id: 4, email: "c@z.com" });
+            mockRepo.findByEmail.mockResolvedValue({ id: 4, email: "c@z.com", emailVerified: false });
             await expect(userService.createUser(dto)).rejects.toThrow("UserExists");
             expect(mockRepo.findByEmail).toHaveBeenCalledWith("c@z.com");
             expect(mockRepo.create).not.toHaveBeenCalled();
@@ -63,7 +64,7 @@ describe("UserService Unit Tests", () => {
     describe("updateUser", () => {
         const data: UpdateUserDto = { email: "d@w.com" };
         it("should update and return user when exists", async () => {
-            const updated: User = { id: 5, email: "d@w.com" };
+            const updated: User = { id: 5, email: "d@w.com", emailVerified: false };
             mockRepo.update.mockResolvedValue(updated);
             await expect(userService.updateUser(5, data)).resolves.toEqual(updated);
             expect(mockRepo.update).toHaveBeenCalledWith(5, data);

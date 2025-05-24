@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 jest.mock("jsonwebtoken");
 jest.mock("uuid");
 jest.mock("crypto");
-jest.mock("@/utils/password.util"); // Corrected mock path
+jest.mock("@/utils/password.util");
 
 describe("AuthService", () => {
     let userRepo: jest.Mocked<IUserRepository>;
@@ -201,7 +201,7 @@ describe("AuthService", () => {
         const email = "user@example.com";
 
         it("should throw UserNotFound if user does not exist", async () => {
-            userRepo.findByEmail.mockResolvedValue(undefined); // Corrected from null
+            userRepo.findByEmail.mockResolvedValue(undefined);
             await expect(svc.requestPasswordReset(email)).rejects.toThrow("UserNotFound");
         });
 
@@ -246,13 +246,13 @@ describe("AuthService", () => {
 
         it("should throw InvalidOrExpiredToken if jti not in cache", async () => {
             (jwt.verify as jest.Mock).mockReturnValue({ sub: userId, jti });
-            (cacheSvc.client.get as jest.Mock).mockResolvedValue(null); // Corrected: mockResolvedValue on the jest.fn()
+            (cacheSvc.client.get as jest.Mock).mockResolvedValue(null);
             await expect(svc.resetPassword(token, newPassword)).rejects.toThrow("InvalidOrExpiredToken");
         });
 
         it("should reset password, delete jti from cache, and update user", async () => {
             (jwt.verify as jest.Mock).mockReturnValue({ sub: userId, jti });
-            (cacheSvc.client.get as jest.Mock).mockResolvedValue(userId.toString()); // Corrected: mockResolvedValue on the jest.fn()
+            (cacheSvc.client.get as jest.Mock).mockResolvedValue(userId.toString());
             (passwordUtils.hashPassword as jest.Mock).mockResolvedValue("hashedPassword");
 
             await svc.resetPassword(token, newPassword);

@@ -1,6 +1,6 @@
+import ValidationService from "@/services/validation.service";
 import "reflect-metadata";
 import { z, ZodError } from "zod";
-import ValidationService from "@/services/validation.service";
 
 describe("ValidationService", () => {
     describe("validateSchema", () => {
@@ -26,7 +26,6 @@ describe("ValidationService", () => {
             const parse = svc.validateSchema(schema);
 
             expect(() => parse({ a: 123, b: 7 })).toThrow();
-            // Could further assert instance of ZodError if needed
         });
     });
 
