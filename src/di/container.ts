@@ -7,6 +7,10 @@ import IMiddleware from "@/middlewares/IMiddleware";
 import LoginRateLimiter from "@/middlewares/login-rate-limiter";
 import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
 import { IValidationMiddleware, ValidationMiddleware } from "@/middlewares/validation.middleware";
+import {
+    EmailVerificationRepository,
+    IEmailVerificationRepository,
+} from "@/repositories/email-verification.repository";
 import TokenRepository, { ITokenRepository } from "@/repositories/token.repository";
 import UserRepository, { IUserRepository } from "@/repositories/user.repository";
 import AuthService, { IAuthService } from "@/services/auth.service";
@@ -55,6 +59,7 @@ container.bind<ICacheService>(TYPES.ICacheService).to(CacheService);
 // Repositories
 container.bind<ITokenRepository>(TYPES.ITokenRepository).to(TokenRepository);
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
+container.bind<IEmailVerificationRepository>(TYPES.IEmailVerificationRepository).to(EmailVerificationRepository);
 
 // Services
 container.bind<IUserService>(TYPES.IUserService).to(UserService);

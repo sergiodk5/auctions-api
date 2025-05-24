@@ -26,14 +26,19 @@ describe("UserRepository", () => {
 
     describe("findAll", () => {
         it("returns all users", async () => {
-            const users = [{ id: 1, email: "a@x.com" }];
+            const users = [{ id: 1, email: "a@x.com", emailVerified: false, emailVerifiedAt: null }];
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue(Promise.resolve(users)),
             });
 
             const result = await repo.findAll();
 
-            expect(mockDb.select).toHaveBeenCalledWith();
+            expect(mockDb.select).toHaveBeenCalledWith({
+                id: usersTable.id,
+                email: usersTable.email,
+                emailVerified: usersTable.emailVerified,
+                emailVerifiedAt: usersTable.emailVerifiedAt,
+            });
             expect(mockDb.select().from).toHaveBeenCalledWith(usersTable);
             expect(result).toEqual(users);
         });
@@ -41,7 +46,7 @@ describe("UserRepository", () => {
 
     describe("findById", () => {
         it("returns the user when found", async () => {
-            const user = { id: 2, email: "b@x.com" };
+            const user = { id: 2, email: "b@x.com", emailVerified: false, emailVerifiedAt: null };
             const builder = {
                 from: jest.fn().mockReturnThis(),
                 where: jest.fn().mockResolvedValue([user]),
@@ -53,6 +58,8 @@ describe("UserRepository", () => {
             expect(mockDb.select).toHaveBeenCalledWith({
                 id: usersTable.id,
                 email: usersTable.email,
+                emailVerified: usersTable.emailVerified,
+                emailVerifiedAt: usersTable.emailVerifiedAt,
             });
             expect(builder.from).toHaveBeenCalledWith(usersTable);
             expect(builder.where).toHaveBeenCalledWith(eq(usersTable.id, 2));
@@ -74,7 +81,7 @@ describe("UserRepository", () => {
 
     describe("findByEmail", () => {
         it("returns the user when found", async () => {
-            const user = { id: 3, email: "c@x.com" };
+            const user = { id: 3, email: "c@x.com", emailVerified: true, emailVerifiedAt: new Date() };
             const builder = {
                 from: jest.fn().mockReturnThis(),
                 where: jest.fn().mockResolvedValue([user]),
@@ -86,6 +93,9 @@ describe("UserRepository", () => {
             expect(mockDb.select).toHaveBeenCalledWith({
                 id: usersTable.id,
                 email: usersTable.email,
+                password: usersTable.password,
+                emailVerified: usersTable.emailVerified,
+                emailVerifiedAt: usersTable.emailVerifiedAt,
             });
             expect(builder.from).toHaveBeenCalledWith(usersTable);
             expect(builder.where).toHaveBeenCalledWith(eq(usersTable.email, "c@x.com"));
@@ -111,7 +121,7 @@ describe("UserRepository", () => {
             const hashed = "hashedPwd";
             jest.spyOn(passwordUtils, "hashPassword").mockResolvedValue(hashed);
 
-            const created = { id: 4, email: "d@x.com" };
+            const created = { id: 4, email: "d@x.com", emailVerified: false, emailVerifiedAt: null };
             const builder = {
                 values: jest.fn().mockReturnThis(),
                 returning: jest.fn().mockResolvedValue([created]),
@@ -126,6 +136,8 @@ describe("UserRepository", () => {
             expect(builder.returning).toHaveBeenCalledWith({
                 id: usersTable.id,
                 email: usersTable.email,
+                emailVerified: usersTable.emailVerified,
+                emailVerifiedAt: usersTable.emailVerifiedAt,
             });
             expect(result).toEqual(created);
         });
@@ -134,7 +146,7 @@ describe("UserRepository", () => {
     describe("update", () => {
         it("updates an existing user and returns it", async () => {
             const dto = { email: "e@x.com" };
-            const updated = { id: 5, email: "e@x.com" };
+            const updated = { id: 5, email: "e@x.com", emailVerified: false, emailVerifiedAt: null };
             const builder = {
                 set: jest.fn().mockReturnThis(),
                 where: jest.fn().mockReturnThis(),
@@ -150,6 +162,8 @@ describe("UserRepository", () => {
             expect(builder.returning).toHaveBeenCalledWith({
                 id: usersTable.id,
                 email: usersTable.email,
+                emailVerified: usersTable.emailVerified,
+                emailVerifiedAt: usersTable.emailVerifiedAt,
             });
             expect(result).toEqual(updated);
         });
@@ -195,6 +209,25 @@ describe("UserRepository", () => {
             const result = await repo.delete(7);
 
             expect(result).toBe(false);
+        });
+    });
+
+    describe("markEmailAsVerified", () => {
+        it("marks user email as verified with current timestamp", async () => {
+            const builder = {
+                set: jest.fn().mockReturnThis(),
+                where: jest.fn().mockResolvedValue(undefined),
+            };
+            mockDb.update.mockReturnValue(builder);
+
+            await repo.markEmailAsVerified(8);
+
+            expect(mockDb.update).toHaveBeenCalledWith(usersTable);
+            expect(builder.set).toHaveBeenCalledWith({
+                emailVerified: true,
+                emailVerifiedAt: expect.any(Date),
+            });
+            expect(builder.where).toHaveBeenCalledWith(eq(usersTable.id, 8));
         });
     });
 });

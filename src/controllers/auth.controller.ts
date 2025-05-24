@@ -12,6 +12,8 @@ export interface IAuthController {
     logout(req: Request, res: Response): Promise<void>;
     forgotPassword(req: Request, res: Response): Promise<void>;
     resetPassword(req: Request, res: Response): Promise<void>;
+    verifyEmail(req: Request, res: Response): Promise<void>;
+    resendVerificationEmail(req: Request, res: Response): Promise<void>;
 }
 
 @injectable()
@@ -87,6 +89,49 @@ export default class AuthController implements IAuthController {
             res.sendStatus(204);
         } catch {
             res.status(400).json({ success: false, message: "Invalid or expired token" });
+        }
+    }
+
+    public async verifyEmail(req: Request, res: Response): Promise<void> {
+        try {
+            const { token } = req.body.cleanBody;
+            await this.authService.verifyEmail(token);
+            res.json({ success: true, message: "Email verified successfully" });
+        } catch (error) {
+            let message = "Email verification failed";
+
+            if (error instanceof Error) {
+                if (error.message === "InvalidOrExpiredToken") {
+                    message = "Invalid or expired verification token";
+                } else if (error.message === "EmailAlreadyVerified") {
+                    message = "Email is already verified";
+                }
+            }
+
+            res.status(400).json({ success: false, message });
+        }
+    }
+
+    public async resendVerificationEmail(req: Request, res: Response): Promise<void> {
+        try {
+            const { email } = req.body.cleanBody;
+            await this.authService.resendVerificationEmail(email);
+            res.json({ success: true, message: "Verification email sent successfully" });
+        } catch (error) {
+            let message = "Failed to send verification email";
+            let status = 400;
+
+            if (error instanceof Error) {
+                if (error.message === "UserNotFound") {
+                    message = "User not found";
+                    status = 404;
+                } else if (error.message === "EmailAlreadyVerified") {
+                    message = "Email is already verified";
+                    status = 400;
+                }
+            }
+
+            res.status(status).json({ success: false, message });
         }
     }
 }

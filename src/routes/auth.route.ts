@@ -1,5 +1,11 @@
 import { IAuthController } from "@/controllers/auth.controller";
-import { createUserSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema } from "@/db/users.schema";
+import {
+    createUserSchema,
+    emailVerificationSchema,
+    forgotPasswordSchema,
+    loginSchema,
+    resetPasswordSchema,
+} from "@/db/users.schema";
 import container from "@/di/container";
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
@@ -50,6 +56,18 @@ authRoute.post(
     "/reset-password",
     validationMiddleware.validate(resetPasswordSchema),
     authController.resetPassword.bind(authController),
+);
+
+authRoute.post(
+    "/verify-email",
+    validationMiddleware.validate(emailVerificationSchema),
+    authController.verifyEmail.bind(authController),
+);
+
+authRoute.post(
+    "/resend-verification",
+    validationMiddleware.validate(forgotPasswordSchema),
+    authController.resendVerificationEmail.bind(authController),
 );
 
 export default authRoute;

@@ -1,6 +1,7 @@
 const TYPES = {
     ITokenRepository: Symbol.for("ITokenRepository"),
     IUserRepository: Symbol.for("IUserRepository"),
+    IEmailVerificationRepository: Symbol.for("IEmailVerificationRepository"),
 
     IDatabaseService: Symbol.for("IDatabaseService"),
     ICacheService: Symbol.for("ICacheService"),

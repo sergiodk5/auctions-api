@@ -1,21 +1,25 @@
 import { ACCESS_LIFETIME, JWT_REFRESH_SECRET, JWT_SECRET, REFRESH_IDLE_TTL } from "@/config/env";
+import { IEmailVerificationRepository } from "@/repositories/email-verification.repository";
 import { ITokenRepository } from "@/repositories/token.repository";
 import { IUserRepository } from "@/repositories/user.repository";
 import AuthService from "@/services/auth.service";
 import { ICacheService } from "@/services/cache.service";
 import { IMailerService } from "@/services/IMailerService";
 import * as passwordUtils from "@/utils/password.util";
+import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
 import { v4 as uuidv4 } from "uuid";
 
 jest.mock("jsonwebtoken");
 jest.mock("uuid");
+jest.mock("crypto");
 jest.mock("@/utils/password.util"); // Corrected mock path
 
 describe("AuthService", () => {
     let userRepo: jest.Mocked<IUserRepository>;
     let tokenRepo: jest.Mocked<ITokenRepository>;
+    let emailVerificationRepo: jest.Mocked<IEmailVerificationRepository>;
     let cacheSvc: jest.Mocked<ICacheService>;
     let mailer: jest.Mocked<IMailerService>;
     let svc: AuthService;
@@ -24,6 +28,7 @@ describe("AuthService", () => {
         userRepo = {
             findByEmail: jest.fn(),
             create: jest.fn(),
+            markEmailAsVerified: jest.fn(),
             // not used here:
             findAll: jest.fn() as any,
             findById: jest.fn() as any,
@@ -38,6 +43,12 @@ describe("AuthService", () => {
             addToDenyList: jest.fn(),
             isAccessTokenRevoked: jest.fn(),
         };
+        emailVerificationRepo = {
+            create: jest.fn(),
+            findByToken: jest.fn(),
+            markAsVerified: jest.fn(),
+            deleteByUserId: jest.fn(),
+        };
         cacheSvc = {
             client: {
                 get: jest.fn(),
@@ -47,9 +58,10 @@ describe("AuthService", () => {
         };
         mailer = {
             sendPasswordReset: jest.fn(),
+            sendWelcomeEmail: jest.fn(),
         };
 
-        svc = new AuthService(userRepo, tokenRepo, cacheSvc, mailer);
+        svc = new AuthService(userRepo, tokenRepo, emailVerificationRepo, cacheSvc, mailer);
     });
 
     afterEach(() => {
@@ -58,6 +70,12 @@ describe("AuthService", () => {
 
     describe("register", () => {
         const dto = { email: "u@x.com", password: "pwd" };
+
+        beforeEach(() => {
+            (crypto.randomBytes as jest.Mock).mockReturnValue({
+                toString: jest.fn().mockReturnValue("mocked-token"),
+            });
+        });
 
         it("throws if user already exists", async () => {
             userRepo.findByEmail.mockResolvedValue({ id: 1, email: dto.email } as any);
@@ -242,6 +260,106 @@ describe("AuthService", () => {
             expect(cacheSvc.client.del).toHaveBeenCalledWith(`pwreset:jti:${jti}`);
             expect(passwordUtils.hashPassword).toHaveBeenCalledWith(newPassword);
             expect(userRepo.update).toHaveBeenCalledWith(userId, { password: "hashedPassword" });
+        });
+    });
+
+    describe("generateAndSendVerificationEmail", () => {
+        const user = { id: 1, email: "user@example.com" } as any;
+
+        beforeEach(() => {
+            (crypto.randomBytes as jest.Mock).mockReturnValue({
+                toString: jest.fn().mockReturnValue("mocked-token"),
+            });
+        });
+
+        it("should generate token, save to database, and send email", async () => {
+            // Access the private method using bracket notation for testing
+            await (svc as any).generateAndSendVerificationEmail(user.id, user.email);
+
+            expect(emailVerificationRepo.deleteByUserId).toHaveBeenCalledWith(user.id);
+            expect(crypto.randomBytes).toHaveBeenCalledWith(32);
+            expect(emailVerificationRepo.create).toHaveBeenCalledWith(user.id, "mocked-token");
+            expect(mailer.sendWelcomeEmail).toHaveBeenCalledWith(
+                user.email,
+                expect.stringContaining("/verify-email?token=mocked-token"),
+            );
+        });
+    });
+
+    describe("verifyEmail", () => {
+        const token = "valid-token";
+        const userId = 1;
+        const verificationRecord = { id: 10, userId };
+
+        it("should throw InvalidOrExpiredToken if verification record not found", async () => {
+            emailVerificationRepo.findByToken.mockResolvedValue(null);
+
+            await expect(svc.verifyEmail(token)).rejects.toThrow("InvalidOrExpiredToken");
+            expect(emailVerificationRepo.findByToken).toHaveBeenCalledWith(token);
+        });
+
+        it("should throw UserNotFound if user not found", async () => {
+            emailVerificationRepo.findByToken.mockResolvedValue(verificationRecord);
+            userRepo.findById.mockResolvedValue(undefined);
+
+            await expect(svc.verifyEmail(token)).rejects.toThrow("UserNotFound");
+            expect(userRepo.findById).toHaveBeenCalledWith(userId);
+        });
+
+        it("should throw EmailAlreadyVerified if user is already verified", async () => {
+            const verifiedUser = { id: userId, emailVerified: true, emailVerifiedAt: new Date() } as any;
+            emailVerificationRepo.findByToken.mockResolvedValue(verificationRecord);
+            userRepo.findById.mockResolvedValue(verifiedUser);
+
+            await expect(svc.verifyEmail(token)).rejects.toThrow("EmailAlreadyVerified");
+        });
+
+        it("should verify email successfully", async () => {
+            const unverifiedUser = { id: userId, emailVerified: false, emailVerifiedAt: null } as any;
+            emailVerificationRepo.findByToken.mockResolvedValue(verificationRecord);
+            userRepo.findById.mockResolvedValue(unverifiedUser);
+
+            await svc.verifyEmail(token);
+
+            expect(emailVerificationRepo.markAsVerified).toHaveBeenCalledWith(verificationRecord.id);
+            expect(userRepo.markEmailAsVerified).toHaveBeenCalledWith(userId);
+        });
+    });
+
+    describe("resendVerificationEmail", () => {
+        const email = "user@example.com";
+        const user = { id: 1, email, emailVerified: false } as any;
+
+        beforeEach(() => {
+            (crypto.randomBytes as jest.Mock).mockReturnValue({
+                toString: jest.fn().mockReturnValue("new-token"),
+            });
+        });
+
+        it("should throw UserNotFound if user not found", async () => {
+            userRepo.findByEmail.mockResolvedValue(undefined);
+
+            await expect(svc.resendVerificationEmail(email)).rejects.toThrow("UserNotFound");
+        });
+
+        it("should throw EmailAlreadyVerified if user is already verified", async () => {
+            const verifiedUser = { ...user, emailVerified: true, emailVerifiedAt: new Date() };
+            userRepo.findByEmail.mockResolvedValue(verifiedUser);
+
+            await expect(svc.resendVerificationEmail(email)).rejects.toThrow("EmailAlreadyVerified");
+        });
+
+        it("should delete old tokens, create new token, and send email", async () => {
+            userRepo.findByEmail.mockResolvedValue(user);
+
+            await svc.resendVerificationEmail(email);
+
+            expect(emailVerificationRepo.deleteByUserId).toHaveBeenCalledWith(user.id);
+            expect(emailVerificationRepo.create).toHaveBeenCalledWith(user.id, "new-token");
+            expect(mailer.sendWelcomeEmail).toHaveBeenCalledWith(
+                email,
+                expect.stringContaining("/verify-email?token=new-token"),
+            );
         });
     });
 });

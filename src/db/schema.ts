@@ -1,3 +1,5 @@
+import * as emailVerificationSchema from "@/db/email-verification.schema";
+import * as tokensSchema from "@/db/tokens.schema";
 import * as usersSchema from "@/db/users.schema";
 
-export default { ...usersSchema };
+export default { ...usersSchema, ...tokensSchema, ...emailVerificationSchema };
