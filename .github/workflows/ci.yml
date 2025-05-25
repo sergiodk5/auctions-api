@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  unit-tests:
+  code-quality:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,24 +32,4 @@ jobs:
         run: npm run lint
 
       - name: Check code formatting
-        run: npm run format:check
-
-      - name: Run unit tests with coverage
-        run: npm run test:unit -- --coverage
-        env:
-          NODE_ENV: test
-
-      - name: Upload coverage reports
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage/lcov.info
-          fail_ci_if_error: false
-
-      - name: Format with Prettier
-        run: npm run format
-
-      - name: Check for remaining ESLint errors
-        run: npm run lint
-
-      - name: Check for remaining formatting issues
         run: npm run format:check

@@ -1,4 +1,4 @@
-name: Integration Tests
+name: Tests
 
 on:
   push:
@@ -10,10 +10,10 @@ on:
   workflow_dispatch: # Allow manual triggering
 
 jobs:
-  integration-tests:
+  test:
     runs-on: ubuntu-latest
 
-    # Service containers to run with `integration-tests`
+    # Service containers to run with `test`
     services:
       # PostgreSQL service container
       postgres:
@@ -98,55 +98,7 @@ jobs:
           DATABASE_PASSWORD: postgres
           DATABASE_NAME: postgres_test
 
-      - name: Run TypeScript type checking
-        run: npm run type-check
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Check code formatting
-        run: npm run format:check
-
-      - name: Run integration tests
-        run: npm run test:integration
-        env:
-          NODE_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
-          DATABASE_HOST: localhost
-          DATABASE_PORT: 5432
-          DATABASE_USER: postgres
-          DATABASE_PASSWORD: postgres
-          DATABASE_NAME: postgres_test
-          REDIS_URL: redis://localhost:6379
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          REDIS_PASSWORD: ""
-          JWT_SECRET: test_jwt_secret_integration
-          JWT_REFRESH_SECRET: test_jwt_refresh_secret_integration
-          JWT_RESET_SECRET: test_jwt_reset_secret_integration
-          REFRESH_TOKEN_SECRET: test_jwt_refresh_secret_integration
-          EMAIL_FROM: test@example.com
-          EMAIL_HOST: localhost
-          EMAIL_PORT: 1025
-          EMAIL_USER: test
-          EMAIL_PASS: test
-          SMTP_HOST: localhost
-          SMTP_PORT: 1025
-          SMTP_SECURE: false
-          SMTP_USER: test
-          SMTP_PASS: test
-          MAILER_PROVIDER: sendgrid
-          SENDGRID_API_KEY: test_api_key_integration
-          FRONTEND_URL: http://localhost:3000
-          MAILER_FROM_DOMAIN: test.com
-          RATE_LIMIT_WINDOW_MS: 60000
-          RATE_LIMIT_MAX_REQUESTS: 1000
-          PORT: 3001
-          HOST: localhost
-          LOG_LEVEL: error
-
-      - name: Run full test suite with coverage
+      - name: Run all tests with coverage
         run: npm run test:coverage
         env:
           NODE_ENV: test
@@ -190,7 +142,7 @@ jobs:
         with:
           file: ./coverage/lcov.info
           fail_ci_if_error: false
-          flags: integration
-          name: integration-tests-coverage
+          flags: tests
+          name: test-coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
