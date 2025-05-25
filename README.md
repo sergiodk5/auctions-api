@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/sergiodk5/auctions-api/workflows/CI/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)
 [![Tests](https://github.com/sergiodk5/auctions-api/workflows/Tests/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
-[![codecov](https://codecov.io/gh/sergiodk5/auctions-api/branch/main/graph/badge.svg)](https://codecov.io/gh/sergiodk5/auctions-api)
+[![codecov](https://codecov.io/gh/sergiodk5/auctions-api/branch/master/graph/badge.svg)](https://codecov.io/gh/sergiodk5/auctions-api)
 
 A robust, TypeScript-based REST API for auction management with comprehensive authentication and email verification.
 
