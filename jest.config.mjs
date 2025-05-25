@@ -15,6 +15,7 @@ export default {
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     modulePaths: [compilerOptions.baseUrl],
     moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>" }),
+    testTimeout: 30000,
     projects: [
         {
             displayName: "unit",
@@ -40,7 +41,6 @@ export default {
             modulePaths: [compilerOptions.baseUrl],
             moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>" }),
             setupFilesAfterEnv: ["<rootDir>/tests/setup/integration.setup.ts"],
-            testTimeout: 30000,
         },
     ],
     // Default config for when running all tests

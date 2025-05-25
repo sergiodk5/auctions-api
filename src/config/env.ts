@@ -12,11 +12,15 @@ export const getEnv = (key: string, defaultValue: string): string => {
     return value;
 };
 
+export const getEnvOptional = (key: string, defaultValue: string = ""): string => {
+    return process.env[key] ?? defaultValue;
+};
+
 export const SERVER_PORT = getEnv("PORT", "8090");
 export const DATABASE_URL = getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/postgres");
 export const REDIS_HOST = getEnv("REDIS_HOST", "localhost");
 export const REDIS_PORT = getEnv("REDIS_PORT", "6379");
-export const REDIS_PASSWORD = getEnv("REDIS_PASSWORD", "redispassword");
+export const REDIS_PASSWORD = getEnvOptional("REDIS_PASSWORD", "");
 export const JWT_SECRET = getEnv("JWT_SECRET", "your_jwt_secret");
 export const JWT_REFRESH_SECRET = getEnv("JWT_REFRESH_SECRET", "    ");
 export const ACCESS_LIFETIME = "15m";
