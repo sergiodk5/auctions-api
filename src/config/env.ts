@@ -12,7 +12,7 @@ export const getEnv = (key: string, defaultValue: string): string => {
     return value;
 };
 
-export const getEnvOptional = (key: string, defaultValue: string = ""): string => {
+export const getEnvOptional = (key: string, defaultValue = ""): string => {
     return process.env[key] ?? defaultValue;
 };
 
