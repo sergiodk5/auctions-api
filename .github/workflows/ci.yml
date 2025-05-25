@@ -11,8 +11,141 @@ on:
 
 jobs:
   tests:
-    uses: ./.github/workflows/test.yml
-    secrets: inherit
+    runs-on: ubuntu-latest
+
+    # Service containers to run with `test`
+    services:
+      # PostgreSQL service container
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+
+      # Redis service container
+      redis:
+        image: redis:7-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install PostgreSQL client and Redis tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client redis-tools
+
+      - name: Wait for services to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          timeout 60 bash -c 'until pg_isready -h localhost -p 5432 -U postgres; do sleep 1; done'
+          echo "Waiting for Redis to be ready..."
+          timeout 60 bash -c 'until redis-cli -h localhost -p 6379 ping | grep -q PONG; do sleep 1; done'
+          echo "All services are ready!"
+        env:
+          PGPASSWORD: postgres
+
+      - name: Verify database exists
+        run: |
+          psql -h localhost -U postgres -d postgres_test -c "SELECT 1;"
+        env:
+          PGPASSWORD: postgres
+
+      - name: Verify PostgreSQL connection
+        run: pg_isready -h localhost -p 5432 -U postgres
+        env:
+          PGPASSWORD: postgres
+
+      - name: Verify Redis connection
+        run: |
+          redis-cli -h localhost -p 6379 ping
+
+      - name: Run database migrations
+        run: npm run db:migrate
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: postgres_test
+
+      - name: Run all tests with coverage
+        run: npm run test:coverage
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
+          TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres_test
+          DATABASE_HOST: localhost
+          DATABASE_PORT: 5432
+          DATABASE_USER: postgres
+          DATABASE_PASSWORD: postgres
+          DATABASE_NAME: postgres_test
+          REDIS_URL: redis://localhost:6379
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          REDIS_PASSWORD: ""
+          JWT_SECRET: test_jwt_secret_integration
+          JWT_REFRESH_SECRET: test_jwt_refresh_secret_integration
+          JWT_RESET_SECRET: test_jwt_reset_secret_integration
+          REFRESH_TOKEN_SECRET: test_jwt_refresh_secret_integration
+          EMAIL_FROM: test@example.com
+          EMAIL_HOST: localhost
+          EMAIL_PORT: 1025
+          EMAIL_USER: test
+          EMAIL_PASS: test
+          SMTP_HOST: localhost
+          SMTP_PORT: 1025
+          SMTP_SECURE: false
+          SMTP_USER: test
+          SMTP_PASS: test
+          MAILER_PROVIDER: sendgrid
+          SENDGRID_API_KEY: test_api_key_integration
+          FRONTEND_URL: http://localhost:3000
+          MAILER_FROM_DOMAIN: test.com
+          RATE_LIMIT_WINDOW_MS: 60000
+          RATE_LIMIT_MAX_REQUESTS: 1000
+          PORT: 3001
+          HOST: localhost
+          LOG_LEVEL: error
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: false
+          flags: tests
+          name: test-coverage
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
 
   code-quality:
     runs-on: ubuntu-latest

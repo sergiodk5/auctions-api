@@ -1,5 +1,8 @@
 # Auctions API
 
+[![CI](https://github.com/sergiodk5/auctions-api/workflows/CI/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-91.3%25-brightgreen)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)tions API
+
 [![Tests](https://github.com/sergiodk5/auctions-api/workflows/Tests/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
 [![CI](https://github.com/sergiodk5/auctions-api/workflows/CI/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-91.3%25-brightgreen)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
