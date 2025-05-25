@@ -4,51 +4,55 @@ This document describes the GitHub Actions CI/CD pipeline configuration for the 
 
 ## Overview
 
-The CI/CD pipeline is configured to run on every push to the `master` branch and pull requests. It focuses on code quality checks and unit testing to ensure fast and reliable builds.
+The CI/CD pipeline is split into two separate workflows for optimal performance and clear separation of concerns:
 
-## Pipeline Structure
+1. **CI Workflow** (`ci.yml`) - Fast code quality checks
+2. **Tests Workflow** (`test.yml`) - Comprehensive testing with full coverage
 
-The pipeline includes the following checks:
+## Workflow Structure
 
-- **Code Quality**: TypeScript compilation, ESLint linting, and Prettier formatting
-- **Unit Testing**: Isolated unit tests with mocked dependencies and coverage reporting
-- **Fast Feedback**: Optimized for quick feedback without external service dependencies
+### 1. CI Workflow (Code Quality)
 
-## Pipeline Steps
+**Purpose**: Fast feedback on code quality without external dependencies
 
-### 1. Setup
+**Triggers**: Push to `master`, Pull Requests
+**Runtime**: ~30 seconds
 
-- Checkout code from repository
-- Setup Node.js (version from `.nvmrc` file)
-- Install dependencies with `npm ci` (clean install for CI)
+**Steps**:
 
-### 2. Code Quality Checks
+- TypeScript type checking (`npm run type-check`)
+- ESLint code quality checks (`npm run lint`)
+- Prettier formatting validation (`npm run format:check`)
 
-- **TypeScript Compilation**: `npm run type-check` - Validates TypeScript syntax and types
-- **ESLint**: `npm run lint` - Checks for code quality and style issues
-- **Prettier**: `npm run format:check` - Validates code formatting consistency
+### 2. Tests Workflow (Comprehensive Testing)
 
-### 3. Unit Testing
+**Purpose**: Full test suite with database and Redis integration
 
-- **Test Execution**: `npm run test:unit -- --coverage` - Runs unit tests with coverage
-- **Coverage Upload**: Uploads coverage reports to Codecov for tracking
+**Triggers**: Push to `master`, Pull Requests, Manual dispatch
+**Runtime**: ~1-2 minutes
+
+**Services**:
+
+- PostgreSQL 15 (test database)
+- Redis 7 (caching and sessions)
+
+**Steps**:
+
+- Database migrations (`npm run db:migrate`)
+- All tests with coverage (`npm run test:coverage`)
+    - 18 Unit test suites (134 tests)
+    - 3 Integration test suites (32 tests)
+- Coverage reporting to Codecov
 
 ## Test Strategy
 
-### Unit Tests Only
+### Unified Test Execution
 
-The CI pipeline only runs unit tests to ensure:
+The Tests workflow runs **both unit and integration tests** in a single command (`npm run test:coverage`) for:
 
-- ⚡ **Fast execution** - No database or service dependencies
-- 🔒 **Reliability** - No external service failures
-- 🧪 **Isolation** - Each test runs independently with mocked dependencies
-
-### Integration Tests
-
-Integration tests are **not run in the main CI pipeline** but have their own dedicated workflow:
-
-- **Separate Workflow**: `.github/workflows/integration-tests.yml`
-- **Real Services**: Uses PostgreSQL and Redis service containers
+- 📊 **Complete Coverage** - Combined coverage metrics for all code
+- 🔄 **Simplified Workflow** - Single test command handles everything
+- 🎯 **Real Environment** - Integration tests use actual PostgreSQL and Redis
 - **Comprehensive Testing**: Full database and cache integration
 - **Manual Triggers**: Can be triggered manually for specific testing needs
 

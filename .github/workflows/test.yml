@@ -144,5 +144,5 @@ jobs:
           fail_ci_if_error: false
           flags: tests
           name: test-coverage
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
