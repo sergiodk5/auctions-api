@@ -13,7 +13,7 @@ jobs:
   tests:
     uses: ./.github/workflows/test.yml
     secrets: inherit
-    
+
   code-quality:
     runs-on: ubuntu-latest
     needs: tests
