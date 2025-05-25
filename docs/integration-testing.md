@@ -16,60 +16,66 @@ The integration testing workflow (`integration-tests.yml`) runs comprehensive te
 ### Triggers
 
 - **Push to master**: Automatically runs on master branch pushes
-- **Pull Requests**: Runs on PRs targeting master branch  
+- **Pull Requests**: Runs on PRs targeting master branch
 - **Manual Dispatch**: Can be triggered manually from GitHub Actions tab
 
 ### Service Containers
 
 #### PostgreSQL Service
+
 ```yaml
 postgres:
-  image: postgres:15-alpine
-  env:
-    POSTGRES_USER: postgres
-    POSTGRES_PASSWORD: postgres
-    POSTGRES_DB: postgres_test
-  options: >-
-    --health-cmd pg_isready
-    --health-interval 10s
-    --health-timeout 5s
-    --health-retries 5
-  ports:
-    - 5432:5432
+    image: postgres:15-alpine
+    env:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: postgres_test
+    options: >-
+        --health-cmd pg_isready
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
+    ports:
+        - 5432:5432
 ```
 
 #### Redis Service
+
 ```yaml
 redis:
-  image: redis:7-alpine
-  options: >-
-    --health-cmd "redis-cli ping"
-    --health-interval 10s
-    --health-timeout 5s
-    --health-retries 5
-  ports:
-    - 6379:6379
+    image: redis:7-alpine
+    options: >-
+        --health-cmd "redis-cli ping"
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
+    ports:
+        - 6379:6379
 ```
 
 ## Workflow Steps
 
 ### 1. Environment Setup
+
 - Checkout repository code
 - Setup Node.js from `.nvmrc`
 - Install npm dependencies
 
 ### 2. Database Setup
+
 - Install PostgreSQL client tools
 - Create test database (`postgres_test`)
 - Verify PostgreSQL and Redis connectivity
 - Run database migrations
 
 ### 3. Quality Checks
+
 - TypeScript type checking
 - ESLint linting
 - Prettier formatting validation
 
 ### 4. Testing
+
 - Run integration tests with real services
 - Run full test suite with coverage
 - Upload coverage reports to Codecov
@@ -120,13 +126,13 @@ Both service containers include comprehensive health checks:
 
 ## Comparison with Unit Tests Workflow
 
-| Feature | Unit Tests CI | Integration Tests |
-|---------|---------------|-------------------|
-| **Speed** | ~2 minutes | ~5-8 minutes |
-| **Services** | None | PostgreSQL + Redis |
-| **Database** | Mocked | Real database |
-| **Cache** | Mocked | Real Redis |
-| **Purpose** | Fast feedback | Comprehensive validation |
+| Feature      | Unit Tests CI  | Integration Tests          |
+| ------------ | -------------- | -------------------------- |
+| **Speed**    | ~2 minutes     | ~5-8 minutes               |
+| **Services** | None           | PostgreSQL + Redis         |
+| **Database** | Mocked         | Real database              |
+| **Cache**    | Mocked         | Real Redis                 |
+| **Purpose**  | Fast feedback  | Comprehensive validation   |
 | **Triggers** | All pushes/PRs | Master pushes/PRs + manual |
 
 ## Troubleshooting
@@ -134,24 +140,27 @@ Both service containers include comprehensive health checks:
 ### Common Issues
 
 1. **Service Health Check Failures**
-   - Services have 5 retry attempts with 10s intervals
-   - Check GitHub Actions logs for health check status
-   - Verify Docker images are accessible
+
+    - Services have 5 retry attempts with 10s intervals
+    - Check GitHub Actions logs for health check status
+    - Verify Docker images are accessible
 
 2. **Database Connection Issues**
-   - Test database is created separately (`postgres_test`)
-   - PostgreSQL client tools are installed in workflow
-   - Connection uses localhost with mapped ports
+
+    - Test database is created separately (`postgres_test`)
+    - PostgreSQL client tools are installed in workflow
+    - Connection uses localhost with mapped ports
 
 3. **Migration Failures**
-   - Ensure `npm run db:migrate` script exists
-   - Check DATABASE_URL environment variable
-   - Verify migration files are committed
+
+    - Ensure `npm run db:migrate` script exists
+    - Check DATABASE_URL environment variable
+    - Verify migration files are committed
 
 4. **Test Timeouts**
-   - Integration tests may take longer than unit tests
-   - Consider increasing Jest timeout for integration tests
-   - Ensure proper test cleanup and connection closing
+    - Integration tests may take longer than unit tests
+    - Consider increasing Jest timeout for integration tests
+    - Ensure proper test cleanup and connection closing
 
 ### Manual Testing
 

@@ -175,20 +175,23 @@ The project features comprehensive test coverage with both unit and integration 
 ### Quick Commands
 
 - **Run All Tests:**
+
     ```bash
     npm test
     ```
 
 - **Run Unit Tests Only (Fast):**
+
     ```bash
     npm run test:unit
     ```
 
 - **Run Integration Tests (Requires Database):**
+
     ```bash
     # With Docker (recommended)
     npm run test:integration:local
-    
+
     # Or start services manually
     npm run test:setup
     npm run test:integration
@@ -196,6 +199,7 @@ The project features comprehensive test coverage with both unit and integration 
     ```
 
 - **Test Coverage:**
+
     ```bash
     npm run test:coverage
     ```

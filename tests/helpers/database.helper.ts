@@ -9,7 +9,7 @@ let db: ReturnType<typeof drizzle> | null = null;
 export const setupTestDatabase = () => {
     if (!pool) {
         const connectionString = TEST_DATABASE_URL;
-        pool = new Pool({ 
+        pool = new Pool({
             connectionString,
             max: 10,
             idleTimeoutMillis: 30000,
@@ -38,7 +38,7 @@ export const cleanupTestDatabase = async () => {
         await db.execute(sql`TRUNCATE TABLE users RESTART IDENTITY CASCADE`);
     } catch (error) {
         console.error("Failed to cleanup test database:", error);
-        throw new Error(`Database cleanup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw new Error(`Database cleanup failed: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
 };
 

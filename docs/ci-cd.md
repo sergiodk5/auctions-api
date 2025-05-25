@@ -99,6 +99,7 @@ npm run test:watch
 ## Benefits of This Approach
 
 ### Main CI Pipeline (Unit Tests)
+
 1. **Speed**: CI runs complete in under 2 minutes
 2. **Reliability**: No external service dependencies that can fail
 3. **Cost**: Lower CI/CD costs without database containers
@@ -106,6 +107,7 @@ npm run test:watch
 5. **Separation**: Clear separation between fast unit tests and comprehensive integration tests
 
 ### Integration Testing Pipeline
+
 1. **Comprehensive**: Tests with real PostgreSQL and Redis services
 2. **Realistic**: Uses actual database connections and cache operations
 3. **Parallel**: Runs independently of main CI for non-blocking feedback
@@ -169,7 +171,7 @@ jobs:
         runs-on: ubuntu-latest
         services:
             postgres: # PostgreSQL 15-alpine
-            redis:    # Redis 7-alpine
+            redis: # Redis 7-alpine
         steps:
             - Setup environment and services
             - Run database migrations

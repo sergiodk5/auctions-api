@@ -5,11 +5,13 @@ This guide covers how to run tests locally and understand the testing infrastruc
 ## Quick Start
 
 ### Running All Tests
+
 ```bash
 npm test
 ```
 
 ### Running Unit Tests Only
+
 ```bash
 npm run test:unit
 ```
@@ -17,6 +19,7 @@ npm run test:unit
 ### Running Integration Tests
 
 #### With Docker (Recommended)
+
 ```bash
 # Start test services, run integration tests, then clean up
 npm run test:integration:local
@@ -28,7 +31,9 @@ npm run test:teardown       # Stop and clean up services
 ```
 
 #### Without Docker
+
 If you have PostgreSQL and Redis running locally:
+
 ```bash
 # Set environment variables
 export NODE_ENV=test
@@ -71,15 +76,18 @@ tests/
 ### Required Services
 
 **For Unit Tests:**
+
 - No external services required (all dependencies mocked)
 
 **For Integration Tests:**
+
 - PostgreSQL 15+
 - Redis 7+
 
 ### Environment Variables
 
 Create a `.env.test` file for local testing:
+
 ```bash
 NODE_ENV=test
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres_test
@@ -106,56 +114,62 @@ MAILER_FROM_DOMAIN=test.com
 ### Database Connection Issues
 
 1. **PostgreSQL not running:**
-   ```bash
-   # Using Docker
-   docker-compose -f docker-compose.test.yml up -d postgres_test
-   
-   # Using local PostgreSQL
-   brew services start postgresql
-   ```
+
+    ```bash
+    # Using Docker
+    docker-compose -f docker-compose.test.yml up -d postgres_test
+
+    # Using local PostgreSQL
+    brew services start postgresql
+    ```
 
 2. **Test database doesn't exist:**
-   ```bash
-   createdb -h localhost -U postgres postgres_test
-   ```
+
+    ```bash
+    createdb -h localhost -U postgres postgres_test
+    ```
 
 3. **Connection refused:**
-   - Check if PostgreSQL is running on port 5432 (or 5433 for test container)
-   - Verify connection string in environment variables
-   - Check firewall settings
+    - Check if PostgreSQL is running on port 5432 (or 5433 for test container)
+    - Verify connection string in environment variables
+    - Check firewall settings
 
 ### Redis Connection Issues
 
 1. **Redis not running:**
-   ```bash
-   # Using Docker
-   docker-compose -f docker-compose.test.yml up -d redis
-   
-   # Using local Redis
-   brew services start redis
-   ```
+
+    ```bash
+    # Using Docker
+    docker-compose -f docker-compose.test.yml up -d redis
+
+    # Using local Redis
+    brew services start redis
+    ```
 
 2. **Connection refused:**
-   - Check if Redis is running on port 6379
-   - Verify REDIS_HOST and REDIS_PORT environment variables
+    - Check if Redis is running on port 6379
+    - Verify REDIS_HOST and REDIS_PORT environment variables
 
 ### Test Failures
 
 1. **Database cleanup errors:**
-   - Ensure test database exists and is accessible
-   - Check for proper table creation via migrations
+
+    - Ensure test database exists and is accessible
+    - Check for proper table creation via migrations
 
 2. **Timeout issues:**
-   - Integration tests have 30s timeout by default
-   - Database setup might take time on first run
+
+    - Integration tests have 30s timeout by default
+    - Database setup might take time on first run
 
 3. **Port conflicts:**
-   - Default ports: PostgreSQL (5432/5433), Redis (6379)
-   - Change ports in docker-compose.test.yml if needed
+    - Default ports: PostgreSQL (5432/5433), Redis (6379)
+    - Change ports in docker-compose.test.yml if needed
 
 ## Coverage
 
 View coverage reports:
+
 ```bash
 npm run test:coverage
 open coverage/lcov-report/index.html
@@ -168,5 +182,6 @@ open coverage/lcov-report/index.html
 - Both contribute to overall coverage reporting
 
 For more details, see:
+
 - [CI/CD Documentation](./ci-cd.md)
 - [Integration Testing Workflow](./integration-testing.md)

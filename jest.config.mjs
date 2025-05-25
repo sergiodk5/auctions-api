@@ -1,5 +1,5 @@
-import { pathsToModuleNameMapper } from "ts-jest";
 import { createRequire } from "module";
+import { pathsToModuleNameMapper } from "ts-jest";
 
 const require = createRequire(import.meta.url);
 const { compilerOptions } = require("./tsconfig.json");
@@ -44,11 +44,7 @@ export default {
         },
     ],
     // Default config for when running all tests
-    collectCoverageFrom: [
-        "src/**/*.{ts,tsx}",
-        "!src/**/*.d.ts",
-        "!src/**/index.ts",
-    ],
+    collectCoverageFrom: ["src/**/*.{ts,tsx}", "!src/**/*.d.ts", "!src/**/index.ts"],
     coverageDirectory: "coverage",
     coverageReporters: ["text", "lcov", "html"],
 };
