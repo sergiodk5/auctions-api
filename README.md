@@ -1,5 +1,9 @@
 # Auctions API
 
+[![CI](https://github.com/sergiodk5/auctions-api/workflows/CI/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)
+[![Tests](https://github.com/sergiodk5/auctions-api/workflows/Tests/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/sergiodk5/auctions-api/branch/main/graph/badge.svg)](https://codecov.io/gh/sergiodk5/auctions-api)
+
 A robust, TypeScript-based REST API for auction management with comprehensive authentication and email verification.
 
 ## Features
@@ -9,7 +13,7 @@ A robust, TypeScript-based REST API for auction management with comprehensive au
 - **User Management:** Robust user registration, login, and profile management
 - **Rate Limiting:** Built-in protection against brute force attacks with configurable rate limiters
 - **Modular Architecture:** Clean separation of concerns using dependency injection, controllers, services, and repositories
-- **Quality Assurance:** Comprehensive test suite with 139 tests covering unit and integration scenarios
+- **Quality Assurance:** Comprehensive test suite with 166 tests covering unit and integration scenarios
 - **Type Safety:** Full TypeScript implementation with strict type checking
 - **Database Integration:** PostgreSQL with Drizzle ORM for type-safe database operations
 - **API Documentation:** Interactive OpenAPI 3.0 documentation with Swagger UI
@@ -244,8 +248,8 @@ tests/
 
 ### Test Statistics
 
-- **20 test suites**
-- **139 total tests**
+- **21 test suites**
+- **166 total tests** (134 unit + 32 integration)
 - **100% passing rate**
 - Coverage includes authentication, email verification, user management, and error handling
 
@@ -273,7 +277,7 @@ src/
 - **Email Verification**: Full email verification workflow with token validation
 - **User Management**: Registration, login, profile management
 - **Security**: Rate limiting, password hashing, input validation
-- **Testing**: Comprehensive test suite with 139 tests (100% passing)
+- **Testing**: Comprehensive test suite with 166 tests (100% passing)
 - **Code Quality**: TypeScript strict mode, ESLint, Prettier integration
 - **Database**: PostgreSQL with Drizzle ORM and migrations
 
