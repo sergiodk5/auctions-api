@@ -45,11 +45,14 @@ The CI pipeline only runs unit tests to ensure:
 
 ### Integration Tests
 
-Integration tests are **not run in GitHub Actions** and will be handled by a separate testing system:
+Integration tests are **not run in the main CI pipeline** but have their own dedicated workflow:
 
-- Local development environment
-- Dedicated integration testing infrastructure
-- Manual testing workflows
+- **Separate Workflow**: `.github/workflows/integration-tests.yml`
+- **Real Services**: Uses PostgreSQL and Redis service containers
+- **Comprehensive Testing**: Full database and cache integration
+- **Manual Triggers**: Can be triggered manually for specific testing needs
+
+For detailed information about integration testing, see [Integration Testing Documentation](./integration-testing.md).
 
 ## Environment Variables
 
@@ -95,11 +98,19 @@ npm run test:watch
 
 ## Benefits of This Approach
 
+### Main CI Pipeline (Unit Tests)
 1. **Speed**: CI runs complete in under 2 minutes
 2. **Reliability**: No external service dependencies that can fail
 3. **Cost**: Lower CI/CD costs without database containers
 4. **Feedback**: Quick feedback loop for developers
 5. **Separation**: Clear separation between fast unit tests and comprehensive integration tests
+
+### Integration Testing Pipeline
+1. **Comprehensive**: Tests with real PostgreSQL and Redis services
+2. **Realistic**: Uses actual database connections and cache operations
+3. **Parallel**: Runs independently of main CI for non-blocking feedback
+4. **Manual Control**: Can be triggered on-demand for specific scenarios
+5. **Coverage**: Provides complete test coverage including service integrations
 
 ## Future Enhancements
 
@@ -112,7 +123,11 @@ Integration testing will be handled by a separate system with:
 
 ## Workflow Configuration
 
-The GitHub Actions workflow (`.github/workflows/ci.yml`) is configured with:
+The project uses two GitHub Actions workflows:
+
+### 1. Main CI Pipeline (`.github/workflows/ci.yml`)
+
+Fast unit tests and quality checks:
 
 ```yaml
 name: CI
@@ -133,6 +148,33 @@ jobs:
             - Run quality checks (TypeScript, ESLint, Prettier)
             - Run unit tests with coverage
             - Upload coverage reports
+```
+
+### 2. Integration Tests Pipeline (`.github/workflows/integration-tests.yml`)
+
+Comprehensive testing with real services:
+
+```yaml
+name: Integration Tests
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
+    workflow_dispatch:
+
+jobs:
+    integration-tests:
+        runs-on: ubuntu-latest
+        services:
+            postgres: # PostgreSQL 15-alpine
+            redis:    # Redis 7-alpine
+        steps:
+            - Setup environment and services
+            - Run database migrations
+            - Run integration tests
+            - Generate comprehensive coverage
 ```
 
 ## Available Test Scripts

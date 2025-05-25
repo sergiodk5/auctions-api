@@ -172,26 +172,30 @@ For detailed information about using the API documentation, see [`docs/openapi.m
 
 The project features comprehensive test coverage with both unit and integration tests:
 
-- **Run All Tests:**
+### Quick Commands
 
+- **Run All Tests:**
     ```bash
     npm test
     ```
 
-- **Run Unit Tests Only:**
-
+- **Run Unit Tests Only (Fast):**
     ```bash
     npm run test:unit
     ```
 
-- **Run Integration Tests Only:**
-
+- **Run Integration Tests (Requires Database):**
     ```bash
+    # With Docker (recommended)
+    npm run test:integration:local
+    
+    # Or start services manually
+    npm run test:setup
     npm run test:integration
+    npm run test:teardown
     ```
 
 - **Test Coverage:**
-
     ```bash
     npm run test:coverage
     ```
@@ -200,6 +204,23 @@ The project features comprehensive test coverage with both unit and integration 
     ```bash
     npm run test:watch
     ```
+
+### Integration Testing Setup
+
+Integration tests require PostgreSQL and Redis. Use Docker for easy setup:
+
+```bash
+# Start test services
+npm run test:setup
+
+# Run integration tests
+npm run test:integration
+
+# Clean up services
+npm run test:teardown
+```
+
+For detailed testing instructions, see [Testing Guide](./docs/testing.md).
 
 ### Test Structure
 
