@@ -1,8 +1,5 @@
 # Auctions API
 
-[![CI](https://github.com/sergiodk5/auctions-api/workflows/CI/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-91.3%25-brightgreen)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)tions API
-
 [![Tests](https://github.com/sergiodk5/auctions-api/workflows/Tests/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
 [![CI](https://github.com/sergiodk5/auctions-api/workflows/CI/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-91.3%25-brightgreen)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
@@ -248,13 +245,6 @@ tests/
 │   └── routes/             # API endpoint tests
 └── helpers/                # Test utilities and setup
 ```
-
-### Test Statistics
-
-- **21 test suites**
-- **166 total tests** (134 unit + 32 integration)
-- **100% passing rate**
-- Coverage includes authentication, email verification, user management, and error handling
 
 ## Project Structure
 
