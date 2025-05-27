@@ -3,10 +3,10 @@ jest.mock("jsonwebtoken", () => ({
     decode: jest.fn(),
 }));
 
-import "reflect-metadata";
 import AuthController from "@/controllers/auth.controller";
 import { Request, Response } from "express-serve-static-core";
 import jwt from "jsonwebtoken";
+import "reflect-metadata";
 
 describe("AuthController", () => {
     let mockAuthService: any;
@@ -22,6 +22,8 @@ describe("AuthController", () => {
             refresh: jest.fn(),
             revokeAccess: jest.fn(),
             logout: jest.fn(),
+            requestPasswordReset: jest.fn(),
+            resetPassword: jest.fn(),
         };
         controller = new AuthController(mockAuthService);
 
@@ -180,6 +182,97 @@ describe("AuthController", () => {
             expect(jwt.decode).toHaveBeenCalledWith("atok");
             expect(mockAuthService.logout).toHaveBeenCalledWith("jid", 99999, "rtok");
             expect(res.sendStatus).toHaveBeenCalledWith(204);
+        });
+    });
+
+    describe("forgotPassword", () => {
+        it("should return 204 on successful password reset request", async () => {
+            req.body = { email: "user@example.com" };
+            mockAuthService.requestPasswordReset.mockResolvedValue(undefined);
+
+            await controller.forgotPassword(req as Request, res as Response);
+
+            expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith("user@example.com");
+            expect(res.sendStatus).toHaveBeenCalledWith(204);
+        });
+
+        it("should return 204 on service error to avoid email enumeration", async () => {
+            req.body = { email: "nonexistent@example.com" };
+            mockAuthService.requestPasswordReset.mockRejectedValue(new Error("UserNotFound"));
+
+            await controller.forgotPassword(req as Request, res as Response);
+
+            expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith("nonexistent@example.com");
+            expect(res.sendStatus).toHaveBeenCalledWith(204);
+        });
+
+        it("should return 204 on any service error to prevent information disclosure", async () => {
+            req.body = { email: "user@example.com" };
+            mockAuthService.requestPasswordReset.mockRejectedValue(new Error("Service unavailable"));
+
+            await controller.forgotPassword(req as Request, res as Response);
+
+            expect(res.sendStatus).toHaveBeenCalledWith(204);
+        });
+    });
+
+    describe("resetPassword", () => {
+        it("should return 204 on successful password reset", async () => {
+            const token = "valid-reset-token";
+            const password = "newPassword123";
+            req.body = { token, password };
+            mockAuthService.resetPassword.mockResolvedValue(undefined);
+
+            await controller.resetPassword(req as Request, res as Response);
+
+            expect(mockAuthService.resetPassword).toHaveBeenCalledWith(token, password);
+            expect(res.sendStatus).toHaveBeenCalledWith(204);
+        });
+
+        it("should return 400 with error message on invalid token", async () => {
+            const token = "invalid-token";
+            const password = "newPassword123";
+            req.body = { token, password };
+            mockAuthService.resetPassword.mockRejectedValue(new Error("InvalidOrExpiredToken"));
+
+            await controller.resetPassword(req as Request, res as Response);
+
+            expect(mockAuthService.resetPassword).toHaveBeenCalledWith(token, password);
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: "Invalid or expired token",
+            });
+        });
+
+        it("should return 400 with error message on expired token", async () => {
+            const token = "expired-token";
+            const password = "newPassword123";
+            req.body = { token, password };
+            mockAuthService.resetPassword.mockRejectedValue(new Error("Token expired"));
+
+            await controller.resetPassword(req as Request, res as Response);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: "Invalid or expired token",
+            });
+        });
+
+        it("should return 400 with error message on any service error", async () => {
+            const token = "valid-token";
+            const password = "newPassword123";
+            req.body = { token, password };
+            mockAuthService.resetPassword.mockRejectedValue(new Error("Database error"));
+
+            await controller.resetPassword(req as Request, res as Response);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({
+                success: false,
+                message: "Invalid or expired token",
+            });
         });
     });
 });

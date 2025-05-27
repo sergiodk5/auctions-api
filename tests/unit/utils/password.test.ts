@@ -6,6 +6,14 @@ jest.mock("bcryptjs", () => ({
     compare: jest.fn(),
 }));
 
+// Mock the env module to allow changing NODE_ENV
+let mockNodeEnv = "test";
+jest.mock("@/config/env", () => ({
+    get NODE_ENV() {
+        return mockNodeEnv;
+    },
+}));
+
 describe("Password Utility Functions", () => {
     it("should hash a password", async () => {
         const password = "myPassword";
@@ -60,5 +68,26 @@ describe("Password Utility Functions", () => {
         (bcrypt.compare as jest.Mock).mockRejectedValue(new Error(errorMessage));
 
         await expect(comparePassword(password, hashedPassword)).rejects.toThrow(errorMessage);
+    });
+
+    it("should log error in non-test environment when hashing fails", async () => {
+        const password = "myPassword";
+        const errorMessage = "Hashing error";
+
+        // Change mock to production environment
+        mockNodeEnv = "production";
+
+        // Mock console.error
+        const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+
+        (bcrypt.hash as jest.Mock).mockRejectedValue(new Error(errorMessage));
+
+        await expect(hashPassword(password)).rejects.toThrow("Failed to hash password");
+
+        expect(consoleSpy).toHaveBeenCalledWith("Error hashing password:", expect.any(Error));
+
+        // Restore console and environment
+        consoleSpy.mockRestore();
+        mockNodeEnv = "test";
     });
 });
