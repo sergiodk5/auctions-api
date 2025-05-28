@@ -1,507 +1,471 @@
 {
-  "id": "52f478a2-14d4-4888-9bb4-0bb1782df135",
-  "prevId": "ecca2cd8-8e08-49c3-b717-a5d9e111b564",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.users": {
-      "name": "users",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "users_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
+    "id": "52f478a2-14d4-4888-9bb4-0bb1782df135",
+    "prevId": "ecca2cd8-8e08-49c3-b717-a5d9e111b564",
+    "version": "7",
+    "dialect": "postgresql",
+    "tables": {
+        "public.users": {
+            "name": "users",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "identity": {
+                        "type": "always",
+                        "name": "users_id_seq",
+                        "schema": "public",
+                        "increment": "1",
+                        "startWith": "1",
+                        "minValue": "1",
+                        "maxValue": "2147483647",
+                        "cache": "1",
+                        "cycle": false
+                    }
+                },
+                "email": {
+                    "name": "email",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "password": {
+                    "name": "password",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "email_verified": {
+                    "name": "email_verified",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": false
+                },
+                "email_verified_at": {
+                    "name": "email_verified_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "users_email_unique": {
+                    "name": "users_email_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["email"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
+        "public.refresh_families": {
+            "name": "refresh_families",
+            "schema": "",
+            "columns": {
+                "family_id": {
+                    "name": "family_id",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "default": "gen_random_uuid()"
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "absolute_expiry": {
+                    "name": "absolute_expiry",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "refresh_families_user_id_users_id_fk": {
+                    "name": "refresh_families_user_id_users_id_fk",
+                    "tableFrom": "refresh_families",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "password": {
-          "name": "password",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
+        "public.refresh_tokens": {
+            "name": "refresh_tokens",
+            "schema": "",
+            "columns": {
+                "jti": {
+                    "name": "jti",
+                    "type": "uuid",
+                    "primaryKey": true,
+                    "notNull": true
+                },
+                "family_id": {
+                    "name": "family_id",
+                    "type": "uuid",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "issued_at": {
+                    "name": "issued_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "revoked_at": {
+                    "name": "revoked_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "refresh_tokens_family_id_refresh_families_family_id_fk": {
+                    "name": "refresh_tokens_family_id_refresh_families_family_id_fk",
+                    "tableFrom": "refresh_tokens",
+                    "tableTo": "refresh_families",
+                    "columnsFrom": ["family_id"],
+                    "columnsTo": ["family_id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
+        "public.email_verification": {
+            "name": "email_verification",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "identity": {
+                        "type": "always",
+                        "name": "email_verification_id_seq",
+                        "schema": "public",
+                        "increment": "1",
+                        "startWith": "1",
+                        "minValue": "1",
+                        "maxValue": "2147483647",
+                        "cache": "1",
+                        "cycle": false
+                    }
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "token": {
+                    "name": "token",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "verified_at": {
+                    "name": "verified_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "email_verification_user_id_users_id_fk": {
+                    "name": "email_verification_user_id_users_id_fk",
+                    "tableFrom": "email_verification",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "email_verification_token_unique": {
+                    "name": "email_verification_token_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["token"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         },
-        "email_verified_at": {
-          "name": "email_verified_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
+        "public.permissions": {
+            "name": "permissions",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "identity": {
+                        "type": "always",
+                        "name": "permissions_id_seq",
+                        "schema": "public",
+                        "increment": "1",
+                        "startWith": "1",
+                        "minValue": "1",
+                        "maxValue": "2147483647",
+                        "cache": "1",
+                        "cycle": false
+                    }
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "permissions_name_unique": {
+                    "name": "permissions_name_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["name"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.role_permissions": {
+            "name": "role_permissions",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "identity": {
+                        "type": "always",
+                        "name": "role_permissions_id_seq",
+                        "schema": "public",
+                        "increment": "1",
+                        "startWith": "1",
+                        "minValue": "1",
+                        "maxValue": "2147483647",
+                        "cache": "1",
+                        "cycle": false
+                    }
+                },
+                "role_id": {
+                    "name": "role_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "permission_id": {
+                    "name": "permission_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "role_permissions_role_id_roles_id_fk": {
+                    "name": "role_permissions_role_id_roles_id_fk",
+                    "tableFrom": "role_permissions",
+                    "tableTo": "roles",
+                    "columnsFrom": ["role_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "role_permissions_permission_id_permissions_id_fk": {
+                    "name": "role_permissions_permission_id_permissions_id_fk",
+                    "tableFrom": "role_permissions",
+                    "tableTo": "permissions",
+                    "columnsFrom": ["permission_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.roles": {
+            "name": "roles",
+            "schema": "",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "integer",
+                    "primaryKey": true,
+                    "notNull": true,
+                    "identity": {
+                        "type": "always",
+                        "name": "roles_id_seq",
+                        "schema": "public",
+                        "increment": "1",
+                        "startWith": "1",
+                        "minValue": "1",
+                        "maxValue": "2147483647",
+                        "cache": "1",
+                        "cycle": false
+                    }
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "timestamp",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "default": "now()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {
+                "roles_name_unique": {
+                    "name": "roles_name_unique",
+                    "nullsNotDistinct": false,
+                    "columns": ["name"]
+                }
+            },
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
+        },
+        "public.user_roles": {
+            "name": "user_roles",
+            "schema": "",
+            "columns": {
+                "user_id": {
+                    "name": "user_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                },
+                "role_id": {
+                    "name": "role_id",
+                    "type": "integer",
+                    "primaryKey": false,
+                    "notNull": true
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "user_roles_user_id_users_id_fk": {
+                    "name": "user_roles_user_id_users_id_fk",
+                    "tableFrom": "user_roles",
+                    "tableTo": "users",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "user_roles_role_id_roles_id_fk": {
+                    "name": "user_roles_role_id_roles_id_fk",
+                    "tableFrom": "user_roles",
+                    "tableTo": "roles",
+                    "columnsFrom": ["role_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {},
+            "uniqueConstraints": {},
+            "policies": {},
+            "checkConstraints": {},
+            "isRLSEnabled": false
         }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
     },
-    "public.refresh_families": {
-      "name": "refresh_families",
-      "schema": "",
-      "columns": {
-        "family_id": {
-          "name": "family_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "absolute_expiry": {
-          "name": "absolute_expiry",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "refresh_families_user_id_users_id_fk": {
-          "name": "refresh_families_user_id_users_id_fk",
-          "tableFrom": "refresh_families",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.refresh_tokens": {
-      "name": "refresh_tokens",
-      "schema": "",
-      "columns": {
-        "jti": {
-          "name": "jti",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "family_id": {
-          "name": "family_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "issued_at": {
-          "name": "issued_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "revoked_at": {
-          "name": "revoked_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "refresh_tokens_family_id_refresh_families_family_id_fk": {
-          "name": "refresh_tokens_family_id_refresh_families_family_id_fk",
-          "tableFrom": "refresh_tokens",
-          "tableTo": "refresh_families",
-          "columnsFrom": [
-            "family_id"
-          ],
-          "columnsTo": [
-            "family_id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.email_verification": {
-      "name": "email_verification",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "email_verification_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "token": {
-          "name": "token",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "verified_at": {
-          "name": "verified_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "email_verification_user_id_users_id_fk": {
-          "name": "email_verification_user_id_users_id_fk",
-          "tableFrom": "email_verification",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "email_verification_token_unique": {
-          "name": "email_verification_token_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.permissions": {
-      "name": "permissions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "permissions_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "permissions_name_unique": {
-          "name": "permissions_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.role_permissions": {
-      "name": "role_permissions",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "role_permissions_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "role_id": {
-          "name": "role_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "permission_id": {
-          "name": "permission_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "role_permissions_role_id_roles_id_fk": {
-          "name": "role_permissions_role_id_roles_id_fk",
-          "tableFrom": "role_permissions",
-          "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "role_permissions_permission_id_permissions_id_fk": {
-          "name": "role_permissions_permission_id_permissions_id_fk",
-          "tableFrom": "role_permissions",
-          "tableTo": "permissions",
-          "columnsFrom": [
-            "permission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.roles": {
-      "name": "roles",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "identity": {
-            "type": "always",
-            "name": "roles_id_seq",
-            "schema": "public",
-            "increment": "1",
-            "startWith": "1",
-            "minValue": "1",
-            "maxValue": "2147483647",
-            "cache": "1",
-            "cycle": false
-          }
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "roles_name_unique": {
-          "name": "roles_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.user_roles": {
-      "name": "user_roles",
-      "schema": "",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role_id": {
-          "name": "role_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_roles_user_id_users_id_fk": {
-          "name": "user_roles_user_id_users_id_fk",
-          "tableFrom": "user_roles",
-          "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "user_roles_role_id_roles_id_fk": {
-          "name": "user_roles_role_id_roles_id_fk",
-          "tableFrom": "user_roles",
-          "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {},
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "columns": {},
+    "enums": {},
     "schemas": {},
-    "tables": {}
-  }
+    "sequences": {},
+    "roles": {},
+    "policies": {},
+    "views": {},
+    "_meta": {
+        "columns": {},
+        "schemas": {},
+        "tables": {}
+    }
 }

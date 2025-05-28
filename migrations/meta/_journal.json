@@ -1,41 +1,41 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1745264485688,
-      "tag": "0000_users",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1745948045280,
-      "tag": "0001_tokens",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1748093366023,
-      "tag": "0002_messy_spot",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1748093405673,
-      "tag": "0003_steady_kulan_gath",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1748457159394,
-      "tag": "0004_chief_korg",
-      "breakpoints": true
-    }
-  ]
+    "version": "7",
+    "dialect": "postgresql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "7",
+            "when": 1745264485688,
+            "tag": "0000_users",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "7",
+            "when": 1745948045280,
+            "tag": "0001_tokens",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "7",
+            "when": 1748093366023,
+            "tag": "0002_messy_spot",
+            "breakpoints": true
+        },
+        {
+            "idx": 3,
+            "version": "7",
+            "when": 1748093405673,
+            "tag": "0003_steady_kulan_gath",
+            "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "7",
+            "when": 1748457159394,
+            "tag": "0004_chief_korg",
+            "breakpoints": true
+        }
+    ]
 }
