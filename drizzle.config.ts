@@ -6,7 +6,12 @@ dotenv.config({ path: ".env" });
 
 export default defineConfig({
     out: "./migrations",
-    schema: ["./src/db/users.schema.ts", "./src/db/tokens.schema.ts", "./src/db/email-verification.schema.ts"],
+    schema: [
+        "./src/db/users.schema.ts",
+        "./src/db/tokens.schema.ts",
+        "./src/db/email-verification.schema.ts",
+        "./src/db/roles-permissions.schema.ts",
+    ],
     dialect: "postgresql",
     dbCredentials: {
         url: DATABASE_URL,
