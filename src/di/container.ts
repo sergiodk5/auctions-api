@@ -20,8 +20,12 @@ import {
     EmailVerificationRepository,
     IEmailVerificationRepository,
 } from "@/repositories/email-verification.repository";
+import PermissionRepository, { IPermissionRepository } from "@/repositories/permission.repository";
+import RoleRepository, { IRoleRepository } from "@/repositories/role.repository";
 import TokenRepository, { ITokenRepository } from "@/repositories/token.repository";
 import UserRepository, { IUserRepository } from "@/repositories/user.repository";
+import UserRoleRepository, { IUserRoleRepository } from "@/repositories/user-role.repository";
+import UserPermissionRepository, { IUserPermissionRepository } from "@/repositories/user-permission.repository";
 import AuthService, { IAuthService } from "@/services/auth.service";
 import CacheService, { ICacheService } from "@/services/cache.service";
 import DatabaseService, { IDatabaseService } from "@/services/database.service";
@@ -69,6 +73,10 @@ container.bind<ICacheService>(TYPES.ICacheService).to(CacheService);
 container.bind<ITokenRepository>(TYPES.ITokenRepository).to(TokenRepository);
 container.bind<IUserRepository>(TYPES.IUserRepository).to(UserRepository);
 container.bind<IEmailVerificationRepository>(TYPES.IEmailVerificationRepository).to(EmailVerificationRepository);
+container.bind<IPermissionRepository>(TYPES.IPermissionRepository).to(PermissionRepository);
+container.bind<IRoleRepository>(TYPES.IRoleRepository).to(RoleRepository);
+container.bind<IUserRoleRepository>(TYPES.IUserRoleRepository).to(UserRoleRepository);
+container.bind<IUserPermissionRepository>(TYPES.IUserPermissionRepository).to(UserPermissionRepository);
 
 // Services
 container.bind<IUserService>(TYPES.IUserService).to(UserService);
