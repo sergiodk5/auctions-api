@@ -13,6 +13,7 @@ const TYPES = {
 
     IUserService: Symbol.for("IUserService"),
     IAuthService: Symbol.for("IAuthService"),
+    IPermissionService: Symbol.for("IPermissionService"),
 
     IMailerService: Symbol.for("IMailerService"),
     MailerTransporter: Symbol.for("MailerTransporter"),

@@ -32,6 +32,7 @@ import DatabaseService, { IDatabaseService } from "@/services/database.service";
 import { IMailerService } from "@/services/IMailerService";
 import { MailerService } from "@/services/mailer.service";
 import UserService, { type IUserService } from "@/services/user.service";
+import PermissionService, { type IPermissionService } from "@/services/permission.service";
 import ValidationService, { IValidationService } from "@/services/validation.service";
 import { Container } from "inversify";
 import nodemailer from "nodemailer";
@@ -81,6 +82,7 @@ container.bind<IUserPermissionRepository>(TYPES.IUserPermissionRepository).to(Us
 // Services
 container.bind<IUserService>(TYPES.IUserService).to(UserService);
 container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
+container.bind<IPermissionService>(TYPES.IPermissionService).to(PermissionService);
 container.bind<IValidationService>(TYPES.IValidationService).to(ValidationService);
 
 container.bind<IMailerService>(TYPES.IMailerService).to(MailerService);
