@@ -19,7 +19,7 @@ export default class UserPermissionRepository implements IUserPermissionReposito
 
     constructor(
         @inject(TYPES.IDatabaseService) private readonly databaseService: IDatabaseService,
-        @inject(TYPES.ICacheService) private readonly cacheService: ICacheService
+        @inject(TYPES.ICacheService) private readonly cacheService: ICacheService,
     ) {}
 
     async getPermissions(userId: number, options: { useCache?: boolean } = {}): Promise<Permission[]> {
@@ -45,11 +45,7 @@ export default class UserPermissionRepository implements IUserPermissionReposito
         // Cache the result if caching is enabled
         if (useCache) {
             try {
-                await this.cacheService.client.setEx(
-                    cacheKey,
-                    this.CACHE_TTL,
-                    JSON.stringify(permissions)
-                );
+                await this.cacheService.client.setEx(cacheKey, this.CACHE_TTL, JSON.stringify(permissions));
             } catch (error: unknown) {
                 console.warn("Failed to cache permissions:", error);
                 // Don't fail the request if caching fails

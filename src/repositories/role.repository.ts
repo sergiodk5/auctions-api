@@ -1,7 +1,14 @@
 import { permissionsTable, rolePermissionsTable, rolesTable } from "@/db/roles-permissions.schema";
 import { TYPES } from "@/di/types";
 import { type IDatabaseService } from "@/services/database.service";
-import { AssignRolePermissionDto, CreateRoleDto, Permission, Role, RoleWithPermissions, UpdateRoleDto } from "@/types/permissions";
+import {
+    AssignRolePermissionDto,
+    CreateRoleDto,
+    Permission,
+    Role,
+    RoleWithPermissions,
+    UpdateRoleDto,
+} from "@/types/permissions";
 import { and, eq } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 
@@ -114,15 +121,12 @@ export default class RoleRepository implements IRoleRepository {
     }
 
     async create(data: CreateRoleDto): Promise<Role> {
-        const [role] = await this.databaseService.db
-            .insert(rolesTable)
-            .values({ name: data.name })
-            .returning({
-                id: rolesTable.id,
-                name: rolesTable.name,
-                created_at: rolesTable.created_at,
-                updated_at: rolesTable.updated_at,
-            });
+        const [role] = await this.databaseService.db.insert(rolesTable).values({ name: data.name }).returning({
+            id: rolesTable.id,
+            name: rolesTable.name,
+            created_at: rolesTable.created_at,
+            updated_at: rolesTable.updated_at,
+        });
         return role;
     }
 
@@ -165,12 +169,7 @@ export default class RoleRepository implements IRoleRepository {
     async removePermission(roleId: number, permissionId: number): Promise<boolean> {
         const result = await this.databaseService.db
             .delete(rolePermissionsTable)
-            .where(
-                and(
-                    eq(rolePermissionsTable.role_id, roleId),
-                    eq(rolePermissionsTable.permission_id, permissionId)
-                )
-            )
+            .where(and(eq(rolePermissionsTable.role_id, roleId), eq(rolePermissionsTable.permission_id, permissionId)))
             .returning({ id: rolePermissionsTable.id });
 
         return result.length > 0;
@@ -181,12 +180,7 @@ export default class RoleRepository implements IRoleRepository {
             .select({ count: permissionsTable.id })
             .from(permissionsTable)
             .innerJoin(rolePermissionsTable, eq(permissionsTable.id, rolePermissionsTable.permission_id))
-            .where(
-                and(
-                    eq(rolePermissionsTable.role_id, roleId),
-                    eq(permissionsTable.name, permissionName)
-                )
-            )
+            .where(and(eq(rolePermissionsTable.role_id, roleId), eq(permissionsTable.name, permissionName)))
             .limit(1);
 
         return !!result;
@@ -196,20 +190,16 @@ export default class RoleRepository implements IRoleRepository {
         // Start a transaction to ensure atomicity
         await this.databaseService.db.transaction(async (tx) => {
             // First, remove all existing permissions for this role
-            await tx
-                .delete(rolePermissionsTable)
-                .where(eq(rolePermissionsTable.role_id, roleId));
+            await tx.delete(rolePermissionsTable).where(eq(rolePermissionsTable.role_id, roleId));
 
             // Then, insert the new permissions (if any)
             if (permissionIds.length > 0) {
-                const values = permissionIds.map(permissionId => ({
+                const values = permissionIds.map((permissionId) => ({
                     role_id: roleId,
                     permission_id: permissionId,
                 }));
 
-                await tx
-                    .insert(rolePermissionsTable)
-                    .values(values);
+                await tx.insert(rolePermissionsTable).values(values);
             }
         });
     }
@@ -226,7 +216,7 @@ export default class RoleRepository implements IRoleRepository {
             .from(permissionsTable)
             .innerJoin(rolePermissionsTable, eq(permissionsTable.id, rolePermissionsTable.permission_id))
             .where(eq(rolePermissionsTable.role_id, roleId));
-        
+
         return permissions;
     }
 }

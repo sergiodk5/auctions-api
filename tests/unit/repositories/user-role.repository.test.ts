@@ -77,10 +77,7 @@ describe("UserRoleRepository", () => {
             // Mock existing roles check - all roles already exist
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue({
-                    where: jest.fn().mockResolvedValue([
-                        { role_id: 2 },
-                        { role_id: 3 }
-                    ]),
+                    where: jest.fn().mockResolvedValue([{ role_id: 2 }, { role_id: 3 }]),
                 }),
             });
 

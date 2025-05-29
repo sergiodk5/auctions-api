@@ -23,9 +23,9 @@ import {
 import PermissionRepository, { IPermissionRepository } from "@/repositories/permission.repository";
 import RoleRepository, { IRoleRepository } from "@/repositories/role.repository";
 import TokenRepository, { ITokenRepository } from "@/repositories/token.repository";
-import UserRepository, { IUserRepository } from "@/repositories/user.repository";
-import UserRoleRepository, { IUserRoleRepository } from "@/repositories/user-role.repository";
 import UserPermissionRepository, { IUserPermissionRepository } from "@/repositories/user-permission.repository";
+import UserRoleRepository, { IUserRoleRepository } from "@/repositories/user-role.repository";
+import UserRepository, { IUserRepository } from "@/repositories/user.repository";
 import AuthService, { IAuthService } from "@/services/auth.service";
 import CacheService, { ICacheService } from "@/services/cache.service";
 import DatabaseService, { IDatabaseService } from "@/services/database.service";

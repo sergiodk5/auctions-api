@@ -1,7 +1,5 @@
 import { permissionsTable } from "@/db/roles-permissions.schema";
 import PermissionRepository, { IPermissionRepository } from "@/repositories/permission.repository";
-import { IDatabaseService } from "@/services/database.service";
-import { eq } from "drizzle-orm";
 import "reflect-metadata";
 
 describe("PermissionRepository", () => {
@@ -27,13 +25,13 @@ describe("PermissionRepository", () => {
     describe("findAll", () => {
         it("returns all permissions", async () => {
             const permissions = [
-                { 
-                    id: 1, 
-                    name: "user:read", 
+                {
+                    id: 1,
+                    name: "user:read",
                     description: "Read user information",
                     created_at: new Date(),
-                    updated_at: new Date()
-                }
+                    updated_at: new Date(),
+                },
             ];
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue(Promise.resolve(permissions)),
@@ -54,12 +52,12 @@ describe("PermissionRepository", () => {
 
     describe("findById", () => {
         it("returns permission by ID", async () => {
-            const permission = { 
-                id: 1, 
-                name: "user:read", 
+            const permission = {
+                id: 1,
+                name: "user:read",
                 description: "Read user information",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -87,12 +85,12 @@ describe("PermissionRepository", () => {
 
     describe("findByName", () => {
         it("returns permission by name", async () => {
-            const permission = { 
-                id: 1, 
-                name: "user:read", 
+            const permission = {
+                id: 1,
+                name: "user:read",
                 description: "Read user information",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -113,7 +111,7 @@ describe("PermissionRepository", () => {
                 name: "user:create",
                 description: "Create new users",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.insert.mockReturnValue({
                 values: jest.fn().mockReturnValue({
@@ -123,7 +121,7 @@ describe("PermissionRepository", () => {
 
             const result = await repo.create({
                 name: "user:create",
-                description: "Create new users"
+                description: "Create new users",
             });
 
             expect(mockDb.insert).toHaveBeenCalledWith(permissionsTable);
@@ -138,7 +136,7 @@ describe("PermissionRepository", () => {
                 name: "user:read",
                 description: "Updated description",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.update.mockReturnValue({
                 set: jest.fn().mockReturnValue({

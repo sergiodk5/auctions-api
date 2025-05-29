@@ -60,7 +60,7 @@ describe("UserPermissionRepository", () => {
                 },
                 {
                     id: 2,
-                    name: "users:write", 
+                    name: "users:write",
                     description: "Write users",
                     created_at: "2025-05-29T19:57:30.889Z",
                     updated_at: "2025-05-29T19:57:30.889Z",
@@ -78,7 +78,7 @@ describe("UserPermissionRepository", () => {
         it("should fetch from database when cache is enabled but no cached data exists", async () => {
             const userId = 1;
             mockCacheClient.get.mockResolvedValue(null);
-            
+
             // Mock database query chain
             mockDb.selectDistinct.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -98,13 +98,13 @@ describe("UserPermissionRepository", () => {
             expect(mockCacheClient.setEx).toHaveBeenCalledWith(
                 "permissions:user:1",
                 300,
-                JSON.stringify(mockPermissions)
+                JSON.stringify(mockPermissions),
             );
         });
 
         it("should fetch from database when cache is disabled", async () => {
             const userId = 1;
-            
+
             // Mock database query chain
             mockDb.selectDistinct.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -137,7 +137,7 @@ describe("UserPermissionRepository", () => {
                 {
                     id: 2,
                     name: "users:write",
-                    description: "Write users", 
+                    description: "Write users",
                     created_at: "2025-05-29T19:57:30.889Z",
                     updated_at: "2025-05-29T19:57:30.889Z",
                 },
@@ -153,7 +153,7 @@ describe("UserPermissionRepository", () => {
         it("should fallback to database when cache read fails", async () => {
             const userId = 1;
             mockCacheClient.get.mockRejectedValue(new Error("Cache error"));
-            
+
             // Mock database query chain
             mockDb.selectDistinct.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -176,7 +176,7 @@ describe("UserPermissionRepository", () => {
             const userId = 1;
             mockCacheClient.get.mockResolvedValue(null);
             mockCacheClient.setEx.mockRejectedValue(new Error("Cache write error"));
-            
+
             // Mock database query chain
             mockDb.selectDistinct.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -197,7 +197,7 @@ describe("UserPermissionRepository", () => {
         it("should return empty array when user has no permissions", async () => {
             const userId = 1;
             mockCacheClient.get.mockResolvedValue(null);
-            
+
             // Mock database query chain
             mockDb.selectDistinct.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -231,7 +231,10 @@ describe("UserPermissionRepository", () => {
 
             await userPermissionRepository.invalidateUserPermissions(userId);
 
-            expect(console.warn).toHaveBeenCalledWith("Failed to invalidate user permissions cache:", expect.any(Error));
+            expect(console.warn).toHaveBeenCalledWith(
+                "Failed to invalidate user permissions cache:",
+                expect.any(Error),
+            );
         });
     });
 
@@ -261,7 +264,10 @@ describe("UserPermissionRepository", () => {
 
             await userPermissionRepository.invalidateAllUserPermissions();
 
-            expect(console.warn).toHaveBeenCalledWith("Failed to invalidate all user permissions cache:", expect.any(Error));
+            expect(console.warn).toHaveBeenCalledWith(
+                "Failed to invalidate all user permissions cache:",
+                expect.any(Error),
+            );
         });
     });
 });

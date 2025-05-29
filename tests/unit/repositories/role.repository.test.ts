@@ -1,7 +1,5 @@
 import { permissionsTable, rolePermissionsTable, rolesTable } from "@/db/roles-permissions.schema";
 import RoleRepository, { IRoleRepository } from "@/repositories/role.repository";
-import { IDatabaseService } from "@/services/database.service";
-import { and, eq } from "drizzle-orm";
 import "reflect-metadata";
 
 describe("RoleRepository", () => {
@@ -27,12 +25,12 @@ describe("RoleRepository", () => {
     describe("findAll", () => {
         it("returns all roles", async () => {
             const roles = [
-                { 
-                    id: 1, 
+                {
+                    id: 1,
                     name: "admin",
                     created_at: new Date(),
-                    updated_at: new Date()
-                }
+                    updated_at: new Date(),
+                },
             ];
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue(Promise.resolve(roles)),
@@ -52,11 +50,11 @@ describe("RoleRepository", () => {
 
     describe("findById", () => {
         it("returns role by ID", async () => {
-            const role = { 
-                id: 1, 
+            const role = {
+                id: 1,
                 name: "admin",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -83,11 +81,11 @@ describe("RoleRepository", () => {
 
     describe("findByName", () => {
         it("returns role by name", async () => {
-            const role = { 
-                id: 1, 
+            const role = {
+                id: 1,
                 name: "admin",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue({
@@ -107,7 +105,7 @@ describe("RoleRepository", () => {
                 id: 1,
                 name: "editor",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.insert.mockReturnValue({
                 values: jest.fn().mockReturnValue({
@@ -128,7 +126,7 @@ describe("RoleRepository", () => {
                 id: 1,
                 name: "super-admin",
                 created_at: new Date(),
-                updated_at: new Date()
+                updated_at: new Date(),
             };
             mockDb.update.mockReturnValue({
                 set: jest.fn().mockReturnValue({
@@ -249,7 +247,7 @@ describe("RoleRepository", () => {
         it("sets permissions for a role", async () => {
             const mockTransaction = jest.fn();
             mockDb.transaction = mockTransaction;
-            
+
             const mockTx = {
                 delete: jest.fn().mockReturnValue({
                     where: jest.fn().mockReturnValue(Promise.resolve()),
@@ -274,7 +272,7 @@ describe("RoleRepository", () => {
         it("handles empty permission array", async () => {
             const mockTransaction = jest.fn();
             mockDb.transaction = mockTransaction;
-            
+
             const mockTx = {
                 delete: jest.fn().mockReturnValue({
                     where: jest.fn().mockReturnValue(Promise.resolve()),
@@ -298,22 +296,22 @@ describe("RoleRepository", () => {
     describe("getPermissions", () => {
         it("returns permissions for a role", async () => {
             const permissions = [
-                { 
-                    id: 1, 
-                    name: "user:read", 
+                {
+                    id: 1,
+                    name: "user:read",
                     description: "Read user information",
                     created_at: new Date(),
-                    updated_at: new Date()
+                    updated_at: new Date(),
                 },
-                { 
-                    id: 2, 
-                    name: "user:write", 
+                {
+                    id: 2,
+                    name: "user:write",
                     description: "Write user information",
                     created_at: new Date(),
-                    updated_at: new Date()
-                }
+                    updated_at: new Date(),
+                },
             ];
-            
+
             mockDb.select.mockReturnValue({
                 from: jest.fn().mockReturnValue({
                     innerJoin: jest.fn().mockReturnValue({

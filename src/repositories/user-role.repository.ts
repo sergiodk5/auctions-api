@@ -1,5 +1,4 @@
-import { permissionsTable, rolePermissionsTable, rolesTable, userRolesTable } from "@/db/roles-permissions.schema";
-import { usersTable } from "@/db/users.schema";
+import { rolesTable, userRolesTable } from "@/db/roles-permissions.schema";
 import { TYPES } from "@/di/types";
 import { type IDatabaseService } from "@/services/database.service";
 import { Role } from "@/types/permissions";
@@ -27,16 +26,13 @@ export default class UserRoleRepository implements IUserRoleRepository {
                 role_id: userRolesTable.role_id,
             })
             .from(userRolesTable)
-            .where(and(
-                eq(userRolesTable.user_id, userId),
-                inArray(userRolesTable.role_id, roleIds)
-            ));
+            .where(and(eq(userRolesTable.user_id, userId), inArray(userRolesTable.role_id, roleIds)));
 
-        const existingRoleIds = new Set(existingRoles.map(r => r.role_id));
-        const newRoleIds = roleIds.filter(roleId => !existingRoleIds.has(roleId));
+        const existingRoleIds = new Set(existingRoles.map((r) => r.role_id));
+        const newRoleIds = roleIds.filter((roleId) => !existingRoleIds.has(roleId));
 
         if (newRoleIds.length > 0) {
-            const userRoleData = newRoleIds.map(roleId => ({
+            const userRoleData = newRoleIds.map((roleId) => ({
                 user_id: userId,
                 role_id: roleId,
             }));
@@ -52,10 +48,7 @@ export default class UserRoleRepository implements IUserRoleRepository {
 
         await this.databaseService.db
             .delete(userRolesTable)
-            .where(and(
-                eq(userRolesTable.user_id, userId),
-                inArray(userRolesTable.role_id, roleIds)
-            ));
+            .where(and(eq(userRolesTable.user_id, userId), inArray(userRolesTable.role_id, roleIds)));
     }
 
     async getRoles(userId: number): Promise<Role[]> {

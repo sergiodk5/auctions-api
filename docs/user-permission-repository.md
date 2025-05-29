@@ -35,27 +35,29 @@ await userPermissionRepo.invalidateAllUserPermissions();
 ## Integration Examples
 
 ### In a Service
+
 ```typescript
 @injectable()
 export class AuthorizationService {
     constructor(
-        @inject(TYPES.IUserPermissionRepository) 
-        private readonly userPermissionRepo: IUserPermissionRepository
+        @inject(TYPES.IUserPermissionRepository)
+        private readonly userPermissionRepo: IUserPermissionRepository,
     ) {}
 
     async userHasPermission(userId: number, requiredPermission: string): Promise<boolean> {
         const permissions = await this.userPermissionRepo.getPermissions(userId);
-        return permissions.some(p => p.name === requiredPermission);
+        return permissions.some((p) => p.name === requiredPermission);
     }
 
     async getUserPermissionNames(userId: number): Promise<string[]> {
         const permissions = await this.userPermissionRepo.getPermissions(userId);
-        return permissions.map(p => p.name);
+        return permissions.map((p) => p.name);
     }
 }
 ```
 
 ### In a Middleware
+
 ```typescript
 export const permissionMiddleware = (requiredPermission: string) => {
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -66,8 +68,8 @@ export const permissionMiddleware = (requiredPermission: string) => {
 
         const userPermissionRepo = container.get<IUserPermissionRepository>(TYPES.IUserPermissionRepository);
         const permissions = await userPermissionRepo.getPermissions(userId);
-        
-        const hasPermission = permissions.some(p => p.name === requiredPermission);
+
+        const hasPermission = permissions.some((p) => p.name === requiredPermission);
         if (!hasPermission) {
             return res.status(403).json({ message: "Insufficient permissions" });
         }
@@ -78,6 +80,7 @@ export const permissionMiddleware = (requiredPermission: string) => {
 ```
 
 ### Cache Invalidation After Role Changes
+
 ```typescript
 // After assigning roles to a user
 await userRoleRepo.assignRoles(userId, roleIds);
