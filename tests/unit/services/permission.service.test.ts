@@ -1,5 +1,5 @@
-import PermissionService, { IPermissionService } from "@/services/permission.service";
 import { IPermissionRepository } from "@/repositories/permission.repository";
+import PermissionService, { IPermissionService } from "@/services/permission.service";
 import { Permission } from "@/types/permissions";
 import "reflect-metadata";
 
