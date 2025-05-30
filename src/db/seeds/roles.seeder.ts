@@ -1,5 +1,5 @@
 import { DATABASE_URL, NODE_ENV, TEST_DATABASE_URL } from "@/config/env";
-import { rolesTable } from "@/db/roles-permissions.schema";
+import { rolesTable } from "@/db/rbac.schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { seed } from "drizzle-seed";
 import { Pool } from "pg";

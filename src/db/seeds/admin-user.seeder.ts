@@ -1,5 +1,5 @@
 import { DATABASE_URL, NODE_ENV, TEST_DATABASE_URL } from "@/config/env";
-import { rolesTable, userRolesTable } from "@/db/roles-permissions.schema";
+import { rolesTable, userRolesTable } from "@/db/rbac.schema";
 import { usersTable } from "@/db/users.schema";
 import { fixSequence } from "@/scripts/fix-sequence";
 import { hashPassword } from "@/utils/password.util";

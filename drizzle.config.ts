@@ -10,7 +10,7 @@ export default defineConfig({
         "./src/db/users.schema.ts",
         "./src/db/tokens.schema.ts",
         "./src/db/email-verification.schema.ts",
-        "./src/db/roles-permissions.schema.ts",
+        "./src/db/rbac.schema.ts",
     ],
     dialect: "postgresql",
     dbCredentials: {

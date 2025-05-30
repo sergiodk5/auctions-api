@@ -1,4 +1,4 @@
-import { permissionsTable, rolePermissionsTable, rolesTable } from "@/db/roles-permissions.schema";
+import { permissionsTable, rolePermissionsTable, rolesTable } from "@/db/rbac.schema";
 import RoleRepository, { IRoleRepository } from "@/repositories/role.repository";
 import "reflect-metadata";
 

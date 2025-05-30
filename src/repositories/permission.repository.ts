@@ -1,4 +1,4 @@
-import { permissionsTable } from "@/db/roles-permissions.schema";
+import { permissionsTable } from "@/db/rbac.schema";
 import { TYPES } from "@/di/types";
 import { type IDatabaseService } from "@/services/database.service";
 import { CreatePermissionDto, Permission, UpdatePermissionDto } from "@/types/permissions";
