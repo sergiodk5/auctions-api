@@ -1,5 +1,5 @@
 import { TYPES } from "@/di/types";
-import IAuthService from "@/services/auth.service";
+import IAuthenticationService from "@/services/authentication.service";
 import { Request, Response } from "express-serve-static-core";
 import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
@@ -18,11 +18,11 @@ export interface IAuthController {
 
 @injectable()
 export default class AuthController implements IAuthController {
-    constructor(@inject(TYPES.IAuthService) private readonly authService: IAuthService) {}
+    constructor(@inject(TYPES.IAuthenticationService) private readonly authenticationService: IAuthenticationService) {}
 
     public async register(req: Request, res: Response) {
         try {
-            const user = await this.authService.register(req.body.cleanBody);
+            const user = await this.authenticationService.register(req.body.cleanBody);
             res.status(201).json({ success: true, data: user });
         } catch (e) {
             res.status(409).json({ success: false, message: "Email already in use" });
@@ -31,7 +31,7 @@ export default class AuthController implements IAuthController {
 
     public async login(req: Request, res: Response) {
         try {
-            const { user, accessToken, refreshToken } = await this.authService.login(
+            const { user, accessToken, refreshToken } = await this.authenticationService.login(
                 req.body.cleanBody.email,
                 req.body.cleanBody.password,
             );
@@ -43,7 +43,7 @@ export default class AuthController implements IAuthController {
 
     public async refresh(req: Request, res: Response) {
         try {
-            const { accessToken, refreshToken } = await this.authService.refresh(req.body.refreshToken);
+            const { accessToken, refreshToken } = await this.authenticationService.refresh(req.body.refreshToken);
             res.json({ success: true, data: { accessToken, refreshToken } });
         } catch {
             res.status(403).json({ success: false, message: "Access denied" });
@@ -52,7 +52,7 @@ export default class AuthController implements IAuthController {
 
     public async revoke(req: Request, res: Response) {
         const { jti } = (req as any).user;
-        await this.authService.revokeAccess(jti, 15 * 60);
+        await this.authenticationService.revokeAccess(jti, 15 * 60);
         res.sendStatus(204);
     }
 
@@ -68,13 +68,13 @@ export default class AuthController implements IAuthController {
             return;
         }
         const { jti, exp } = jwt.decode(token) as any;
-        await this.authService.logout(jti, exp, req.body.refreshToken);
+        await this.authenticationService.logout(jti, exp, req.body.refreshToken);
         res.sendStatus(204);
     }
 
     public async forgotPassword(req: Request, res: Response): Promise<void> {
         try {
-            await this.authService.requestPasswordReset(req.body.email);
+            await this.authenticationService.requestPasswordReset(req.body.email);
             res.sendStatus(204);
         } catch (e) {
             // avoid email enumeration: always respond 204
@@ -85,7 +85,7 @@ export default class AuthController implements IAuthController {
     public async resetPassword(req: Request, res: Response): Promise<void> {
         const { token, password } = req.body;
         try {
-            await this.authService.resetPassword(token, password);
+            await this.authenticationService.resetPassword(token, password);
             res.sendStatus(204);
         } catch {
             res.status(400).json({ success: false, message: "Invalid or expired token" });
@@ -95,7 +95,7 @@ export default class AuthController implements IAuthController {
     public async verifyEmail(req: Request, res: Response): Promise<void> {
         try {
             const { token } = req.body.cleanBody;
-            await this.authService.verifyEmail(token);
+            await this.authenticationService.verifyEmail(token);
             res.json({ success: true, message: "Email verified successfully" });
         } catch (error) {
             let message = "Email verification failed";
@@ -115,7 +115,7 @@ export default class AuthController implements IAuthController {
     public async resendVerificationEmail(req: Request, res: Response): Promise<void> {
         try {
             const { email } = req.body.cleanBody;
-            await this.authService.resendVerificationEmail(email);
+            await this.authenticationService.resendVerificationEmail(email);
             res.json({ success: true, message: "Verification email sent successfully" });
         } catch (error) {
             let message = "Failed to send verification email";

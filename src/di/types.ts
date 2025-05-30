@@ -12,8 +12,9 @@ const TYPES = {
     IValidationService: Symbol.for("IValidationService"),
 
     IUserService: Symbol.for("IUserService"),
-    IAuthService: Symbol.for("IAuthService"),
+    IAuthenticationService: Symbol.for("IAuthenticationService"),
     IPermissionService: Symbol.for("IPermissionService"),
+    IAuthorizationService: Symbol.for("IAuthorizationService"),
 
     IMailerService: Symbol.for("IMailerService"),
     MailerTransporter: Symbol.for("MailerTransporter"),

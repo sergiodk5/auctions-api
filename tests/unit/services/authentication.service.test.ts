@@ -2,7 +2,7 @@ import { ACCESS_LIFETIME, JWT_REFRESH_SECRET, JWT_SECRET, REFRESH_IDLE_TTL } fro
 import { IEmailVerificationRepository } from "@/repositories/email-verification.repository";
 import { ITokenRepository } from "@/repositories/token.repository";
 import { IUserRepository } from "@/repositories/user.repository";
-import AuthService from "@/services/auth.service";
+import AuthenticationService from "@/services/authentication.service";
 import { ICacheService } from "@/services/cache.service";
 import { IMailerService } from "@/services/IMailerService";
 import * as passwordUtils from "@/utils/password.util";
@@ -16,13 +16,13 @@ jest.mock("uuid");
 jest.mock("crypto");
 jest.mock("@/utils/password.util");
 
-describe("AuthService", () => {
+describe("AuthenticationService", () => {
     let userRepo: jest.Mocked<IUserRepository>;
     let tokenRepo: jest.Mocked<ITokenRepository>;
     let emailVerificationRepo: jest.Mocked<IEmailVerificationRepository>;
     let cacheSvc: jest.Mocked<ICacheService>;
     let mailer: jest.Mocked<IMailerService>;
-    let svc: AuthService;
+    let svc: AuthenticationService;
 
     beforeEach(() => {
         userRepo = {
@@ -61,7 +61,7 @@ describe("AuthService", () => {
             sendWelcomeEmail: jest.fn(),
         };
 
-        svc = new AuthService(userRepo, tokenRepo, emailVerificationRepo, cacheSvc, mailer);
+        svc = new AuthenticationService(userRepo, tokenRepo, emailVerificationRepo, cacheSvc, mailer);
     });
 
     afterEach(() => {

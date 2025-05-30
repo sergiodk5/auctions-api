@@ -21,7 +21,7 @@ import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 
-export interface IAuthService {
+export interface IAuthenticationService {
     register(data: CreateUserDto): Promise<User>;
     login(email: string, password: string): Promise<AuthLoginDto>;
     refresh(refreshToken: string): Promise<AuthTokensDto>;
@@ -32,7 +32,7 @@ export interface IAuthService {
 }
 
 @injectable()
-export default class AuthService {
+export default class AuthenticationService {
     constructor(
         @inject(TYPES.IUserRepository) private readonly userRepo: IUserRepository,
         @inject(TYPES.ITokenRepository) private readonly tokenRepo: ITokenRepository,

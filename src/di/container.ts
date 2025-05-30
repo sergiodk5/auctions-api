@@ -26,7 +26,8 @@ import TokenRepository, { ITokenRepository } from "@/repositories/token.reposito
 import UserPermissionRepository, { IUserPermissionRepository } from "@/repositories/user-permission.repository";
 import UserRoleRepository, { IUserRoleRepository } from "@/repositories/user-role.repository";
 import UserRepository, { IUserRepository } from "@/repositories/user.repository";
-import AuthService, { IAuthService } from "@/services/auth.service";
+import AuthenticationService, { IAuthenticationService } from "@/services/authentication.service";
+import AuthorizationService, { IAuthorizationService } from "@/services/authorization.service";
 import CacheService, { ICacheService } from "@/services/cache.service";
 import DatabaseService, { IDatabaseService } from "@/services/database.service";
 import { IMailerService } from "@/services/IMailerService";
@@ -81,7 +82,8 @@ container.bind<IUserPermissionRepository>(TYPES.IUserPermissionRepository).to(Us
 
 // Services
 container.bind<IUserService>(TYPES.IUserService).to(UserService);
-container.bind<IAuthService>(TYPES.IAuthService).to(AuthService);
+container.bind<IAuthenticationService>(TYPES.IAuthenticationService).to(AuthenticationService);
+container.bind<IAuthorizationService>(TYPES.IAuthorizationService).to(AuthorizationService);
 container.bind<IPermissionService>(TYPES.IPermissionService).to(PermissionService);
 container.bind<IValidationService>(TYPES.IValidationService).to(ValidationService);
 

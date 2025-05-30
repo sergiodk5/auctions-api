@@ -99,6 +99,260 @@ describe("RoleRepository", () => {
         });
     });
 
+    describe("findByIds", () => {
+        it("returns roles for given IDs", async () => {
+            const roles = [
+                {
+                    id: 1,
+                    name: "admin",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+                {
+                    id: 2,
+                    name: "user",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+            ];
+            mockDb.select.mockReturnValue({
+                from: jest.fn().mockReturnValue({
+                    where: jest.fn().mockReturnValue(Promise.resolve(roles)),
+                }),
+            });
+
+            const result = await repo.findByIds([1, 2]);
+
+            expect(mockDb.select).toHaveBeenCalledWith({
+                id: rolesTable.id,
+                name: rolesTable.name,
+                created_at: rolesTable.created_at,
+                updated_at: rolesTable.updated_at,
+            });
+            expect(result).toEqual(roles);
+        });
+
+        it("returns empty array when given empty IDs array", async () => {
+            const result = await repo.findByIds([]);
+
+            expect(result).toEqual([]);
+            expect(mockDb.select).not.toHaveBeenCalled();
+        });
+
+        it("returns empty array when no roles found for given IDs", async () => {
+            mockDb.select.mockReturnValue({
+                from: jest.fn().mockReturnValue({
+                    where: jest.fn().mockReturnValue(Promise.resolve([])),
+                }),
+            });
+
+            const result = await repo.findByIds([999, 888]);
+
+            expect(result).toEqual([]);
+        });
+    });
+
+    describe("findByIdWithPermissions", () => {
+        it("returns role with permissions when role exists", async () => {
+            const role = {
+                id: 1,
+                name: "admin",
+                created_at: new Date(),
+                updated_at: new Date(),
+            };
+            const permissions = [
+                {
+                    id: 1,
+                    name: "read_users",
+                    description: "Can read users",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+                {
+                    id: 2,
+                    name: "write_users",
+                    description: "Can write users",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+            ];
+
+            // Mock findById to return the role
+            jest.spyOn(repo, "findById").mockResolvedValue(role);
+
+            // Mock permissions query
+            mockDb.select.mockReturnValue({
+                from: jest.fn().mockReturnValue({
+                    innerJoin: jest.fn().mockReturnValue({
+                        where: jest.fn().mockReturnValue(Promise.resolve(permissions)),
+                    }),
+                }),
+            });
+
+            const result = await repo.findByIdWithPermissions(1);
+
+            expect(result).toEqual({
+                ...role,
+                permissions,
+            });
+            expect(repo.findById).toHaveBeenCalledWith(1);
+        });
+
+        it("returns undefined when role does not exist", async () => {
+            // Mock findById to return undefined
+            jest.spyOn(repo, "findById").mockResolvedValue(undefined);
+
+            const result = await repo.findByIdWithPermissions(999);
+
+            expect(result).toBeUndefined();
+            expect(repo.findById).toHaveBeenCalledWith(999);
+            expect(mockDb.select).not.toHaveBeenCalled();
+        });
+
+        it("returns role with empty permissions array when role has no permissions", async () => {
+            const role = {
+                id: 1,
+                name: "admin",
+                created_at: new Date(),
+                updated_at: new Date(),
+            };
+
+            // Mock findById to return the role
+            jest.spyOn(repo, "findById").mockResolvedValue(role);
+
+            // Mock permissions query to return empty array
+            mockDb.select.mockReturnValue({
+                from: jest.fn().mockReturnValue({
+                    innerJoin: jest.fn().mockReturnValue({
+                        where: jest.fn().mockReturnValue(Promise.resolve([])),
+                    }),
+                }),
+            });
+
+            const result = await repo.findByIdWithPermissions(1);
+
+            expect(result).toEqual({
+                ...role,
+                permissions: [],
+            });
+        });
+    });
+
+    describe("findAllWithPermissions", () => {
+        it("returns all roles with their permissions", async () => {
+            const roles = [
+                {
+                    id: 1,
+                    name: "admin",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+                {
+                    id: 2,
+                    name: "user",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+            ];
+            const adminPermissions = [
+                {
+                    id: 1,
+                    name: "read_users",
+                    description: "Can read users",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+            ];
+            const userPermissions = [
+                {
+                    id: 2,
+                    name: "read_profile",
+                    description: "Can read own profile",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+            ];
+
+            // Mock findAll to return roles
+            jest.spyOn(repo, "findAll").mockResolvedValue(roles);
+
+            // Mock permissions queries for each role
+            mockDb.select
+                .mockReturnValueOnce({
+                    from: jest.fn().mockReturnValue({
+                        innerJoin: jest.fn().mockReturnValue({
+                            where: jest.fn().mockReturnValue(Promise.resolve(adminPermissions)),
+                        }),
+                    }),
+                })
+                .mockReturnValueOnce({
+                    from: jest.fn().mockReturnValue({
+                        innerJoin: jest.fn().mockReturnValue({
+                            where: jest.fn().mockReturnValue(Promise.resolve(userPermissions)),
+                        }),
+                    }),
+                });
+
+            const result = await repo.findAllWithPermissions();
+
+            expect(result).toEqual([
+                {
+                    ...roles[0],
+                    permissions: adminPermissions,
+                },
+                {
+                    ...roles[1],
+                    permissions: userPermissions,
+                },
+            ]);
+            expect(repo.findAll).toHaveBeenCalled();
+            expect(mockDb.select).toHaveBeenCalledTimes(2);
+        });
+
+        it("returns empty array when no roles exist", async () => {
+            // Mock findAll to return empty array
+            jest.spyOn(repo, "findAll").mockResolvedValue([]);
+
+            const result = await repo.findAllWithPermissions();
+
+            expect(result).toEqual([]);
+            expect(repo.findAll).toHaveBeenCalled();
+            expect(mockDb.select).not.toHaveBeenCalled();
+        });
+
+        it("returns roles with empty permissions when roles have no permissions", async () => {
+            const roles = [
+                {
+                    id: 1,
+                    name: "admin",
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                },
+            ];
+
+            // Mock findAll to return roles
+            jest.spyOn(repo, "findAll").mockResolvedValue(roles);
+
+            // Mock permissions query to return empty array
+            mockDb.select.mockReturnValue({
+                from: jest.fn().mockReturnValue({
+                    innerJoin: jest.fn().mockReturnValue({
+                        where: jest.fn().mockReturnValue(Promise.resolve([])),
+                    }),
+                }),
+            });
+
+            const result = await repo.findAllWithPermissions();
+
+            expect(result).toEqual([
+                {
+                    ...roles[0],
+                    permissions: [],
+                },
+            ]);
+        });
+    });
+
     describe("create", () => {
         it("creates a new role", async () => {
             const newRole = {

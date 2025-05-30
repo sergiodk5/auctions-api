@@ -9,14 +9,14 @@ import jwt from "jsonwebtoken";
 import "reflect-metadata";
 
 describe("AuthController", () => {
-    let mockAuthService: any;
+    let mockAuthenticationService: any;
     let controller: AuthController;
     let req: Partial<Request>;
     let res: Partial<Response>;
     let next: jest.Mock;
 
     beforeEach(() => {
-        mockAuthService = {
+        mockAuthenticationService = {
             register: jest.fn(),
             login: jest.fn(),
             refresh: jest.fn(),
@@ -25,7 +25,7 @@ describe("AuthController", () => {
             requestPasswordReset: jest.fn(),
             resetPassword: jest.fn(),
         };
-        controller = new AuthController(mockAuthService);
+        controller = new AuthController(mockAuthenticationService);
 
         req = { body: {}, headers: {} };
         res = {
@@ -47,12 +47,12 @@ describe("AuthController", () => {
     describe("register", () => {
         it("returns 201 with data on success", async () => {
             const user = { id: 1, email: "a@x.com" };
-            mockAuthService.register.mockResolvedValue(user);
+            mockAuthenticationService.register.mockResolvedValue(user);
             req.body = { cleanBody: { email: "a@x.com", password: "pwd" } };
 
             await controller.register(req as Request, res as Response);
 
-            expect(mockAuthService.register).toHaveBeenCalledWith({
+            expect(mockAuthenticationService.register).toHaveBeenCalledWith({
                 email: "a@x.com",
                 password: "pwd",
             });
@@ -61,7 +61,7 @@ describe("AuthController", () => {
         });
 
         it("returns 409 on error", async () => {
-            mockAuthService.register.mockRejectedValue(new Error("UserExists"));
+            mockAuthenticationService.register.mockRejectedValue(new Error("UserExists"));
             req.body = { cleanBody: { email: "b@x.com", password: "pwd" } };
 
             await controller.register(req as Request, res as Response);
@@ -81,12 +81,12 @@ describe("AuthController", () => {
                 accessToken: "acc",
                 refreshToken: "ref",
             };
-            mockAuthService.login.mockResolvedValue(payload);
+            mockAuthenticationService.login.mockResolvedValue(payload);
             req.body = { cleanBody: { email: "c@x.com", password: "pwd" } };
 
             await controller.login(req as Request, res as Response);
 
-            expect(mockAuthService.login).toHaveBeenCalledWith("c@x.com", "pwd");
+            expect(mockAuthenticationService.login).toHaveBeenCalledWith("c@x.com", "pwd");
             expect(res.json).toHaveBeenCalledWith({
                 success: true,
                 data: payload,
@@ -94,7 +94,7 @@ describe("AuthController", () => {
         });
 
         it("returns 401 on failure", async () => {
-            mockAuthService.login.mockRejectedValue(new Error("AuthFailed"));
+            mockAuthenticationService.login.mockRejectedValue(new Error("AuthFailed"));
             req.body = { cleanBody: { email: "d@x.com", password: "bad" } };
 
             await controller.login(req as Request, res as Response);
@@ -110,12 +110,12 @@ describe("AuthController", () => {
     describe("refresh", () => {
         it("returns tokens on success", async () => {
             const tokens = { accessToken: "a2", refreshToken: "r2" };
-            mockAuthService.refresh.mockResolvedValue(tokens);
+            mockAuthenticationService.refresh.mockResolvedValue(tokens);
             req.body = { refreshToken: "r" };
 
             await controller.refresh(req as Request, res as Response);
 
-            expect(mockAuthService.refresh).toHaveBeenCalledWith("r");
+            expect(mockAuthenticationService.refresh).toHaveBeenCalledWith("r");
             expect(res.json).toHaveBeenCalledWith({
                 success: true,
                 data: tokens,
@@ -123,7 +123,7 @@ describe("AuthController", () => {
         });
 
         it("returns 403 on failure", async () => {
-            mockAuthService.refresh.mockRejectedValue(new Error("Invalid"));
+            mockAuthenticationService.refresh.mockRejectedValue(new Error("Invalid"));
             req.body = { refreshToken: "bad" };
 
             await controller.refresh(req as Request, res as Response);
@@ -143,7 +143,7 @@ describe("AuthController", () => {
 
             await controller.revoke(req as Request, res as Response);
 
-            expect(mockAuthService.revokeAccess).toHaveBeenCalledWith("j123", 15 * 60);
+            expect(mockAuthenticationService.revokeAccess).toHaveBeenCalledWith("j123", 15 * 60);
             expect(res.sendStatus).toHaveBeenCalledWith(204);
         });
     });
@@ -171,7 +171,7 @@ describe("AuthController", () => {
             });
         });
 
-        it("calls authService.logout and returns 204 on valid Bearer", async () => {
+        it("calls authenticationService.logout and returns 204 on valid Bearer", async () => {
             const fakePayload = { jti: "jid", exp: 99999 };
             (jwt.decode as jest.Mock).mockReturnValue(fakePayload);
             req.headers = { authorization: "Bearer atok" };
@@ -180,7 +180,7 @@ describe("AuthController", () => {
             await controller.logout(req as Request, res as Response);
 
             expect(jwt.decode).toHaveBeenCalledWith("atok");
-            expect(mockAuthService.logout).toHaveBeenCalledWith("jid", 99999, "rtok");
+            expect(mockAuthenticationService.logout).toHaveBeenCalledWith("jid", 99999, "rtok");
             expect(res.sendStatus).toHaveBeenCalledWith(204);
         });
     });
@@ -188,27 +188,27 @@ describe("AuthController", () => {
     describe("forgotPassword", () => {
         it("should return 204 on successful password reset request", async () => {
             req.body = { email: "user@example.com" };
-            mockAuthService.requestPasswordReset.mockResolvedValue(undefined);
+            mockAuthenticationService.requestPasswordReset.mockResolvedValue(undefined);
 
             await controller.forgotPassword(req as Request, res as Response);
 
-            expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith("user@example.com");
+            expect(mockAuthenticationService.requestPasswordReset).toHaveBeenCalledWith("user@example.com");
             expect(res.sendStatus).toHaveBeenCalledWith(204);
         });
 
         it("should return 204 on service error to avoid email enumeration", async () => {
             req.body = { email: "nonexistent@example.com" };
-            mockAuthService.requestPasswordReset.mockRejectedValue(new Error("UserNotFound"));
+            mockAuthenticationService.requestPasswordReset.mockRejectedValue(new Error("UserNotFound"));
 
             await controller.forgotPassword(req as Request, res as Response);
 
-            expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith("nonexistent@example.com");
+            expect(mockAuthenticationService.requestPasswordReset).toHaveBeenCalledWith("nonexistent@example.com");
             expect(res.sendStatus).toHaveBeenCalledWith(204);
         });
 
         it("should return 204 on any service error to prevent information disclosure", async () => {
             req.body = { email: "user@example.com" };
-            mockAuthService.requestPasswordReset.mockRejectedValue(new Error("Service unavailable"));
+            mockAuthenticationService.requestPasswordReset.mockRejectedValue(new Error("Service unavailable"));
 
             await controller.forgotPassword(req as Request, res as Response);
 
@@ -221,11 +221,11 @@ describe("AuthController", () => {
             const token = "valid-reset-token";
             const password = "newPassword123";
             req.body = { token, password };
-            mockAuthService.resetPassword.mockResolvedValue(undefined);
+            mockAuthenticationService.resetPassword.mockResolvedValue(undefined);
 
             await controller.resetPassword(req as Request, res as Response);
 
-            expect(mockAuthService.resetPassword).toHaveBeenCalledWith(token, password);
+            expect(mockAuthenticationService.resetPassword).toHaveBeenCalledWith(token, password);
             expect(res.sendStatus).toHaveBeenCalledWith(204);
         });
 
@@ -233,11 +233,11 @@ describe("AuthController", () => {
             const token = "invalid-token";
             const password = "newPassword123";
             req.body = { token, password };
-            mockAuthService.resetPassword.mockRejectedValue(new Error("InvalidOrExpiredToken"));
+            mockAuthenticationService.resetPassword.mockRejectedValue(new Error("InvalidOrExpiredToken"));
 
             await controller.resetPassword(req as Request, res as Response);
 
-            expect(mockAuthService.resetPassword).toHaveBeenCalledWith(token, password);
+            expect(mockAuthenticationService.resetPassword).toHaveBeenCalledWith(token, password);
             expect(res.status).toHaveBeenCalledWith(400);
             expect(res.json).toHaveBeenCalledWith({
                 success: false,
@@ -249,7 +249,7 @@ describe("AuthController", () => {
             const token = "expired-token";
             const password = "newPassword123";
             req.body = { token, password };
-            mockAuthService.resetPassword.mockRejectedValue(new Error("Token expired"));
+            mockAuthenticationService.resetPassword.mockRejectedValue(new Error("Token expired"));
 
             await controller.resetPassword(req as Request, res as Response);
 
@@ -264,7 +264,7 @@ describe("AuthController", () => {
             const token = "valid-token";
             const password = "newPassword123";
             req.body = { token, password };
-            mockAuthService.resetPassword.mockRejectedValue(new Error("Database error"));
+            mockAuthenticationService.resetPassword.mockRejectedValue(new Error("Database error"));
 
             await controller.resetPassword(req as Request, res as Response);
 

@@ -9,13 +9,14 @@ import {
     RoleWithPermissions,
     UpdateRoleDto,
 } from "@/types/permissions";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { inject, injectable } from "inversify";
 
 export interface IRoleRepository {
     findAll(): Promise<Role[]>;
     findById(id: number): Promise<Role | undefined>;
     findByName(name: string): Promise<Role | undefined>;
+    findByIds(ids: number[]): Promise<Role[]>;
     findByIdWithPermissions(id: number): Promise<RoleWithPermissions | undefined>;
     findAllWithPermissions(): Promise<RoleWithPermissions[]>;
     create(data: CreateRoleDto): Promise<Role>;
@@ -68,6 +69,24 @@ export default class RoleRepository implements IRoleRepository {
             .from(rolesTable)
             .where(eq(rolesTable.name, name));
         return role;
+    }
+
+    async findByIds(ids: number[]): Promise<Role[]> {
+        if (ids.length === 0) {
+            return [];
+        }
+
+        const roles = await this.databaseService.db
+            .select({
+                id: rolesTable.id,
+                name: rolesTable.name,
+                created_at: rolesTable.created_at,
+                updated_at: rolesTable.updated_at,
+            })
+            .from(rolesTable)
+            .where(inArray(rolesTable.id, ids));
+
+        return roles;
     }
 
     async findByIdWithPermissions(id: number): Promise<RoleWithPermissions | undefined> {

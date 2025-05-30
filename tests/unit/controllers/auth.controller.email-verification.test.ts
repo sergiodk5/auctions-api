@@ -1,30 +1,30 @@
 import AuthController from "@/controllers/auth.controller";
-import AuthService from "@/services/auth.service";
+import AuthenticationService from "@/services/authentication.service";
 import { Request, Response } from "express";
 import "reflect-metadata";
 
-jest.mock("@/services/auth.service");
+jest.mock("@/services/authentication.service");
 
 describe("AuthController - Email Verification", () => {
     let controller: AuthController;
-    let mockAuthService: jest.Mocked<AuthService>;
+    let mockAuthenticationService: jest.Mocked<AuthenticationService>;
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
 
     beforeEach(() => {
-        mockAuthService = new AuthService(
+        mockAuthenticationService = new AuthenticationService(
             {} as any,
             {} as any,
             {} as any,
             {} as any,
             {} as any,
-        ) as jest.Mocked<AuthService>;
+        ) as jest.Mocked<AuthenticationService>;
 
-        // Mock all the AuthService methods
-        mockAuthService.verifyEmail = jest.fn();
-        mockAuthService.resendVerificationEmail = jest.fn();
+        // Mock all the AuthenticationService methods
+        mockAuthenticationService.verifyEmail = jest.fn();
+        mockAuthenticationService.resendVerificationEmail = jest.fn();
 
-        controller = new AuthController(mockAuthService);
+        controller = new AuthController(mockAuthenticationService);
 
         mockRequest = {
             body: {},
@@ -47,7 +47,7 @@ describe("AuthController - Email Verification", () => {
 
             await controller.verifyEmail(mockRequest as Request, mockResponse as Response);
 
-            expect(mockAuthService.verifyEmail).toHaveBeenCalledWith(token);
+            expect(mockAuthenticationService.verifyEmail).toHaveBeenCalledWith(token);
             expect(mockResponse.status).not.toHaveBeenCalled();
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: true,
@@ -59,7 +59,7 @@ describe("AuthController - Email Verification", () => {
             const token = "invalid-token";
             mockRequest.body = { cleanBody: { token } };
 
-            mockAuthService.verifyEmail.mockRejectedValue(new Error("InvalidOrExpiredToken"));
+            mockAuthenticationService.verifyEmail.mockRejectedValue(new Error("InvalidOrExpiredToken"));
 
             await controller.verifyEmail(mockRequest as Request, mockResponse as Response);
 
@@ -74,7 +74,7 @@ describe("AuthController - Email Verification", () => {
             const token = "valid-token";
             mockRequest.body = { cleanBody: { token } };
 
-            mockAuthService.verifyEmail.mockRejectedValue(new Error("Database error"));
+            mockAuthenticationService.verifyEmail.mockRejectedValue(new Error("Database error"));
 
             await controller.verifyEmail(mockRequest as Request, mockResponse as Response);
 
@@ -93,7 +93,7 @@ describe("AuthController - Email Verification", () => {
 
             await controller.resendVerificationEmail(mockRequest as Request, mockResponse as Response);
 
-            expect(mockAuthService.resendVerificationEmail).toHaveBeenCalledWith(email);
+            expect(mockAuthenticationService.resendVerificationEmail).toHaveBeenCalledWith(email);
             expect(mockResponse.status).not.toHaveBeenCalled();
             expect(mockResponse.json).toHaveBeenCalledWith({
                 success: true,
@@ -105,7 +105,7 @@ describe("AuthController - Email Verification", () => {
             const email = "nonexistent@example.com";
             mockRequest.body = { cleanBody: { email } };
 
-            mockAuthService.resendVerificationEmail.mockRejectedValue(new Error("UserNotFound"));
+            mockAuthenticationService.resendVerificationEmail.mockRejectedValue(new Error("UserNotFound"));
 
             await controller.resendVerificationEmail(mockRequest as Request, mockResponse as Response);
 
@@ -120,7 +120,7 @@ describe("AuthController - Email Verification", () => {
             const email = "verified@example.com";
             mockRequest.body = { cleanBody: { email } };
 
-            mockAuthService.resendVerificationEmail.mockRejectedValue(new Error("EmailAlreadyVerified"));
+            mockAuthenticationService.resendVerificationEmail.mockRejectedValue(new Error("EmailAlreadyVerified"));
 
             await controller.resendVerificationEmail(mockRequest as Request, mockResponse as Response);
 
@@ -135,7 +135,7 @@ describe("AuthController - Email Verification", () => {
             const email = "user@example.com";
             mockRequest.body = { cleanBody: { email } };
 
-            mockAuthService.resendVerificationEmail.mockRejectedValue(new Error("Email service error"));
+            mockAuthenticationService.resendVerificationEmail.mockRejectedValue(new Error("Email service error"));
 
             await controller.resendVerificationEmail(mockRequest as Request, mockResponse as Response);
 
