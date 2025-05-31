@@ -3,7 +3,7 @@ jest.mock("jsonwebtoken", () => ({
 }));
 
 import { JWT_SECRET } from "@/config/env";
-import AuthenticationGuardMiddleware from "@/middlewares/authentication-guard";
+import AuthenticationGuardMiddleware from "@/middlewares/authentication.guard";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
 

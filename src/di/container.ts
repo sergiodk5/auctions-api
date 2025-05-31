@@ -11,7 +11,7 @@ import {
 import AuthController, { IAuthController } from "@/controllers/auth.controller";
 import UsersController, { IUsersController } from "@/controllers/users.controller";
 import { TYPES } from "@/di/types";
-import AuthenticationGuardMiddleware from "@/middlewares/authentication-guard";
+import AuthenticationGuardMiddleware from "@/middlewares/authentication.guard";
 import IMiddleware from "@/middlewares/IMiddleware";
 import LoginRateLimiter from "@/middlewares/login-rate-limiter";
 import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
