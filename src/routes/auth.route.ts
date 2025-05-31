@@ -12,7 +12,7 @@ import IMiddleware from "@/middlewares/IMiddleware";
 import { IValidationMiddleware } from "@/middlewares/validation.middleware";
 import { Router } from "express";
 
-const authGuardMiddleware = container.get<IMiddleware>(TYPES.IAuthGuardMiddleware);
+const authenticationGuardMiddleware = container.get<IMiddleware>(TYPES.IAuthenticationGuardMiddleware);
 const refreshRateLimiter = container.get<IMiddleware>(TYPES.IRefreshRateLimiter);
 const loginRateLimiter = container.get<IMiddleware>(TYPES.ILoginRateLimiter);
 const authController = container.get<IAuthController>(TYPES.IAuthController);
@@ -41,13 +41,13 @@ authRoute.post(
 
 authRoute.post(
     "/revoke",
-    authGuardMiddleware.handle.bind(authGuardMiddleware),
+    authenticationGuardMiddleware.handle.bind(authenticationGuardMiddleware),
     authController.revoke.bind(authController),
 );
 
 authRoute.post(
     "/logout",
-    authGuardMiddleware.handle.bind(authGuardMiddleware),
+    authenticationGuardMiddleware.handle.bind(authenticationGuardMiddleware),
     authController.logout.bind(authController),
 );
 

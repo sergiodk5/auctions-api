@@ -3,13 +3,13 @@ jest.mock("jsonwebtoken", () => ({
 }));
 
 import { JWT_SECRET } from "@/config/env";
-import AuthGuardMiddleware from "@/middlewares/auth.guard";
+import AuthenticationGuardMiddleware from "@/middlewares/authentication-guard";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
 
-describe("AuthGuardMiddleware", () => {
+describe("AuthenticationGuardMiddleware", () => {
     let tokenRepo: { isAccessTokenRevoked: jest.Mock };
-    let middleware: AuthGuardMiddleware;
+    let middleware: AuthenticationGuardMiddleware;
     let req: any;
     let res: any;
     let next: jest.Mock;
@@ -17,7 +17,7 @@ describe("AuthGuardMiddleware", () => {
     beforeEach(() => {
         // Create a fresh mock repo & middleware
         tokenRepo = { isAccessTokenRevoked: jest.fn() };
-        middleware = new AuthGuardMiddleware(tokenRepo as any);
+        middleware = new AuthenticationGuardMiddleware(tokenRepo as any);
 
         // Fake Express req/res/next
         req = { headers: {}, body: {} };

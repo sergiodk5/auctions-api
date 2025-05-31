@@ -11,7 +11,7 @@ import {
 import AuthController, { IAuthController } from "@/controllers/auth.controller";
 import UsersController, { IUsersController } from "@/controllers/users.controller";
 import { TYPES } from "@/di/types";
-import AuthGuardMiddleware from "@/middlewares/auth.guard";
+import AuthenticationGuardMiddleware from "@/middlewares/authentication-guard";
 import IMiddleware from "@/middlewares/IMiddleware";
 import LoginRateLimiter from "@/middlewares/login-rate-limiter";
 import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
@@ -94,7 +94,7 @@ container.bind<IUsersController>(TYPES.IUsersController).to(UsersController);
 container.bind<IAuthController>(TYPES.IAuthController).to(AuthController);
 
 // Middleware
-container.bind<IMiddleware>(TYPES.IAuthGuardMiddleware).to(AuthGuardMiddleware);
+container.bind<IMiddleware>(TYPES.IAuthenticationGuardMiddleware).to(AuthenticationGuardMiddleware);
 container.bind<IMiddleware>(TYPES.IRefreshRateLimiter).to(RefreshRateLimiter);
 container.bind<IMiddleware>(TYPES.ILoginRateLimiter).to(LoginRateLimiter);
 container.bind<IValidationMiddleware>(TYPES.IValidationMiddleware).to(ValidationMiddleware);

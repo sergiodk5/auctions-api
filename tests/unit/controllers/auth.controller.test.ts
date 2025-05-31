@@ -138,7 +138,7 @@ describe("AuthController", () => {
 
     describe("revoke", () => {
         it("calls revokeAccess and returns 204", async () => {
-            // simulate req.user attached by AuthGuardMiddleware
+            // simulate req.user attached by AuthenticationGuardMiddleware
             (req as any).user = { jti: "j123" };
 
             await controller.revoke(req as Request, res as Response);

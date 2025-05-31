@@ -8,7 +8,7 @@ import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
 
 @injectable()
-export default class AuthGuardMiddleware implements IMiddleware {
+export default class AuthenticationGuardMiddleware implements IMiddleware {
     constructor(@inject(TYPES.ITokenRepository) private readonly tokenRepo: ITokenRepository) {}
 
     public async handle(req: Request, res: Response, next: NextFunction): Promise<void> {

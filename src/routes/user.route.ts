@@ -6,13 +6,13 @@ import IMiddleware from "@/middlewares/IMiddleware";
 import { IValidationMiddleware } from "@/middlewares/validation.middleware";
 import express from "express";
 
-const authGuardMiddleware = container.get<IMiddleware>(TYPES.IAuthGuardMiddleware);
+const authenticationGuardMiddleware = container.get<IMiddleware>(TYPES.IAuthenticationGuardMiddleware);
 const validationMiddleware = container.get<IValidationMiddleware>(TYPES.IValidationMiddleware);
 const usersController = container.get<IUsersController>(TYPES.IUsersController);
 
 const userRoute = express.Router();
 
-userRoute.use(authGuardMiddleware.handle.bind(authGuardMiddleware));
+userRoute.use(authenticationGuardMiddleware.handle.bind(authenticationGuardMiddleware));
 
 userRoute.get("/", usersController.getAllUsers.bind(usersController));
 
