@@ -1,6 +1,6 @@
 import { setupSwagger } from "@/config/swagger";
 import jsonErrorHandler from "@/middlewares/json-error-handler";
-import authRoute from "@/routes/auth.route";
+import authenticationRoute from "@/routes/authentication.route";
 import productRoute from "@/routes/product.route";
 import statusRoute from "@/routes/status.route";
 import userRoute from "@/routes/user.route";
@@ -20,7 +20,7 @@ app.use(cookieParser());
 setupSwagger(app);
 
 app.use("/status", statusRoute);
-app.use("/auth", authRoute);
+app.use("/auth", authenticationRoute);
 app.use("/products", productRoute);
 app.use("/users", userRoute);
 

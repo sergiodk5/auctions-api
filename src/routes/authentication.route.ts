@@ -18,61 +18,61 @@ const loginRateLimiter = container.get<IMiddleware>(TYPES.ILoginRateLimiter);
 const authController = container.get<IAuthController>(TYPES.IAuthController);
 const validationMiddleware = container.get<IValidationMiddleware>(TYPES.IValidationMiddleware);
 
-const authRoute = Router();
+const authenticationRoute = Router();
 
-authRoute.post(
+authenticationRoute.post(
     "/register",
     validationMiddleware.validate(createUserSchema),
     authController.register.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/login",
     loginRateLimiter.handle.bind(loginRateLimiter),
     validationMiddleware.validate(loginSchema),
     authController.login.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/refresh",
     refreshRateLimiter.handle.bind(refreshRateLimiter),
     authController.refresh.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/revoke",
     authenticationGuardMiddleware.handle.bind(authenticationGuardMiddleware),
     authController.revoke.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/logout",
     authenticationGuardMiddleware.handle.bind(authenticationGuardMiddleware),
     authController.logout.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/forgot-password",
     validationMiddleware.validate(forgotPasswordSchema),
     authController.forgotPassword.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/reset-password",
     validationMiddleware.validate(resetPasswordSchema),
     authController.resetPassword.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/verify-email",
     validationMiddleware.validate(emailVerificationSchema),
     authController.verifyEmail.bind(authController),
 );
 
-authRoute.post(
+authenticationRoute.post(
     "/resend-verification",
     validationMiddleware.validate(forgotPasswordSchema),
     authController.resendVerificationEmail.bind(authController),
 );
 
-export default authRoute;
+export default authenticationRoute;
