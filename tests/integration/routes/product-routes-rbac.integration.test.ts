@@ -78,146 +78,152 @@ describe("Product Routes with RBAC", () => {
         }
     });
 
-    describe("GET /products - List all products", () => {
+    describe("GET /api/v1/products - List all products", () => {
         it("should allow admin to access products", async () => {
-            const response = await request(app).get("/products").set("Authorization", `Bearer ${adminToken}`);
+            const response = await request(app).get("/api/v1/products").set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Get all products");
         });
 
         it("should allow editor to access products", async () => {
-            const response = await request(app).get("/products").set("Authorization", `Bearer ${editorToken}`);
+            const response = await request(app).get("/api/v1/products").set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Get all products");
         });
 
         it("should allow client to access products", async () => {
-            const response = await request(app).get("/products").set("Authorization", `Bearer ${clientToken}`);
+            const response = await request(app).get("/api/v1/products").set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Get all products");
         });
 
         it("should deny access without authentication", async () => {
-            const response = await request(app).get("/products");
+            const response = await request(app).get("/api/v1/products");
 
             expect(response.status).toBe(401);
         });
 
         it("should deny access with invalid token", async () => {
-            const response = await request(app).get("/products").set("Authorization", "Bearer invalid-token");
+            const response = await request(app).get("/api/v1/products").set("Authorization", "Bearer invalid-token");
 
             expect(response.status).toBe(401);
         });
     });
 
-    describe("POST /products - Create new product", () => {
+    describe("POST /api/v1/products - Create new product", () => {
         it("should allow admin to create products", async () => {
-            const response = await request(app).post("/products").set("Authorization", `Bearer ${adminToken}`);
+            const response = await request(app).post("/api/v1/products").set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Create a new product");
         });
 
         it("should allow editor to create products", async () => {
-            const response = await request(app).post("/products").set("Authorization", `Bearer ${editorToken}`);
+            const response = await request(app).post("/api/v1/products").set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Create a new product");
         });
 
         it("should deny client from creating products", async () => {
-            const response = await request(app).post("/products").set("Authorization", `Bearer ${clientToken}`);
+            const response = await request(app).post("/api/v1/products").set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(403);
             expect(response.body.message).toBe("Insufficient permissions");
         });
 
         it("should deny access without authentication", async () => {
-            const response = await request(app).post("/products");
+            const response = await request(app).post("/api/v1/products");
 
             expect(response.status).toBe(401);
         });
     });
 
-    describe("GET /products/:id - Get product by ID", () => {
+    describe("GET /api/v1/products/:id - Get product by ID", () => {
         it("should allow admin to get product by ID", async () => {
-            const response = await request(app).get("/products/1").set("Authorization", `Bearer ${adminToken}`);
+            const response = await request(app).get("/api/v1/products/1").set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Get product with ID: 1");
         });
 
         it("should allow editor to get product by ID", async () => {
-            const response = await request(app).get("/products/1").set("Authorization", `Bearer ${editorToken}`);
+            const response = await request(app).get("/api/v1/products/1").set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Get product with ID: 1");
         });
 
         it("should allow client to get product by ID", async () => {
-            const response = await request(app).get("/products/1").set("Authorization", `Bearer ${clientToken}`);
+            const response = await request(app).get("/api/v1/products/1").set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Get product with ID: 1");
         });
     });
 
-    describe("PUT /products/:id - Update product", () => {
+    describe("PUT /api/v1/products/:id - Update product", () => {
         it("should allow admin to update products", async () => {
-            const response = await request(app).put("/products/1").set("Authorization", `Bearer ${adminToken}`);
+            const response = await request(app).put("/api/v1/products/1").set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Update product with ID: 1");
         });
 
         it("should allow editor to update products", async () => {
-            const response = await request(app).put("/products/1").set("Authorization", `Bearer ${editorToken}`);
+            const response = await request(app).put("/api/v1/products/1").set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Update product with ID: 1");
         });
 
         it("should deny client from updating products", async () => {
-            const response = await request(app).put("/products/1").set("Authorization", `Bearer ${clientToken}`);
+            const response = await request(app).put("/api/v1/products/1").set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(403);
             expect(response.body.message).toBe("Insufficient permissions");
         });
 
         it("should deny access without authentication", async () => {
-            const response = await request(app).put("/products/1");
+            const response = await request(app).put("/api/v1/products/1");
 
             expect(response.status).toBe(401);
         });
     });
 
-    describe("DELETE /products/:id - Delete product", () => {
+    describe("DELETE /api/v1/products/:id - Delete product", () => {
         it("should allow admin to delete products", async () => {
-            const response = await request(app).delete("/products/1").set("Authorization", `Bearer ${adminToken}`);
+            const response = await request(app)
+                .delete("/api/v1/products/1")
+                .set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Delete product with ID: 1");
         });
 
         it("should allow editor to delete products", async () => {
-            const response = await request(app).delete("/products/1").set("Authorization", `Bearer ${editorToken}`);
+            const response = await request(app)
+                .delete("/api/v1/products/1")
+                .set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(200);
             expect(response.text).toBe("Delete product with ID: 1");
         });
 
         it("should deny client from deleting products", async () => {
-            const response = await request(app).delete("/products/1").set("Authorization", `Bearer ${clientToken}`);
+            const response = await request(app)
+                .delete("/api/v1/products/1")
+                .set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(403);
             expect(response.body.message).toBe("Insufficient permissions");
         });
 
         it("should deny access without authentication", async () => {
-            const response = await request(app).delete("/products/1");
+            const response = await request(app).delete("/api/v1/products/1");
 
             expect(response.status).toBe(401);
         });

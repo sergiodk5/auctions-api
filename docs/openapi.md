@@ -7,7 +7,7 @@ This project now includes comprehensive OpenAPI 3.0 documentation using Swagger 
 Once your server is running, you can access the interactive API documentation at:
 
 ```
-http://localhost:3000/api-docs
+http://localhost:8090/api-docs
 ```
 
 ## Features
@@ -33,37 +33,37 @@ http://localhost:3000/api-docs
 
 ## API Structure
 
-### Authentication (`/auth`)
+### Authentication (`/api/v1/auth`)
 
-- `POST /auth/register` - User registration
-- `POST /auth/login` - User login
-- `POST /auth/refresh` - Token refresh
-- `POST /auth/revoke` - Token revocation
-- `POST /auth/logout` - User logout
-- `POST /auth/forgot-password` - Password reset request
-- `POST /auth/reset-password` - Password reset completion
-- `POST /auth/verify-email` - Email verification
-- `POST /auth/resend-verification` - Resend verification email
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/refresh` - Token refresh
+- `POST /api/v1/auth/revoke` - Token revocation
+- `POST /api/v1/auth/logout` - User logout
+- `POST /api/v1/auth/forgot-password` - Password reset request
+- `POST /api/v1/auth/reset-password` - Password reset completion
+- `POST /api/v1/auth/verify-email` - Email verification
+- `POST /api/v1/auth/resend-verification` - Resend verification email
 
-### Users (`/users`) 🔒 _Requires Authentication_
+### Users (`/api/v1/users`) 🔒 _Requires Authentication_
 
-- `GET /users` - Get all users
-- `POST /users` - Create new user
-- `GET /users/{id}` - Get user by ID
-- `PUT /users/{id}` - Update user
-- `DELETE /users/{id}` - Delete user
+- `GET /api/v1/users` - Get all users
+- `POST /api/v1/users` - Create new user
+- `GET /api/v1/users/{id}` - Get user by ID
+- `PUT /api/v1/users/{id}` - Update user
+- `DELETE /api/v1/users/{id}` - Delete user
 
-### Products (`/products`)
+### Products (`/api/v1/products`)
 
-- `GET /products` - Get all products
-- `POST /products` - Create new product
-- `GET /products/{id}` - Get product by ID
-- `PUT /products/{id}` - Update product
-- `DELETE /products/{id}` - Delete product
+- `GET /api/v1/products` - Get all products
+- `POST /api/v1/products` - Create new product
+- `GET /api/v1/products/{id}` - Get product by ID
+- `PUT /api/v1/products/{id}` - Update product
+- `DELETE /api/v1/products/{id}` - Delete product
 
-### System (`/status`)
+### System (`/api/v1/status`)
 
-- `GET /status` - Health check
+- `GET /api/v1/status` - Health check
 
 ## Usage Examples
 
@@ -72,7 +72,7 @@ http://localhost:3000/api-docs
 1. **Register a new user**:
 
     ```bash
-    curl -X POST http://localhost:3000/auth/register \
+    curl -X POST http://localhost:8090/api/v1/auth/register \
       -H "Content-Type: application/json" \
       -d '{
         "email": "user@example.com",
@@ -85,7 +85,7 @@ http://localhost:3000/api-docs
 2. **Login to get access token**:
 
     ```bash
-    curl -X POST http://localhost:3000/auth/login \
+    curl -X POST http://localhost:8090/api/v1/auth/login \
       -H "Content-Type: application/json" \
       -d '{
         "email": "user@example.com",
@@ -95,7 +95,7 @@ http://localhost:3000/api-docs
 
 3. **Use the token for protected endpoints**:
     ```bash
-    curl -X GET http://localhost:3000/users \
+    curl -X GET http://localhost:8090/api/v1/users \
       -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
     ```
 
@@ -148,7 +148,7 @@ Update the servers array in the swagger configuration for different environments
 ```typescript
 servers: [
   {
-    url: "http://localhost:3000",
+    url: "http://localhost:8090",
     description: "Development server",
   },
   {

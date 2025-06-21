@@ -197,7 +197,7 @@ If you prefer to set up services manually:
 - **View Services:**
     - **API Documentation:** http://localhost:8090/api-docs
     - **MailHog (Email Testing):** http://localhost:8025
-    - **API Health Check:** http://localhost:8090/status
+    - **API Health Check:** http://localhost:8090/api/v1/status
 
 ## API Endpoints
 
@@ -205,49 +205,49 @@ If you prefer to set up services manually:
 
 ### Authentication
 
-- `POST /auth/register` - Register a new user
-- `POST /auth/login` - User login
-- `POST /auth/refresh` - Refresh JWT token
-- `POST /auth/revoke` - Revoke refresh token
-- `POST /auth/logout` - User logout
-- `POST /auth/verify-email` - Verify email address with token
-- `POST /auth/resend-verification` - Resend email verification
-- `POST /auth/forgot-password` - Request password reset
-- `POST /auth/reset-password` - Reset password with token
+- `POST /api/v1/auth/register` - Register a new user
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/refresh` - Refresh JWT token
+- `POST /api/v1/auth/revoke` - Revoke refresh token
+- `POST /api/v1/auth/logout` - User logout
+- `POST /api/v1/auth/verify-email` - Verify email address with token
+- `POST /api/v1/auth/resend-verification` - Resend email verification
+- `POST /api/v1/auth/forgot-password` - Request password reset
+- `POST /api/v1/auth/reset-password` - Reset password with token
 
 ### Users (🔒 Requires Authentication)
 
-- `GET /users` - Get all users (with pagination and filtering)
-- `POST /users` - Create new user (admin only)
-- `GET /users/{id}` - Get user by ID
-- `PUT /users/{id}` - Update user
-- `DELETE /users/{id}` - Delete user (admin only)
-- `GET /users/profile` - Get current user profile
-- `PUT /users/profile` - Update current user profile
+- `GET /api/v1/users` - Get all users (with pagination and filtering)
+- `POST /api/v1/users` - Create new user (admin only)
+- `GET /api/v1/users/{id}` - Get user by ID
+- `PUT /api/v1/users/{id}` - Update user
+- `DELETE /api/v1/users/{id}` - Delete user (admin only)
+- `GET /api/v1/users/profile` - Get current user profile
+- `PUT /api/v1/users/profile` - Update current user profile
 
 ### Roles & Permissions (🔒 Requires Authentication)
 
-- `GET /roles` - Get all roles with permissions
-- `POST /roles` - Create new role (admin only)
-- `GET /roles/{id}` - Get role by ID with permissions
-- `PUT /roles/{id}` - Update role (admin only)
-- `DELETE /roles/{id}` - Delete role (admin only)
-- `POST /users/{userId}/roles` - Assign role to user (admin only)
-- `DELETE /users/{userId}/roles/{roleId}` - Remove role from user (admin only)
+- `GET /api/v1/roles` - Get all roles with permissions
+- `POST /api/v1/roles` - Create new role (admin only)
+- `GET /api/v1/roles/{id}` - Get role by ID with permissions
+- `PUT /api/v1/roles/{id}` - Update role (admin only)
+- `DELETE /api/v1/roles/{id}` - Delete role (admin only)
+- `POST /api/v1/users/{userId}/roles` - Assign role to user (admin only)
+- `DELETE /api/v1/users/{userId}/roles/{roleId}` - Remove role from user (admin only)
 
 ### Products (Placeholder Implementation)
 
-- `GET /products` - Get all products (placeholder)
-- `POST /products` - Create new product (placeholder)
-- `GET /products/{id}` - Get product by ID (placeholder)
-- `PUT /products/{id}` - Update product (placeholder)
-- `DELETE /products/{id}` - Delete product (placeholder)
+- `GET /api/v1/products` - Get all products (placeholder)
+- `POST /api/v1/products` - Create new product (placeholder)
+- `GET /api/v1/products/{id}` - Get product by ID (placeholder)
+- `PUT /api/v1/products/{id}` - Update product (placeholder)
+- `DELETE /api/v1/products/{id}` - Delete product (placeholder)
 
 > **Note:** Product endpoints are currently placeholder implementations. The focus has been on building a robust authentication and authorization foundation.
 
 ### System
 
-- `GET /status` - Health check endpoint
+- `GET /api/v1/status` - Health check endpoint
 
 ## Testing
 

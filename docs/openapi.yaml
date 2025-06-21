@@ -232,7 +232,7 @@ tags:
     description: System health and status endpoints
 
 paths:
-  /status:
+  /api/v1/status:
     get:
       summary: Health check endpoint
       description: Returns the health status of the API
@@ -248,7 +248,7 @@ paths:
               example:
                 status: healthy
 
-  /auth/register:
+  /api/v1/auth/register:
     post:
       summary: Register a new user
       description: Create a new user account
@@ -280,7 +280,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/login:
+  /api/v1/auth/login:
     post:
       summary: User login
       description: Authenticate user and return access token
@@ -317,7 +317,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/refresh:
+  /api/v1/auth/refresh:
     post:
       summary: Refresh access token
       description: Get a new access token using refresh token
@@ -345,7 +345,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/revoke:
+  /api/v1/auth/revoke:
     post:
       summary: Revoke refresh token
       description: Invalidate the current refresh token
@@ -367,7 +367,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/logout:
+  /api/v1/auth/logout:
     post:
       summary: User logout
       description: Logout user and clear refresh token
@@ -389,7 +389,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/forgot-password:
+  /api/v1/auth/forgot-password:
     post:
       summary: Request password reset
       description: Send password reset email to user
@@ -422,7 +422,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/reset-password:
+  /api/v1/auth/reset-password:
     post:
       summary: Reset password
       description: Reset user password using reset token
@@ -459,7 +459,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/verify-email:
+  /api/v1/auth/verify-email:
     post:
       summary: Verify email address
       description: Verify user's email address using verification token
@@ -491,7 +491,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /auth/resend-verification:
+  /api/v1/auth/resend-verification:
     post:
       summary: Resend verification email
       description: Send a new email verification token to user
@@ -524,7 +524,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /users:
+  /api/v1/users:
     get:
       summary: Get all users
       description: Retrieve a list of all users (requires authentication)
@@ -605,7 +605,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /users/{id}:
+  /api/v1/users/{id}:
     get:
       summary: Get user by ID
       description: Retrieve a specific user by their ID (requires authentication)
@@ -744,7 +744,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /products:
+  /api/v1/products:
     get:
       summary: Get all products
       description: Retrieve a list of all products
@@ -805,7 +805,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /products/{id}:
+  /api/v1/products/{id}:
     get:
       summary: Get product by ID
       description: Retrieve a specific product by its ID

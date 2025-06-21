@@ -39,10 +39,10 @@ export function createTestApp(container?: Container): express.Application {
     setupSwagger(app);
 
     // Use the standard routes - they will get dependencies from the test container
-    app.use("/status", statusRoute);
-    app.use("/auth", authenticationRoute);
-    app.use("/products", productRoute);
-    app.use("/users", userRoute);
+    app.use("/api/v1/status", statusRoute);
+    app.use("/api/v1/auth", authenticationRoute);
+    app.use("/api/v1/products", productRoute);
+    app.use("/api/v1/users", userRoute);
 
     app.use(jsonErrorHandler);
 

@@ -69,33 +69,33 @@ describe("User Routes with RBAC", () => {
     // and deleting user roles before tests could run. The cleanup will happen
     // in the next test's beforeAll.
 
-    describe("GET /users - List all users", () => {
+    describe("GET /api/v1/users - List all users", () => {
         it("should allow admin to list users", async () => {
-            const response = await request(app).get("/users").set("Authorization", `Bearer ${adminToken}`);
+            const response = await request(app).get("/api/v1/users").set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
         });
 
         it("should allow editor to list users", async () => {
-            const response = await request(app).get("/users").set("Authorization", `Bearer ${editorToken}`);
+            const response = await request(app).get("/api/v1/users").set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(200);
         });
 
         it("should allow client to list users", async () => {
-            const response = await request(app).get("/users").set("Authorization", `Bearer ${clientToken}`);
+            const response = await request(app).get("/api/v1/users").set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(200);
         });
 
         it("should deny access without authentication", async () => {
-            const response = await request(app).get("/users");
+            const response = await request(app).get("/api/v1/users");
 
             expect(response.status).toBe(401);
         });
     });
 
-    describe("POST /users - Create new user", () => {
+    describe("POST /api/v1/users - Create new user", () => {
         // Generate a unique email for each test run
         const timestamp = Date.now();
         const newUserData = {
@@ -105,7 +105,7 @@ describe("User Routes with RBAC", () => {
 
         it("should allow admin to create users", async () => {
             const response = await request(app)
-                .post("/users")
+                .post("/api/v1/users")
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send(newUserData);
 
@@ -114,7 +114,7 @@ describe("User Routes with RBAC", () => {
 
         it("should deny editor access to create users", async () => {
             const response = await request(app)
-                .post("/users")
+                .post("/api/v1/users")
                 .set("Authorization", `Bearer ${editorToken}`)
                 .send(newUserData);
 
@@ -123,7 +123,7 @@ describe("User Routes with RBAC", () => {
 
         it("should deny client access to create users", async () => {
             const response = await request(app)
-                .post("/users")
+                .post("/api/v1/users")
                 .set("Authorization", `Bearer ${clientToken}`)
                 .send(newUserData);
 
@@ -131,26 +131,29 @@ describe("User Routes with RBAC", () => {
         });
 
         it("should deny access without authentication", async () => {
-            const response = await request(app).post("/users").send(newUserData);
+            const response = await request(app).post("/api/v1/users").send(newUserData);
 
             expect(response.status).toBe(401);
         });
 
         it("should validate user data and return 400 for invalid data", async () => {
             // Send invalid data (missing password)
-            const response = await request(app).post("/users").set("Authorization", `Bearer ${adminToken}`).send({
-                email: "valid@test.com",
-                // Missing password field
-            });
+            const response = await request(app)
+                .post("/api/v1/users")
+                .set("Authorization", `Bearer ${adminToken}`)
+                .send({
+                    email: "valid@test.com",
+                    // Missing password field
+                });
 
             expect(response.status).toBe(400);
         });
     });
 
-    describe("GET /users/:id - Get user by ID", () => {
+    describe("GET /api/v1/users/:id - Get user by ID", () => {
         it("should allow admin to get user by ID", async () => {
             const response = await request(app)
-                .get(`/users/${adminUser.id}`)
+                .get(`/api/v1/users/${adminUser.id}`)
                 .set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
@@ -158,7 +161,7 @@ describe("User Routes with RBAC", () => {
 
         it("should allow editor to get user by ID", async () => {
             const response = await request(app)
-                .get(`/users/${editorUser.id}`)
+                .get(`/api/v1/users/${editorUser.id}`)
                 .set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(200);
@@ -166,7 +169,7 @@ describe("User Routes with RBAC", () => {
 
         it("should allow client to get user by ID", async () => {
             const response = await request(app)
-                .get(`/users/${clientUser.id}`)
+                .get(`/api/v1/users/${clientUser.id}`)
                 .set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(200);
@@ -177,14 +180,14 @@ describe("User Routes with RBAC", () => {
             const nonExistentId = 9999999;
 
             const response = await request(app)
-                .get(`/users/${nonExistentId}`)
+                .get(`/api/v1/users/${nonExistentId}`)
                 .set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(404);
         });
     });
 
-    describe("PUT /users/:id - Update user", () => {
+    describe("PUT /api/v1/users/:id - Update user", () => {
         const timestamp = Date.now();
         const updateData = {
             email: `updated-${timestamp}@test.com`,
@@ -198,7 +201,7 @@ describe("User Routes with RBAC", () => {
             });
 
             const response = await request(app)
-                .put(`/users/${userToUpdate.id}`)
+                .put(`/api/v1/users/${userToUpdate.id}`)
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send(updateData);
 
@@ -207,7 +210,7 @@ describe("User Routes with RBAC", () => {
 
         it("should deny editor access to update users", async () => {
             const response = await request(app)
-                .put(`/users/${editorUser.id}`)
+                .put(`/api/v1/users/${editorUser.id}`)
                 .set("Authorization", `Bearer ${editorToken}`)
                 .send(updateData);
 
@@ -216,7 +219,7 @@ describe("User Routes with RBAC", () => {
 
         it("should deny client access to update users", async () => {
             const response = await request(app)
-                .put(`/users/${clientUser.id}`)
+                .put(`/api/v1/users/${clientUser.id}`)
                 .set("Authorization", `Bearer ${clientToken}`)
                 .send(updateData);
 
@@ -225,7 +228,7 @@ describe("User Routes with RBAC", () => {
 
         it("should return 404 for non-existent user", async () => {
             const response = await request(app)
-                .put("/users/99999")
+                .put("/api/v1/users/99999")
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send(updateData);
 
@@ -233,7 +236,7 @@ describe("User Routes with RBAC", () => {
         });
     });
 
-    describe("DELETE /users/:id - Delete user", () => {
+    describe("DELETE /api/v1/users/:id - Delete user", () => {
         it("should allow admin to delete users", async () => {
             // Create a user to delete with unique email using timestamp
             const timestamp = Date.now();
@@ -247,7 +250,7 @@ describe("User Routes with RBAC", () => {
             expect(userToDelete.id).toBeDefined();
 
             const response = await request(app)
-                .delete(`/users/${userToDelete.id}`)
+                .delete(`/api/v1/users/${userToDelete.id}`)
                 .set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(200);
@@ -257,7 +260,7 @@ describe("User Routes with RBAC", () => {
 
         it("should deny editor access to delete users", async () => {
             const response = await request(app)
-                .delete(`/users/${editorUser.id}`)
+                .delete(`/api/v1/users/${editorUser.id}`)
                 .set("Authorization", `Bearer ${editorToken}`);
 
             expect(response.status).toBe(403);
@@ -265,7 +268,7 @@ describe("User Routes with RBAC", () => {
 
         it("should deny client access to delete users", async () => {
             const response = await request(app)
-                .delete(`/users/${clientUser.id}`)
+                .delete(`/api/v1/users/${clientUser.id}`)
                 .set("Authorization", `Bearer ${clientToken}`);
 
             expect(response.status).toBe(403);
@@ -276,7 +279,7 @@ describe("User Routes with RBAC", () => {
             const nonExistentId = 9999999;
 
             const response = await request(app)
-                .delete(`/users/${nonExistentId}`)
+                .delete(`/api/v1/users/${nonExistentId}`)
                 .set("Authorization", `Bearer ${adminToken}`);
 
             expect(response.status).toBe(404);
@@ -285,7 +288,7 @@ describe("User Routes with RBAC", () => {
         });
 
         it("should deny access without authentication", async () => {
-            const response = await request(app).delete("/users/1");
+            const response = await request(app).delete("/api/v1/users/1");
 
             expect(response.status).toBe(401);
         });

@@ -159,7 +159,7 @@ describe("Isolated Test Container Example", () => {
     describe("Simple Route Testing Demo", () => {
         it("should test status route", async () => {
             // This is a simple route that doesn't require authentication
-            const response = await request(app).get("/status");
+            const response = await request(app).get("/api/v1/status");
 
             // This might work depending on your actual status route implementation
             expect(response.status).toBe(200);

@@ -42,7 +42,7 @@ describe("Email Verification Integration Tests", () => {
         closeTestDatabase();
     });
 
-    describe("POST /auth/verify-email", () => {
+    describe("POST /api/v1/auth/verify-email", () => {
         it("should verify email with valid token", async () => {
             // Create a test user with unique email
             const email = generateUniqueEmail("verify-test");
@@ -55,7 +55,7 @@ describe("Email Verification Integration Tests", () => {
             const token = crypto.randomBytes(32).toString("hex");
             await emailVerificationRepo.create(user.id, token);
 
-            const response = await request(app).post("/auth/verify-email").send({ token });
+            const response = await request(app).post("/api/v1/auth/verify-email").send({ token });
 
             expect(response.status).toBe(200);
             expect(response.body.message).toBe("Email verified successfully");
@@ -67,7 +67,7 @@ describe("Email Verification Integration Tests", () => {
         });
 
         it("should return 400 for invalid token", async () => {
-            const response = await request(app).post("/auth/verify-email").send({ token: "invalid-token" });
+            const response = await request(app).post("/api/v1/auth/verify-email").send({ token: "invalid-token" });
 
             expect(response.status).toBe(400);
             expect(response.body.message).toBe("Invalid or expired verification token");
@@ -86,20 +86,20 @@ describe("Email Verification Integration Tests", () => {
             const token = crypto.randomBytes(32).toString("hex");
             await emailVerificationRepo.create(user.id, token);
 
-            const response = await request(app).post("/auth/verify-email").send({ token });
+            const response = await request(app).post("/api/v1/auth/verify-email").send({ token });
 
             expect(response.status).toBe(400);
             expect(response.body.message).toBe("Email is already verified");
         });
 
         it("should return 400 for missing token", async () => {
-            const response = await request(app).post("/auth/verify-email").send({});
+            const response = await request(app).post("/api/v1/auth/verify-email").send({});
 
             expect(response.status).toBe(400);
         });
     });
 
-    describe("POST /auth/resend-verification", () => {
+    describe("POST /api/v1/auth/resend-verification", () => {
         it("should resend verification email for unverified user", async () => {
             // Create an unverified user with unique email
             const email = generateUniqueEmail("unverified");
@@ -108,7 +108,7 @@ describe("Email Verification Integration Tests", () => {
                 password: "hashedPassword",
             });
 
-            const response = await request(app).post("/auth/resend-verification").send({ email: user.email });
+            const response = await request(app).post("/api/v1/auth/resend-verification").send({ email: user.email });
 
             expect(response.status).toBe(200);
             expect(response.body.message).toBe("Verification email sent successfully");
@@ -120,7 +120,7 @@ describe("Email Verification Integration Tests", () => {
 
         it("should return 404 for non-existent user", async () => {
             const response = await request(app)
-                .post("/auth/resend-verification")
+                .post("/api/v1/auth/resend-verification")
                 .send({ email: generateUniqueEmail("nonexistent") });
 
             expect(response.status).toBe(404);
@@ -136,14 +136,14 @@ describe("Email Verification Integration Tests", () => {
             });
             await userRepo.markEmailAsVerified(user.id);
 
-            const response = await request(app).post("/auth/resend-verification").send({ email: user.email });
+            const response = await request(app).post("/api/v1/auth/resend-verification").send({ email: user.email });
 
             expect(response.status).toBe(400);
             expect(response.body.message).toBe("Email is already verified");
         });
 
         it("should return 400 for missing email", async () => {
-            const response = await request(app).post("/auth/resend-verification").send({});
+            const response = await request(app).post("/api/v1/auth/resend-verification").send({});
 
             expect(response.status).toBe(400);
         });
@@ -161,7 +161,7 @@ describe("Email Verification Integration Tests", () => {
             await emailVerificationRepo.create(user.id, oldToken);
 
             // Resend verification
-            await request(app).post("/auth/resend-verification").send({ email: user.email });
+            await request(app).post("/api/v1/auth/resend-verification").send({ email: user.email });
 
             // Verify old token is no longer valid
             const oldTokenRecord = await emailVerificationRepo.findByToken(oldToken);
@@ -173,7 +173,7 @@ describe("Email Verification Integration Tests", () => {
         it("should send welcome email after successful registration", async () => {
             const email = generateUniqueEmail("newuser");
 
-            const response = await request(app).post("/auth/register").send({
+            const response = await request(app).post("/api/v1/auth/register").send({
                 email,
                 password: "password123",
             });
