@@ -31,8 +31,12 @@ export default class ValidationService {
     }
 
     public handleError(res: Response, error: unknown) {
-        if (error instanceof ZodError || 
-            (error && typeof error === 'object' && (error.constructor?.name === 'ZodError' || 'errors' in error && Array.isArray((error as any).errors)))) {
+        if (
+            error instanceof ZodError ||
+            (error &&
+                typeof error === "object" &&
+                (error.constructor?.name === "ZodError" || ("errors" in error && Array.isArray((error as any).errors))))
+        ) {
             // Handle ZodError or ZodError-like objects
             const zodError = error as any;
             const errors = zodError.errors ?? [];
