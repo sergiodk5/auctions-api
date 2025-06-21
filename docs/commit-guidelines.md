@@ -29,6 +29,7 @@ This project uses [Conventional Commits](https://www.conventionalcommits.org/) t
 ## Examples
 
 ### Good Examples
+
 ```bash
 feat: add user authentication endpoint
 fix: resolve database connection timeout issue
@@ -41,6 +42,7 @@ ci: add automated testing workflow
 ```
 
 ### Bad Examples
+
 ```bash
 # Too vague
 fix: bug fix

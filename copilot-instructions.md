@@ -141,16 +141,16 @@ tests/
 - Follow Conventional Commits specification: `type(scope): description`
 - **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`, `build`, `revert`
 - **Examples**:
-  - `feat: add user authentication endpoint`
-  - `fix: resolve database connection timeout issue`
-  - `docs: update API documentation for user routes`
-  - `test: add unit tests for user service`
-  - `refactor: improve error handling in auth middleware`
-- **Rules**: 
-  - Subject line max 72 characters
-  - Use lowercase for subject (except proper nouns)
-  - No period at the end of subject line
-  - Use imperative mood ("add" not "added" or "adds")
+    - `feat: add user authentication endpoint`
+    - `fix: resolve database connection timeout issue`
+    - `docs: update API documentation for user routes`
+    - `test: add unit tests for user service`
+    - `refactor: improve error handling in auth middleware`
+- **Rules**:
+    - Subject line max 72 characters
+    - Use lowercase for subject (except proper nouns)
+    - No period at the end of subject line
+    - Use imperative mood ("add" not "added" or "adds")
 
 ## 🧩 Example Prompts
 
