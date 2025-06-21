@@ -177,7 +177,7 @@ tests/
     - `test: add unit tests for user service`
     - `refactor: improve error handling in auth middleware`
 - **Rules**:
-    - Subject line max 72 characters
+    - Subject line max 60 characters
     - Use lowercase for subject (except proper nouns)
     - No period at the end of subject line
     - Use imperative mood ("add" not "added" or "adds")
