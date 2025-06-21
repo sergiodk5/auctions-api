@@ -93,7 +93,8 @@ export default class UserRepository implements IUserRepository {
             .where(eq(usersTable.id, id))
             .returning({ id: usersTable.id });
 
-        return !!result;
+        // Handle case when result might be null
+        return Boolean(result && result.length > 0);
     }
 
     async markEmailAsVerified(id: number): Promise<void> {

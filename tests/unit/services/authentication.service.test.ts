@@ -123,12 +123,12 @@ describe("AuthenticationService", () => {
                 refreshToken: "refreshTok",
             });
             expect(tokenRepo.storeRefreshToken).toHaveBeenCalledWith("jtiID", "famID");
-            expect(jwt.sign).toHaveBeenNthCalledWith(1, { sub: 3, jti: "jtiID" }, JWT_SECRET, {
+            expect(jwt.sign).toHaveBeenNthCalledWith(1, { sub: "3", jti: "jtiID" }, JWT_SECRET, {
                 expiresIn: ACCESS_LIFETIME,
             });
             expect(jwt.sign).toHaveBeenNthCalledWith(
                 2,
-                { sub: 3, jti: "jtiID", family_id: "famID" },
+                { sub: "3", jti: "jtiID", family_id: "famID" },
                 JWT_REFRESH_SECRET,
                 { expiresIn: REFRESH_IDLE_TTL },
             );

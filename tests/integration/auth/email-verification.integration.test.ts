@@ -8,6 +8,13 @@ import crypto from "crypto";
 import request from "supertest";
 import { cleanupTestDatabase, closeTestDatabase, setupTestDatabase } from "../../helpers/database.helper";
 
+// Generate unique email for test cases to avoid conflicts
+const generateUniqueEmail = (base: string): string => {
+    const timestamp = Date.now();
+    const randomString = Math.random().toString(36).substring(2, 10);
+    return `${base}-${timestamp}-${randomString}@example.com`;
+};
+
 describe("Email Verification Integration Tests", () => {
     let userRepo: IUserRepository;
     let emailVerificationRepo: IEmailVerificationRepository;
@@ -30,16 +37,17 @@ describe("Email Verification Integration Tests", () => {
         await cleanupTestDatabase();
     });
 
-    afterAll(async () => {
+    afterAll(() => {
         // Close database connection to prevent hanging processes
-        await closeTestDatabase();
+        closeTestDatabase();
     });
 
     describe("POST /auth/verify-email", () => {
         it("should verify email with valid token", async () => {
-            // Create a test user
+            // Create a test user with unique email
+            const email = generateUniqueEmail("verify-test");
             const user = await userRepo.create({
-                email: "test@example.com",
+                email,
                 password: "hashedPassword",
             });
 
@@ -66,9 +74,10 @@ describe("Email Verification Integration Tests", () => {
         });
 
         it("should return 400 for already verified email", async () => {
-            // Create a verified user
+            // Create a verified user with unique email
+            const email = generateUniqueEmail("already-verified");
             const user = await userRepo.create({
-                email: "verified@example.com",
+                email,
                 password: "hashedPassword",
             });
             await userRepo.markEmailAsVerified(user.id);
@@ -92,9 +101,10 @@ describe("Email Verification Integration Tests", () => {
 
     describe("POST /auth/resend-verification", () => {
         it("should resend verification email for unverified user", async () => {
-            // Create an unverified user
+            // Create an unverified user with unique email
+            const email = generateUniqueEmail("unverified");
             const user = await userRepo.create({
-                email: "unverified@example.com",
+                email,
                 password: "hashedPassword",
             });
 
@@ -111,16 +121,17 @@ describe("Email Verification Integration Tests", () => {
         it("should return 404 for non-existent user", async () => {
             const response = await request(app)
                 .post("/auth/resend-verification")
-                .send({ email: "nonexistent@example.com" });
+                .send({ email: generateUniqueEmail("nonexistent") });
 
             expect(response.status).toBe(404);
             expect(response.body.message).toBe("User not found");
         });
 
         it("should return 400 for already verified user", async () => {
-            // Create a verified user
+            // Create a verified user with unique email
+            const email = generateUniqueEmail("verified");
             const user = await userRepo.create({
-                email: "verified@example.com",
+                email,
                 password: "hashedPassword",
             });
             await userRepo.markEmailAsVerified(user.id);
@@ -138,9 +149,10 @@ describe("Email Verification Integration Tests", () => {
         });
 
         it("should delete old tokens and create new one", async () => {
-            // Create an unverified user
+            // Create an unverified user with unique email
+            const email = generateUniqueEmail("token-replacement");
             const user = await userRepo.create({
-                email: "user@example.com",
+                email,
                 password: "hashedPassword",
             });
 
@@ -159,19 +171,21 @@ describe("Email Verification Integration Tests", () => {
 
     describe("Registration with email verification", () => {
         it("should send welcome email after successful registration", async () => {
+            const email = generateUniqueEmail("newuser");
+
             const response = await request(app).post("/auth/register").send({
-                email: "newuser@example.com",
+                email,
                 password: "password123",
             });
 
             expect(response.status).toBe(201);
             expect(mailerService.sendWelcomeEmail).toHaveBeenCalledWith(
-                "newuser@example.com",
+                email,
                 expect.stringContaining("/verify-email?token="),
             );
 
             // Verify user is created but not verified
-            const user = await userRepo.findByEmail("newuser@example.com");
+            const user = await userRepo.findByEmail(email);
             expect(user?.emailVerified).toBe(false);
             expect(user?.emailVerifiedAt).toBeNull();
         });

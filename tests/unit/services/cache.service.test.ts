@@ -127,7 +127,8 @@ describe("CacheService", () => {
             expect(mockCreateClient).not.toHaveBeenCalled();
 
             // Client should be a stub object
-            expect(service.client).toEqual({});
+            expect(typeof service.client).toBe("object");
+            expect(typeof service.client.get).toBe("function");
         });
     });
 

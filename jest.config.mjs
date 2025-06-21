@@ -16,6 +16,7 @@ export default {
     modulePaths: [compilerOptions.baseUrl],
     moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>" }),
     testTimeout: 30000,
+    maxWorkers: 1, // Force all tests to run sequentially
     projects: [
         {
             displayName: "unit",
@@ -28,6 +29,7 @@ export default {
             moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
             modulePaths: [compilerOptions.baseUrl],
             moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>" }),
+            maxWorkers: 1, // Sequential execution
         },
         {
             displayName: "integration",
@@ -41,6 +43,7 @@ export default {
             modulePaths: [compilerOptions.baseUrl],
             moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: "<rootDir>" }),
             setupFilesAfterEnv: ["<rootDir>/tests/setup/integration.setup.ts"],
+            maxWorkers: 1, // Sequential execution for database safety
         },
     ],
     // Default config for when running all tests

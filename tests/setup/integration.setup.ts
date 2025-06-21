@@ -15,7 +15,7 @@ beforeAll(async () => {
 }, 30000); // 30 second timeout for database setup
 
 // Global teardown for integration tests
-afterAll(async () => {
+afterAll(() => {
     // Close database connections properly
-    await closeTestDatabase();
+    closeTestDatabase();
 });

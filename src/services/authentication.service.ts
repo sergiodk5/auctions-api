@@ -78,8 +78,8 @@ export default class AuthenticationService {
         }
         const familyId = uuidv4();
         const jti = uuidv4();
-        const accessToken = jwt.sign({ sub: user.id, jti }, JWT_SECRET, { expiresIn: ACCESS_LIFETIME });
-        const refreshToken = jwt.sign({ sub: user.id, jti, family_id: familyId }, JWT_REFRESH_SECRET, {
+        const accessToken = jwt.sign({ sub: user.id.toString(), jti }, JWT_SECRET, { expiresIn: ACCESS_LIFETIME });
+        const refreshToken = jwt.sign({ sub: user.id.toString(), jti, family_id: familyId }, JWT_REFRESH_SECRET, {
             expiresIn: REFRESH_IDLE_TTL,
         });
         await this.tokenRepo.storeRefreshToken(jti, familyId);

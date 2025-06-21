@@ -12,8 +12,22 @@ export default class CacheService implements ICacheService {
 
     constructor() {
         if (NODE_ENV === "test") {
-            // stub for tests
-            this.client = {} as RedisClientType;
+            // Mock Redis client for tests with all required methods
+            this.client = {
+                get: () => Promise.resolve(null),
+                set: () => Promise.resolve("OK"),
+                setEx: () => Promise.resolve("OK"),
+                del: () => Promise.resolve(1),
+                exists: () => Promise.resolve(0),
+                expire: () => Promise.resolve(1),
+                ttl: () => Promise.resolve(-1),
+                flushAll: () => Promise.resolve("OK"),
+                quit: () => Promise.resolve("OK"),
+                disconnect: () => Promise.resolve(undefined),
+                keys: () => Promise.resolve([]),
+                isOpen: true,
+                isReady: true,
+            } as any as RedisClientType;
         } else {
             this.client = createClient({
                 socket: {

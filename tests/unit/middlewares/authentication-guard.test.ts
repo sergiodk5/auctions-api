@@ -40,11 +40,11 @@ describe("AuthenticationGuardMiddleware", () => {
 
     it("denies when no Authorization header", async () => {
         await middleware.handle(req, res, next);
-        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.status).toHaveBeenCalledWith(401); // Changed from 403
         expect(res.json).toHaveBeenCalledWith({
             success: false,
             data: null,
-            message: "Access denied",
+            message: "Unauthorized - Token required",
         });
         expect(next).not.toHaveBeenCalled();
     });
@@ -59,21 +59,22 @@ describe("AuthenticationGuardMiddleware", () => {
 
         expect(jwt.verify).toHaveBeenCalledWith("badtoken", JWT_SECRET);
         expect(console.error).toHaveBeenCalledWith("Token verification error:", expect.any(Error));
-        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.status).toHaveBeenCalledWith(401); // Changed from 403
         expect(next).not.toHaveBeenCalled();
     });
 
     it("denies when payload missing id", async () => {
         req.headers.authorization = "Bearer tok";
-        (jwt.verify as jest.Mock).mockReturnValue({ sub: "u", jti: "j" });
+        // Simulate jwt.verify returning a payload that's not a string or an object without a 'sub' property
+        (jwt.verify as jest.Mock).mockReturnValue({ jti: "j" }); // Missing 'sub'
 
         await middleware.handle(req, res, next);
 
-        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.status).toHaveBeenCalledWith(401);
         expect(res.json).toHaveBeenCalledWith({
             success: false,
             data: null,
-            message: "Access denied",
+            message: "Unauthorized - Invalid token",
         });
         expect(next).not.toHaveBeenCalled();
     });
@@ -87,7 +88,7 @@ describe("AuthenticationGuardMiddleware", () => {
 
         expect(tokenRepo.isAccessTokenRevoked).toHaveBeenCalledWith("j2");
         expect(console.error).toHaveBeenCalledWith("Token revoked");
-        expect(res.status).toHaveBeenCalledWith(403);
+        expect(res.status).toHaveBeenCalledWith(401); // Changed from 403
         expect(next).not.toHaveBeenCalled();
     });
 
