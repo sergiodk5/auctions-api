@@ -36,6 +36,7 @@ You should always suggest modern, type-safe, and maintainable solutions. Referen
 - **Always use the centralized environment configuration** - Import environment variables from `@/config/env` instead of accessing `process.env` directly. See `docs/config/env.guide.md` for comprehensive usage examples.
 - **Always use dependency injection properly** - Use the Inversify container with `@injectable()` and `@inject()` decorators. Reference `docs/di/container.guide.md` for container setup and usage patterns, and `docs/di/types.guide.md` for proper TYPES symbol usage and naming conventions.
 - **Always use utility functions for common operations** - Use existing utilities from `@/utils/` for common operations like password hashing. Reference `docs/utils/utils.guide.md` for available utilities, usage patterns, and guidelines for adding new utilities.
+- **Always follow repository patterns** - Use the established repository patterns for data access. Reference `docs/repositories/repositories.guide.md` for comprehensive repository usage, testing patterns, and best practices. See specific guides for `user-repository.guide.md`, `token-repository.guide.md`, and `rbac-repositories.guide.md`.
 - **Always update documentation when creating or modifying APIs** - Update both `docs/openapi.yaml` and `README.md` to reflect any new endpoints, changed URL patterns, or modified functionality.
 - **Maintain API documentation consistency** - Ensure that OpenAPI documentation, README examples, and actual code implementation all use the same endpoint patterns and structures.
 
@@ -146,6 +147,7 @@ tests/
 - **Implement proper HTTP status codes** for different response scenarios.
 - **Use consistent error handling** with structured error responses.
 - **Use existing utility functions** for common operations like password hashing, string manipulation, and data processing.
+- **Follow established repository patterns** for data access, caching, and testing. Use dependency injection, implement proper interfaces, and follow the established patterns for security and performance.
 
 ## 🚫 Patterns to Avoid
 
@@ -153,9 +155,9 @@ tests/
 - **Avoid using `any` or `// @ts-ignore`** — always type inputs and outputs properly.
 - **Don't bypass the dependency injection container** - always use `@inject()`.
 - **Don't hardcode values** — pull from config or env vars.
-- **Avoid direct database queries** - use Drizzle ORM through repositories.
+- **Avoid direct database queries** - use Drizzle ORM through repositories following established patterns.
 - **Don't skip authentication/authorization checks** on protected routes.
-- **Avoid mixing database access patterns** - stick to Drizzle ORM consistently.
+- **Avoid mixing database access patterns** - stick to Drizzle ORM consistently through repository layer.
 - **Never disable ESLint rules in generated code** - fix the underlying issue instead.
 - **Don't use `console.log` for logging** - use proper logging patterns when available.
   // TODO: Replace console.log/console.error calls in src/services/cache.service.ts, src/services/database.service.ts, src/middlewares/authentication.guard.ts, and src/server.ts with proper logging service
