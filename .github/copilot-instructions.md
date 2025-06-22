@@ -37,6 +37,10 @@ You should always suggest modern, type-safe, and maintainable solutions. Referen
 - **Always use dependency injection properly** - Use the Inversify container with `@injectable()` and `@inject()` decorators. Reference `docs/di/container.guide.md` for container setup and usage patterns, and `docs/di/types.guide.md` for proper TYPES symbol usage and naming conventions.
 - **Always use utility functions for common operations** - Use existing utilities from `@/utils/` for common operations like password hashing. Reference `docs/utils/utils.guide.md` for available utilities, usage patterns, and guidelines for adding new utilities.
 - **Always follow repository patterns** - Use the established repository patterns for data access. Reference `docs/repositories/repositories.guide.md` for comprehensive repository usage, testing patterns, and best practices. See specific guides for `user-repository.guide.md`, `token-repository.guide.md`, and `rbac-repositories.guide.md`.
+- **Always follow service layer patterns** - Implement business logic in services using proper dependency injection and interface-based design. Reference `docs/services/services.guide.md` for comprehensive service patterns and best practices. See specific guides for `authentication-service.guide.md`, `authorization-service.guide.md`, `user-service.guide.md`, and `infrastructure-services.guide.md`.
+- **Always follow controller layer patterns** - Implement HTTP request/response handling in controllers using proper error handling and response formatting. Reference `docs/controllers/controllers.guide.md` for comprehensive controller patterns and best practices. See specific guides for `auth-controller.guide.md` and `users-controller.guide.md`.
+- **Always follow middleware layer patterns** - Implement cross-cutting concerns using proper middleware patterns for authentication, authorization, validation, and rate limiting. Reference `docs/middlewares/middlewares.guide.md` for comprehensive middleware patterns and best practices. See specific guides for `authentication-middleware.guide.md`, `authorization-middleware.guide.md`, `validation-middleware.guide.md`, and `rate-limiting-middleware.guide.md`.
+- **Always follow route layer patterns** - Implement HTTP endpoints using proper REST conventions, middleware orchestration, and dependency injection. Reference `docs/routes/routes.guide.md` for comprehensive route patterns and best practices. See specific guides for `authentication-routes.guide.md`, `user-routes.guide.md`, `role-routes.guide.md`, `permission-routes.guide.md`, `product-routes.guide.md`, and `status-routes.guide.md`.
 - **Always update documentation when creating or modifying APIs** - Update both `docs/openapi.yaml` and `README.md` to reflect any new endpoints, changed URL patterns, or modified functionality.
 - **Maintain API documentation consistency** - Ensure that OpenAPI documentation, README examples, and actual code implementation all use the same endpoint patterns and structures.
 
@@ -141,6 +145,8 @@ tests/
 - **Use Redis for caching** when performance optimization is needed.
 - **Separate business logic into services**, keep controllers thin.
 - **Use proper TypeScript interfaces** for all service contracts.
+- **Follow established service patterns** - Implement business logic using the service layer patterns documented in `docs/services/`. Use dependency injection, implement clear interfaces, and follow separation of concerns between controllers, services, and repositories.
+- **Use infrastructure services properly** - Leverage DatabaseService, CacheService, MailerService, and ValidationService following the patterns in `docs/services/infrastructure-services.guide.md`.
 - **Implement RBAC (Role-Based Access Control)** using the authorization middleware.
 - **Follow namespace-based API organization** for logical grouping of endpoints.
 - **Use action-based service classes** for specific use cases (CreateUser, DeletePost, etc.).
@@ -148,10 +154,13 @@ tests/
 - **Use consistent error handling** with structured error responses.
 - **Use existing utility functions** for common operations like password hashing, string manipulation, and data processing.
 - **Follow established repository patterns** for data access, caching, and testing. Use dependency injection, implement proper interfaces, and follow the established patterns for security and performance.
+- **Follow established middleware patterns** - Implement cross-cutting concerns using proper middleware patterns documented in `docs/middlewares/`. Use authentication middleware for token validation, authorization middleware for permission checking, validation middleware for input sanitization, and rate limiting middleware for abuse prevention.
+- **Use middleware chaining properly** - Apply middleware in the correct order: rate limiting → validation → authentication → authorization → controller. Reference `docs/middlewares/middlewares.guide.md` for proper middleware ordering and usage patterns.
+- **Follow established route patterns** - Implement HTTP endpoints using proper REST conventions, middleware orchestration, and dependency injection patterns documented in `docs/routes/`. Use consistent URL patterns, appropriate HTTP methods, proper middleware chains, and standardized response formats. Reference specific route guides for authentication, user management, RBAC, and resource endpoints.
 
 ## 🚫 Patterns to Avoid
 
-- **Don't put business logic directly in route handlers** - use controllers and services.
+- **Don't put business logic directly in route handlers** - use controllers and services following the established patterns in `docs/services/services.guide.md` and `docs/controllers/controllers.guide.md`.
 - **Avoid using `any` or `// @ts-ignore`** — always type inputs and outputs properly.
 - **Don't bypass the dependency injection container** - always use `@inject()`.
 - **Don't hardcode values** — pull from config or env vars.
@@ -161,8 +170,17 @@ tests/
 - **Never disable ESLint rules in generated code** - fix the underlying issue instead.
 - **Don't use `console.log` for logging** - use proper logging patterns when available.
   // TODO: Replace console.log/console.error calls in src/services/cache.service.ts, src/services/database.service.ts, src/middlewares/authentication.guard.ts, and src/server.ts with proper logging service
-- **Avoid constructors in service classes** - use dependency injection instead.
-- **Don't create monolithic services** - prefer smaller, focused service classes.
+- **Avoid constructors in service classes** - use dependency injection instead following patterns in `docs/services/services.guide.md`.
+- **Don't create monolithic services** - prefer smaller, focused service classes as documented in service guides.
+- **Don't mix infrastructure concerns with business logic** - use dedicated infrastructure services (DatabaseService, CacheService, etc.) rather than handling these concerns in business services.
+- **Don't handle business logic in controllers** - controllers should focus on HTTP concerns (request/response handling, status codes, error mapping) while delegating business logic to services as documented in `docs/controllers/controllers.guide.md`.
+- **Don't implement security logic in controllers** - use proper middleware patterns for authentication, authorization, validation, and rate limiting as documented in `docs/middlewares/middlewares.guide.md`.
+- **Avoid bypassing middleware chains** - don't skip authentication, authorization, or validation middleware on protected routes.
+- **Don't create middleware without proper error handling** - all middleware must handle errors gracefully and return appropriate HTTP status codes.
+- **Don't put business logic in route handlers** - routes should only orchestrate middleware and delegate to controllers. Follow patterns in `docs/routes/routes.guide.md` for proper separation of concerns.
+- **Avoid inconsistent REST patterns** - use consistent HTTP methods, status codes, and URL patterns across all endpoints as documented in route guides.
+- **Don't skip validation on route endpoints** - all routes that accept input should use validation middleware with appropriate schemas.
+- **Avoid mixing authentication patterns** - use consistent authentication and authorization patterns across all protected routes.
 - **Avoid callback patterns** - use async/await consistently.
 
 ## 📚 Documentation Guidelines
