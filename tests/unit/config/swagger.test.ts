@@ -30,12 +30,14 @@ describe("OpenAPI Specification", () => {
 
     it("should have required tags", () => {
         expect(swaggerSpec.tags).toBeDefined();
-        expect(swaggerSpec.tags).toHaveLength(4);
+        expect(swaggerSpec.tags).toHaveLength(6);
 
         const tagNames = swaggerSpec.tags?.map((tag: { name: string }) => tag.name) as string[];
         expect(tagNames).toContain("Authentication");
         expect(tagNames).toContain("Users");
         expect(tagNames).toContain("Products");
+        expect(tagNames).toContain("Roles");
+        expect(tagNames).toContain("Permissions");
         expect(tagNames).toContain("System");
     });
 

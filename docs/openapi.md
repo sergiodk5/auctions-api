@@ -76,9 +76,7 @@ http://localhost:8090/api-docs
       -H "Content-Type: application/json" \
       -d '{
         "email": "user@example.com",
-        "password": "securepassword123",
-        "firstName": "John",
-        "lastName": "Doe"
+        "password": "securepassword123"
       }'
     ```
 

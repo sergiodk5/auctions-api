@@ -1,7 +1,9 @@
 import { setupSwagger } from "@/config/swagger";
 import jsonErrorHandler from "@/middlewares/json-error-handler";
 import authenticationRoute from "@/routes/authentication.route";
+import permissionRoute from "@/routes/permission.route";
 import productRoute from "@/routes/product.route";
+import roleRoute from "@/routes/role.route";
 import statusRoute from "@/routes/status.route";
 import userRoute from "@/routes/user.route";
 import cookieParser from "cookie-parser";
@@ -23,6 +25,8 @@ app.use("/api/v1/status", statusRoute);
 app.use("/api/v1/auth", authenticationRoute);
 app.use("/api/v1/products", productRoute);
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/roles", roleRoute);
+app.use("/api/v1/permissions", permissionRoute);
 
 app.use(jsonErrorHandler);
 

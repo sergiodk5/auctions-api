@@ -109,6 +109,10 @@ describe("User Routes with RBAC", () => {
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send(newUserData);
 
+            if (response.status !== 201) {
+                console.log("Response status:", response.status);
+                console.log("Response body:", response.body);
+            }
             expect(response.status).toBe(201);
         });
 
@@ -205,6 +209,11 @@ describe("User Routes with RBAC", () => {
                 .set("Authorization", `Bearer ${adminToken}`)
                 .send(updateData);
 
+            if (response.status !== 200) {
+                console.log("Update Response status:", response.status);
+                console.log("Update Response body:", response.body);
+                console.log("User ID:", userToUpdate.id);
+            }
             expect(response.status).toBe(200);
         });
 

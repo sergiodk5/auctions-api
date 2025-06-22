@@ -18,7 +18,11 @@ describe("ValidationMiddleware", () => {
             handleError: jest.fn(),
         };
         middleware = new ValidationMiddleware(mockValidator as any);
-        req = { body: {} };
+        req = {
+            body: {},
+            params: {},
+            query: {},
+        };
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
@@ -28,7 +32,11 @@ describe("ValidationMiddleware", () => {
 
     it("parses valid payload, strips extras, sets cleanBody, and calls next()", () => {
         const schema: ZodObject<{ a: import("zod").ZodString }> = z.object({ a: z.string() });
-        const parseMock = jest.fn().mockReturnValue({ a: "foo" });
+        let capturedArgs: any;
+        const parseMock = jest.fn().mockImplementation((args) => {
+            capturedArgs = JSON.parse(JSON.stringify(args)); // Deep copy to capture the exact state
+            return { a: "foo" };
+        });
         mockValidator.validateSchema.mockReturnValue(parseMock);
 
         // include an extra field
@@ -38,7 +46,11 @@ describe("ValidationMiddleware", () => {
         handler(req, res, next);
 
         expect(mockValidator.validateSchema).toHaveBeenCalledWith(schema);
-        expect(parseMock).toHaveBeenCalledWith(expect.objectContaining({ a: "foo", extra: 123 }));
+        expect(capturedArgs).toEqual({
+            body: { a: "foo", extra: 123 },
+            params: {},
+            query: {},
+        });
         expect(req.body.cleanBody).toEqual({ a: "foo" });
         expect(next).toHaveBeenCalled();
         expect(mockValidator.handleError).not.toHaveBeenCalled();
@@ -59,7 +71,11 @@ describe("ValidationMiddleware", () => {
         handler(req, res, next);
 
         expect(mockValidator.validateSchema).toHaveBeenCalledWith(schema);
-        expect(parseMock).toHaveBeenCalledWith(req.body);
+        expect(parseMock).toHaveBeenCalledWith({
+            body: req.body,
+            params: req.params,
+            query: req.query,
+        });
         expect(mockValidator.handleError).toHaveBeenCalledWith(res, parseError);
         expect(next).not.toHaveBeenCalled();
     });

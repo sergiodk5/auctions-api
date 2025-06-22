@@ -35,6 +35,20 @@ You should always suggest modern, type-safe, and maintainable solutions. Referen
 - **Always update documentation when creating or modifying APIs** - Update both `docs/openapi.yaml` and `README.md` to reflect any new endpoints, changed URL patterns, or modified functionality.
 - **Maintain API documentation consistency** - Ensure that OpenAPI documentation, README examples, and actual code implementation all use the same endpoint patterns and structures.
 
+## 🧪 Test-Driven Development (TDD)
+
+- **ALWAYS follow TDD when implementing new features or modifying existing functionality.**
+- **Write tests FIRST, then implement the minimum code to make tests pass.**
+- **Create comprehensive test coverage** including unit tests, integration tests, and edge cases.
+- **Use Jest for testing framework** with proper setup in `tests/` directory.
+- **Test all layers**: repositories, services, controllers, and API endpoints.
+- **Mock external dependencies** (database, Redis, external APIs) in unit tests.
+- **Use integration tests** for testing complete request/response flows.
+- **Include negative test cases** for error handling and validation.
+- **Test authentication and authorization** for protected endpoints.
+- **Verify database operations** with proper test data setup and cleanup.
+- **Run tests before committing code** - all tests must pass.
+
 ## 🎯 TypeScript & Type Safety
 
 - **Always generate TypeScript code with strict mode enabled; avoid `any` or `// @ts-ignore`.**

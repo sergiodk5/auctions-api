@@ -22,7 +22,7 @@ export default class AuthController implements IAuthController {
 
     public async register(req: Request, res: Response) {
         try {
-            const user = await this.authenticationService.register(req.body.cleanBody);
+            const user = await this.authenticationService.register(req.body.cleanBody.body);
             res.status(201).json({ success: true, data: user });
         } catch (e) {
             res.status(409).json({ success: false, message: "Email already in use" });
@@ -32,8 +32,8 @@ export default class AuthController implements IAuthController {
     public async login(req: Request, res: Response) {
         try {
             const { user, accessToken, refreshToken } = await this.authenticationService.login(
-                req.body.cleanBody.email,
-                req.body.cleanBody.password,
+                req.body.cleanBody.body.email,
+                req.body.cleanBody.body.password,
             );
             res.json({ success: true, data: { user, accessToken, refreshToken } });
         } catch {
@@ -94,7 +94,7 @@ export default class AuthController implements IAuthController {
 
     public async verifyEmail(req: Request, res: Response): Promise<void> {
         try {
-            const { token } = req.body.cleanBody;
+            const { token } = req.body.cleanBody.body;
             await this.authenticationService.verifyEmail(token);
             res.json({ success: true, message: "Email verified successfully" });
         } catch (error) {
@@ -114,7 +114,7 @@ export default class AuthController implements IAuthController {
 
     public async resendVerificationEmail(req: Request, res: Response): Promise<void> {
         try {
-            const { email } = req.body.cleanBody;
+            const { email } = req.body.cleanBody.body;
             await this.authenticationService.resendVerificationEmail(email);
             res.json({ success: true, message: "Verification email sent successfully" });
         } catch (error) {

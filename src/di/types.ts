@@ -14,6 +14,7 @@ const TYPES = {
     IUserService: Symbol.for("IUserService"),
     IAuthenticationService: Symbol.for("IAuthenticationService"),
     IPermissionService: Symbol.for("IPermissionService"),
+    IRoleService: Symbol.for("IRoleService"),
     IAuthorizationService: Symbol.for("IAuthorizationService"),
 
     IMailerService: Symbol.for("IMailerService"),
@@ -21,6 +22,8 @@ const TYPES = {
 
     IUsersController: Symbol.for("IUsersController"),
     IAuthController: Symbol.for("IAuthController"),
+    IRoleController: Symbol.for("IRoleController"),
+    IPermissionController: Symbol.for("IPermissionController"),
 
     IAuthenticationGuardMiddleware: Symbol.for("IAuthenticationGuardMiddleware"),
     IAuthorizationMiddleware: Symbol.for("IAuthorizationMiddleware"),

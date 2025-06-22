@@ -32,7 +32,12 @@ export class ValidationMiddleware {
 
         return (req: Request, res: Response, next: NextFunction) => {
             try {
-                const clean = parse(req.body);
+                // Pass the entire request object to validation since schemas expect body, params, query, etc.
+                const clean = parse({
+                    body: req.body,
+                    params: req.params,
+                    query: req.query,
+                });
                 // Type-safe assignment using proper interface extension
                 (req as ValidatedRequest).body.cleanBody = clean;
                 next();

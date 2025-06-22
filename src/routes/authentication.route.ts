@@ -1,11 +1,11 @@
 import { IAuthController } from "@/controllers/auth.controller";
 import {
-    createUserSchema,
-    emailVerificationSchema,
-    forgotPasswordSchema,
-    loginSchema,
-    resetPasswordSchema,
-} from "@/db/users.schema";
+    authLoginRouteSchema,
+    emailVerificationRouteSchema,
+    forgotPasswordRouteSchema,
+    registerRouteSchema,
+    resetPasswordRouteSchema,
+} from "@/db/user-validation.schema";
 import container from "@/di/container";
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
@@ -22,14 +22,14 @@ const authenticationRoute = Router();
 
 authenticationRoute.post(
     "/register",
-    validationMiddleware.validate(createUserSchema),
+    validationMiddleware.validate(registerRouteSchema),
     authController.register.bind(authController),
 );
 
 authenticationRoute.post(
     "/login",
     loginRateLimiter.handle.bind(loginRateLimiter),
-    validationMiddleware.validate(loginSchema),
+    validationMiddleware.validate(authLoginRouteSchema),
     authController.login.bind(authController),
 );
 
@@ -53,25 +53,25 @@ authenticationRoute.post(
 
 authenticationRoute.post(
     "/forgot-password",
-    validationMiddleware.validate(forgotPasswordSchema),
+    validationMiddleware.validate(forgotPasswordRouteSchema),
     authController.forgotPassword.bind(authController),
 );
 
 authenticationRoute.post(
     "/reset-password",
-    validationMiddleware.validate(resetPasswordSchema),
+    validationMiddleware.validate(resetPasswordRouteSchema),
     authController.resetPassword.bind(authController),
 );
 
 authenticationRoute.post(
     "/verify-email",
-    validationMiddleware.validate(emailVerificationSchema),
+    validationMiddleware.validate(emailVerificationRouteSchema),
     authController.verifyEmail.bind(authController),
 );
 
 authenticationRoute.post(
     "/resend-verification",
-    validationMiddleware.validate(forgotPasswordSchema),
+    validationMiddleware.validate(forgotPasswordRouteSchema),
     authController.resendVerificationEmail.bind(authController),
 );
 

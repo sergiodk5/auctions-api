@@ -48,7 +48,7 @@ describe("AuthController", () => {
         it("returns 201 with data on success", async () => {
             const user = { id: 1, email: "a@x.com" };
             mockAuthenticationService.register.mockResolvedValue(user);
-            req.body = { cleanBody: { email: "a@x.com", password: "pwd" } };
+            req.body = { cleanBody: { body: { email: "a@x.com", password: "pwd" } } };
 
             await controller.register(req as Request, res as Response);
 
@@ -62,7 +62,7 @@ describe("AuthController", () => {
 
         it("returns 409 on error", async () => {
             mockAuthenticationService.register.mockRejectedValue(new Error("UserExists"));
-            req.body = { cleanBody: { email: "b@x.com", password: "pwd" } };
+            req.body = { cleanBody: { body: { email: "b@x.com", password: "pwd" } } };
 
             await controller.register(req as Request, res as Response);
 
@@ -82,7 +82,7 @@ describe("AuthController", () => {
                 refreshToken: "ref",
             };
             mockAuthenticationService.login.mockResolvedValue(payload);
-            req.body = { cleanBody: { email: "c@x.com", password: "pwd" } };
+            req.body = { cleanBody: { body: { email: "c@x.com", password: "pwd" } } };
 
             await controller.login(req as Request, res as Response);
 
@@ -95,7 +95,7 @@ describe("AuthController", () => {
 
         it("returns 401 on failure", async () => {
             mockAuthenticationService.login.mockRejectedValue(new Error("AuthFailed"));
-            req.body = { cleanBody: { email: "d@x.com", password: "bad" } };
+            req.body = { cleanBody: { body: { email: "d@x.com", password: "bad" } } };
 
             await controller.login(req as Request, res as Response);
 

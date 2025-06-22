@@ -227,13 +227,30 @@ If you prefer to set up services manually:
 
 ### Roles & Permissions (🔒 Requires Authentication)
 
-- `GET /api/v1/roles` - Get all roles with permissions
-- `POST /api/v1/roles` - Create new role (admin only)
-- `GET /api/v1/roles/{id}` - Get role by ID with permissions
-- `PUT /api/v1/roles/{id}` - Update role (admin only)
-- `DELETE /api/v1/roles/{id}` - Delete role (admin only)
-- `POST /api/v1/users/{userId}/roles` - Assign role to user (admin only)
-- `DELETE /api/v1/users/{userId}/roles/{roleId}` - Remove role from user (admin only)
+**Role Management (Admin Only):**
+
+- `GET /api/v1/roles` - Get all roles (optionally with permissions)
+- `POST /api/v1/roles` - Create new role
+- `GET /api/v1/roles/{id}` - Get role by ID (optionally with permissions)
+- `PUT /api/v1/roles/{id}` - Update role
+- `DELETE /api/v1/roles/{id}` - Delete role
+- `POST /api/v1/roles/{id}/permissions` - Assign permission to role
+- `DELETE /api/v1/roles/{id}/permissions/{permissionId}` - Remove permission from role
+- `PUT /api/v1/roles/{id}/permissions` - Set all permissions for role
+
+**Permission Management (Admin Only):**
+
+- `GET /api/v1/permissions` - Get all permissions
+- `POST /api/v1/permissions` - Create new permission
+- `GET /api/v1/permissions/{id}` - Get permission by ID
+- `PUT /api/v1/permissions/{id}` - Update permission
+- `DELETE /api/v1/permissions/{id}` - Delete permission
+
+**User-Role Assignment (Admin Only):**
+
+- `GET /api/v1/users/{id}/roles` - Get user's roles
+- `POST /api/v1/users/{id}/roles` - Assign roles to user
+- `DELETE /api/v1/users/{id}/roles/{roleId}` - Remove role from user
 
 ### Products (Placeholder Implementation)
 

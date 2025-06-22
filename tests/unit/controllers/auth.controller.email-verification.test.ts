@@ -43,7 +43,7 @@ describe("AuthController - Email Verification", () => {
     describe("verifyEmail", () => {
         it("should verify email successfully", async () => {
             const token = "valid-token";
-            mockRequest.body = { cleanBody: { token } };
+            mockRequest.body = { cleanBody: { body: { token } } };
 
             await controller.verifyEmail(mockRequest as Request, mockResponse as Response);
 
@@ -57,7 +57,7 @@ describe("AuthController - Email Verification", () => {
 
         it("should handle InvalidOrExpiredToken error", async () => {
             const token = "invalid-token";
-            mockRequest.body = { cleanBody: { token } };
+            mockRequest.body = { cleanBody: { body: { token } } };
 
             mockAuthenticationService.verifyEmail.mockRejectedValue(new Error("InvalidOrExpiredToken"));
 
@@ -72,7 +72,7 @@ describe("AuthController - Email Verification", () => {
 
         it("should handle generic errors", async () => {
             const token = "valid-token";
-            mockRequest.body = { cleanBody: { token } };
+            mockRequest.body = { cleanBody: { body: { token } } };
 
             mockAuthenticationService.verifyEmail.mockRejectedValue(new Error("Database error"));
 
@@ -89,7 +89,7 @@ describe("AuthController - Email Verification", () => {
     describe("resendVerificationEmail", () => {
         it("should resend verification email successfully", async () => {
             const email = "user@example.com";
-            mockRequest.body = { cleanBody: { email } };
+            mockRequest.body = { cleanBody: { body: { email } } };
 
             await controller.resendVerificationEmail(mockRequest as Request, mockResponse as Response);
 
@@ -103,7 +103,7 @@ describe("AuthController - Email Verification", () => {
 
         it("should handle UserNotFound error", async () => {
             const email = "nonexistent@example.com";
-            mockRequest.body = { cleanBody: { email } };
+            mockRequest.body = { cleanBody: { body: { email } } };
 
             mockAuthenticationService.resendVerificationEmail.mockRejectedValue(new Error("UserNotFound"));
 
@@ -118,7 +118,7 @@ describe("AuthController - Email Verification", () => {
 
         it("should handle EmailAlreadyVerified error", async () => {
             const email = "verified@example.com";
-            mockRequest.body = { cleanBody: { email } };
+            mockRequest.body = { cleanBody: { body: { email } } };
 
             mockAuthenticationService.resendVerificationEmail.mockRejectedValue(new Error("EmailAlreadyVerified"));
 
@@ -133,7 +133,7 @@ describe("AuthController - Email Verification", () => {
 
         it("should handle generic errors", async () => {
             const email = "user@example.com";
-            mockRequest.body = { cleanBody: { email } };
+            mockRequest.body = { cleanBody: { body: { email } } };
 
             mockAuthenticationService.resendVerificationEmail.mockRejectedValue(new Error("Email service error"));
 

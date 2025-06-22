@@ -1,5 +1,6 @@
 import { IUsersController } from "@/controllers/users.controller";
-import { createUserSchema, updateUserSchema } from "@/db/users.schema";
+import { assignUserRolesSchema } from "@/db/rbac-validation.schema";
+import { createUserRouteSchema, updateUserRouteSchema } from "@/db/user-validation.schema";
 import container from "@/di/container";
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
@@ -27,7 +28,7 @@ userRoute.get(
 userRoute.post(
     "/",
     authorizationMiddleware.requirePermissions(["user:create"]),
-    validationMiddleware.validate(createUserSchema),
+    validationMiddleware.validate(createUserRouteSchema),
     usersController.createUser.bind(usersController),
 );
 
@@ -42,7 +43,7 @@ userRoute.get(
 userRoute.put(
     "/:id",
     authorizationMiddleware.requirePermissions(["user:update"]),
-    validationMiddleware.validate(updateUserSchema),
+    validationMiddleware.validate(updateUserRouteSchema),
     usersController.updateUser.bind(usersController),
 );
 
@@ -51,6 +52,30 @@ userRoute.delete(
     "/:id",
     authorizationMiddleware.requirePermissions(["user:delete"]),
     usersController.deleteUser.bind(usersController),
+);
+
+// User-Role Management Routes (Admin only)
+
+// GET /:id/roles - Get user's roles (admin only)
+userRoute.get(
+    "/:id/roles",
+    authorizationMiddleware.requireRoles(["admin"]),
+    usersController.getUserRoles.bind(usersController),
+);
+
+// POST /:id/roles - Assign roles to user (admin only)
+userRoute.post(
+    "/:id/roles",
+    authorizationMiddleware.requireRoles(["admin"]),
+    validationMiddleware.validate(assignUserRolesSchema),
+    usersController.assignUserRoles.bind(usersController),
+);
+
+// DELETE /:id/roles/:roleId - Remove role from user (admin only)
+userRoute.delete(
+    "/:id/roles/:roleId",
+    authorizationMiddleware.requireRoles(["admin"]),
+    usersController.removeUserRole.bind(usersController),
 );
 
 export default userRoute;

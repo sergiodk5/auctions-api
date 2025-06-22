@@ -39,6 +39,14 @@ export default class PermissionService implements IPermissionService {
     }
 
     async updatePermission(id: number, data: UpdatePermissionDto): Promise<Permission> {
+        // Check if we're updating the name and if another permission already has that name
+        if (data.name) {
+            const existingPermission = await this.permissionRepo.findByName(data.name);
+            if (existingPermission && existingPermission.id !== id) {
+                throw new Error("PermissionExists");
+            }
+        }
+
         const permission = await this.permissionRepo.update(id, data);
         if (!permission) throw new Error("PermissionNotFound");
         return permission;

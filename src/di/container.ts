@@ -9,6 +9,8 @@ import {
     SMTP_USER,
 } from "@/config/env";
 import AuthController, { IAuthController } from "@/controllers/auth.controller";
+import PermissionController, { IPermissionController } from "@/controllers/permission.controller";
+import RoleController, { IRoleController } from "@/controllers/role.controller";
 import UsersController, { IUsersController } from "@/controllers/users.controller";
 import { TYPES } from "@/di/types";
 import AuthenticationGuardMiddleware from "@/middlewares/authentication.guard";
@@ -34,6 +36,7 @@ import DatabaseService, { IDatabaseService } from "@/services/database.service";
 import { IMailerService } from "@/services/IMailerService";
 import { MailerService } from "@/services/mailer.service";
 import PermissionService, { type IPermissionService } from "@/services/permission.service";
+import RoleService, { type IRoleService } from "@/services/role.service";
 import UserService, { type IUserService } from "@/services/user.service";
 import ValidationService, { IValidationService } from "@/services/validation.service";
 import { Container } from "inversify";
@@ -86,6 +89,7 @@ container.bind<IUserService>(TYPES.IUserService).to(UserService);
 container.bind<IAuthenticationService>(TYPES.IAuthenticationService).to(AuthenticationService);
 container.bind<IAuthorizationService>(TYPES.IAuthorizationService).to(AuthorizationService);
 container.bind<IPermissionService>(TYPES.IPermissionService).to(PermissionService);
+container.bind<IRoleService>(TYPES.IRoleService).to(RoleService);
 container.bind<IValidationService>(TYPES.IValidationService).to(ValidationService);
 
 container.bind<IMailerService>(TYPES.IMailerService).to(MailerService);
@@ -93,6 +97,8 @@ container.bind<IMailerService>(TYPES.IMailerService).to(MailerService);
 // Controllers
 container.bind<IUsersController>(TYPES.IUsersController).to(UsersController);
 container.bind<IAuthController>(TYPES.IAuthController).to(AuthController);
+container.bind<IRoleController>(TYPES.IRoleController).to(RoleController);
+container.bind<IPermissionController>(TYPES.IPermissionController).to(PermissionController);
 
 // Middleware
 container.bind<IMiddleware>(TYPES.IAuthenticationGuardMiddleware).to(AuthenticationGuardMiddleware);

@@ -1,7 +1,7 @@
-import "reflect-metadata";
 import UsersController from "@/controllers/users.controller";
-import { Request, Response } from "express-serve-static-core";
 import { CreateUserDto, UpdateUserDto, User } from "@/types/user";
+import { Request, Response } from "express-serve-static-core";
+import "reflect-metadata";
 
 describe("UsersController", () => {
     let mockUserService: {
@@ -108,7 +108,7 @@ describe("UsersController", () => {
 
         it("returns 201 and new user on success", async () => {
             const created: User = { id: 4, email: dto.email, emailVerified: false };
-            req.body = { cleanBody: dto };
+            req.body = { cleanBody: { body: dto } };
             mockUserService.createUser.mockResolvedValue(created);
 
             await controller.createUser(req as Request, res as Response);
@@ -119,7 +119,7 @@ describe("UsersController", () => {
         });
 
         it("returns 409 when email already exists", async () => {
-            req.body = { cleanBody: dto };
+            req.body = { cleanBody: { body: dto } };
             mockUserService.createUser.mockRejectedValue(new Error("UserExists"));
 
             await controller.createUser(req as Request, res as Response);
@@ -152,7 +152,7 @@ describe("UsersController", () => {
 
         it("returns 400 on invalid id", async () => {
             req.params = { id: "xyz" };
-            req.body = { cleanBody: dto };
+            req.body = { cleanBody: { body: dto } };
 
             await controller.updateUser(req as Request, res as Response);
 
@@ -166,7 +166,7 @@ describe("UsersController", () => {
         it("returns 200 and updated user on success", async () => {
             const updated: User = { id: 5, email, emailVerified: false };
             req.params = { id: "5" };
-            req.body = { cleanBody: dto };
+            req.body = { cleanBody: { body: dto } };
             mockUserService.updateUser.mockResolvedValue(updated);
 
             await controller.updateUser(req as Request, res as Response);
@@ -178,7 +178,7 @@ describe("UsersController", () => {
 
         it("returns 404 when user not found", async () => {
             req.params = { id: "6" };
-            req.body = { cleanBody: dto };
+            req.body = { cleanBody: { body: dto } };
             mockUserService.updateUser.mockRejectedValue(new Error("UserNotFound"));
 
             await controller.updateUser(req as Request, res as Response);
