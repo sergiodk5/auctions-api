@@ -25,6 +25,7 @@ You should always suggest modern, type-safe, and maintainable solutions. Referen
 - **Use Zod schemas for validation, often with Drizzle integration.**
 - **Organize code with clear separation of concerns** (routes → controller → service → repository).
 - **Use Inversify for dependency injection across all layers.**
+- **Reference dependency injection documentation** - Use `docs/di/container.guide.md` for proper container setup, service bindings, and injection patterns. Use `docs/di/types.guide.md` for TYPES symbol registry usage and naming conventions.
 - **Use centralized error handling middleware and structured responses.**
 - **Use Drizzle ORM for database operations with proper schema definitions.**
 - **Implement caching with Redis where appropriate.**
@@ -32,6 +33,9 @@ You should always suggest modern, type-safe, and maintainable solutions. Referen
 - **Follow namespace-based organization** for controllers and routes by domain/feature.
 - **Use consistent API conventions** with RESTful endpoints and proper HTTP status codes.
 - **Implement proper error handling** with structured error responses and logging.
+- **Always use the centralized environment configuration** - Import environment variables from `@/config/env` instead of accessing `process.env` directly. See `docs/config/env.guide.md` for comprehensive usage examples.
+- **Always use dependency injection properly** - Use the Inversify container with `@injectable()` and `@inject()` decorators. Reference `docs/di/container.guide.md` for container setup and usage patterns, and `docs/di/types.guide.md` for proper TYPES symbol usage and naming conventions.
+- **Always use utility functions for common operations** - Use existing utilities from `@/utils/` for common operations like password hashing. Reference `docs/utils/utils.guide.md` for available utilities, usage patterns, and guidelines for adding new utilities.
 - **Always update documentation when creating or modifying APIs** - Update both `docs/openapi.yaml` and `README.md` to reflect any new endpoints, changed URL patterns, or modified functionality.
 - **Maintain API documentation consistency** - Ensure that OpenAPI documentation, README examples, and actual code implementation all use the same endpoint patterns and structures.
 
@@ -141,6 +145,7 @@ tests/
 - **Use action-based service classes** for specific use cases (CreateUser, DeletePost, etc.).
 - **Implement proper HTTP status codes** for different response scenarios.
 - **Use consistent error handling** with structured error responses.
+- **Use existing utility functions** for common operations like password hashing, string manipulation, and data processing.
 
 ## 🚫 Patterns to Avoid
 
@@ -167,3 +172,4 @@ tests/
 - **Document authentication requirements** - Clearly mark protected endpoints and include authentication examples in documentation.
 - **Keep OpenAPI schemas current** - Ensure all request/response schemas in `docs/openapi.yaml` match the actual implementation and Zod validation schemas.
 - **Update README API sections** - When adding new features or endpoints, update the corresponding sections in `README.md` with proper descriptions and usage examples.
+- **Follow database schema documentation** - Reference the comprehensive guides in `docs/db/` for proper database usage patterns, validation schemas, and seeding procedures. See `docs/db/schema.guide.md` for the overview and specific guides for each schema file.
