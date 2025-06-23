@@ -2,24 +2,24 @@
 
 [![Tests](https://github.com/sergiodk5/auctions-api/workflows/Tests/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
 [![CI](https://github.com/sergiodk5/auctions-api/workflows/CI/badge.svg)](https://github.com/sergiodk5/auctions-api/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-73.8%25-yellow)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/badge/coverage-421%20tests-green)](https://github.com/sergiodk5/auctions-api/actions/workflows/test.yml)
 
-A robust, TypeScript-based REST API foundation for auction management with comprehensive authentication, authorization, and user management systems.
+A comprehensive, production-ready TypeScript REST API foundation featuring enterprise-grade authentication, role-based access control (RBAC), and user management systems. Built with modern development practices and extensive test coverage.
 
 ## Features
 
-- **Secure Authentication:** JWT-based authentication with comprehensive email verification and password reset workflows
-- **Role-Based Access Control (RBAC):** Complete permission system with roles, permissions, and user assignments
-- **Email Verification:** Full email verification workflow with token-based validation and resend capabilities
-- **User Management:** Robust user registration, login, profile management, and administrative controls
-- **Rate Limiting:** Built-in protection against brute force attacks with configurable rate limiters
-- **Modular Architecture:** Clean separation of concerns using dependency injection, controllers, services, and repositories
-- **Quality Assurance:** Comprehensive test suite with 36 test files covering unit and integration scenarios
-- **Type Safety:** Full TypeScript implementation with strict type checking and comprehensive error handling
-- **Database Integration:** PostgreSQL with Drizzle ORM for type-safe database operations and migrations
-- **Development Environment:** Docker-based development setup with PostgreSQL, Redis, and MailHog services
-- **API Documentation:** Interactive OpenAPI 3.0 documentation with Swagger UI and comprehensive endpoint coverage
-- **CI/CD Pipeline:** Advanced GitHub Actions workflows with separate fast unit tests and comprehensive integration testing
+- **🔐 Enterprise Authentication System**: Complete JWT-based authentication with refresh tokens, session management, and secure cookie handling
+- **📧 Email Verification Workflow**: Full email verification system with token-based validation, resend capabilities, and customizable templates
+- **🔑 Password Management**: Secure password reset flow with email-based token validation and bcrypt hashing
+- **👥 Advanced RBAC System**: Complete role-based access control with hierarchical permissions, role assignments, and dynamic authorization
+- **🛡️ Security & Protection**: Multi-layer rate limiting, brute force protection, input validation, and comprehensive middleware security
+- **🏗️ Clean Architecture**: Modular design using dependency injection, layered services, repositories, and clear separation of concerns
+- **🧪 Comprehensive Testing**: 46 test files with 421 tests covering unit testing, integration testing, and end-to-end API workflows
+- **📊 Database Management**: PostgreSQL with Drizzle ORM, type-safe operations, migrations, and automated seeding system
+- **🚀 Development Experience**: Docker-based development environment with hot reloading, database management tools, and email testing
+- **📖 API Documentation**: Interactive OpenAPI 3.0 documentation with Swagger UI, complete schemas, and testing capabilities
+- **⚙️ CI/CD Pipeline**: Advanced GitHub Actions workflows with parallel testing strategies and comprehensive quality checks
+- **🔍 Code Quality**: TypeScript strict mode, ESLint/Prettier integration, pre-commit hooks, and automated code formatting
 
 ## 📚 API Documentation
 
@@ -45,18 +45,19 @@ For detailed information about using the API documentation, see [`docs/openapi.m
 
 ## Tech Stack
 
-- **Backend:** Node.js, Express, TypeScript
-- **Database:** PostgreSQL with Drizzle ORM for type-safe operations
-- **Cache/Session Store:** Redis for session management and caching
-- **Authentication:** JWT with email verification, bcrypt for password hashing
-- **Authorization:** Complete RBAC system with roles, permissions, and user assignments
-- **Dependency Injection:** InversifyJS for clean dependency management and testability
-- **Testing:** Jest with comprehensive unit and integration test suites (36 test files)
-- **Development Tools:** ESLint, Prettier, TypeScript strict mode, Husky for git hooks
-- **Email Service:** Nodemailer integration with MailHog for development testing
-- **Development Environment:** Docker Compose with PostgreSQL, Redis, and MailHog services
-- **API Documentation:** OpenAPI 3.0 with Swagger UI for interactive documentation
-- **CI/CD:** GitHub Actions with separate workflows for fast unit tests and comprehensive integration testing
+- **Backend Framework**: Node.js 18+ with Express.js and TypeScript (strict mode)
+- **Database**: PostgreSQL 14+ with Drizzle ORM for type-safe operations and schema management
+- **Caching & Sessions**: Redis 7+ for session management, token blacklisting, and application caching
+- **Authentication & Security**: JWT tokens with refresh token rotation, bcrypt password hashing, and rate limiting
+- **Authorization**: Complete RBAC implementation with roles, permissions, and dynamic user assignments
+- **Dependency Injection**: InversifyJS container for clean dependency management and enhanced testability
+- **Testing Framework**: Jest with 46 test files (421 tests) including unit, integration, and API endpoint testing
+- **Development Tools**: ESLint, Prettier, TypeScript compiler, Husky git hooks, and automated code formatting
+- **Email Services**: Nodemailer integration with development support via MailHog for email workflow testing
+- **Development Environment**: Docker Compose orchestration with PostgreSQL, Redis, and MailHog services
+- **API Documentation**: OpenAPI 3.0 specification with Swagger UI for interactive documentation and testing
+- **CI/CD**: GitHub Actions with multi-stage workflows for fast unit testing and comprehensive integration testing
+- **Code Quality**: Pre-commit hooks, automated linting, type checking, and comprehensive error handling
 
 ## Installation
 
@@ -110,8 +111,8 @@ For detailed information about using the API documentation, see [`docs/openapi.m
     # Run database migrations
     npm run db:migrate
 
-    # Seed the database with RBAC setup and sample data
-    npm run db:seed
+    # Seed the database with RBAC setup and sample data (optional)
+    # Note: Individual seeding scripts available - see Database Operations section
     ```
 
 ### Manual Installation (Without Docker)
@@ -128,8 +129,8 @@ If you prefer to set up services manually:
     # Run database migrations
     npm run db:migrate
 
-    # Seed the database
-    npm run db:seed
+    # Optional: Seed the database with sample data
+    # Individual seeding scripts available - see Database Operations section
     ```
 
 ## Usage
@@ -158,20 +159,27 @@ If you prefer to set up services manually:
     # Run migrations
     npm run db:migrate
 
-    # Seed database with RBAC setup
-    npm run db:seed
-
     # Generate new migration
     npm run db:generate
 
-    # Reset database (drop and recreate)
-    npm run db:reset
+    # Open Drizzle Studio (database GUI)
+    npm run db:studio
+
+    # Database seeding (individual seeders available)
+    # See docs/seeding-guide.md for complete seeding documentation
+    # Examples:
+    # npm run seed roles
+    # npm run seed permissions
+    # npm run seed admin-user
+
+    # Reset database (drop and recreate) - use with caution
+    npm run db:push
     ```
 
 - **Docker Services:**
 
     ```bash
-    # Start development services
+    # Start development services (PostgreSQL, Redis, MailHog)
     npm run docker:dev
 
     # Stop services
@@ -222,8 +230,6 @@ If you prefer to set up services manually:
 - `GET /api/v1/users/{id}` - Get user by ID
 - `PUT /api/v1/users/{id}` - Update user
 - `DELETE /api/v1/users/{id}` - Delete user (admin only)
-- `GET /api/v1/users/profile` - Get current user profile
-- `PUT /api/v1/users/profile` - Update current user profile
 
 ### Roles & Permissions (🔒 Requires Authentication)
 
@@ -254,13 +260,13 @@ If you prefer to set up services manually:
 
 ### Products (Placeholder Implementation)
 
-- `GET /api/v1/products` - Get all products (placeholder)
-- `POST /api/v1/products` - Create new product (placeholder)
-- `GET /api/v1/products/{id}` - Get product by ID (placeholder)
-- `PUT /api/v1/products/{id}` - Update product (placeholder)
-- `DELETE /api/v1/products/{id}` - Delete product (placeholder)
+- `GET /api/v1/products` - Get all products (placeholder response)
+- `POST /api/v1/products` - Create new product (placeholder response)
+- `GET /api/v1/products/{id}` - Get product by ID (placeholder response)
+- `PUT /api/v1/products/{id}` - Update product (placeholder response)
+- `DELETE /api/v1/products/{id}` - Delete product (placeholder response)
 
-> **Note:** Product endpoints are currently placeholder implementations. The focus has been on building a robust authentication and authorization foundation.
+> **Note:** Product endpoints are currently placeholder implementations that return simple text responses. These endpoints demonstrate the RBAC authorization system but do not include actual product management functionality. Full product/auction management features are planned for future development.
 
 ### System
 
@@ -268,14 +274,16 @@ If you prefer to set up services manually:
 
 ## Testing
 
-The project features comprehensive test coverage with both unit and integration tests across 36 test files:
+This project features comprehensive test coverage with 46 test files containing 421 individual tests, covering both unit and integration testing scenarios across all application layers.
 
 ### Test Coverage Overview
 
-- **Unit Tests:** 30 test files covering controllers, services, repositories, middlewares, and utilities
-- **Integration Tests:** 6 test files covering complete API workflows and authentication flows
-- **Total Coverage:** High coverage across all components with focus on critical business logic
-- **Test Database:** Dedicated PostgreSQL test database with automatic setup and teardown
+- **Unit Tests**: 36 test files covering controllers, services, repositories, middlewares, and utilities
+- **Integration Tests**: 10 test files covering complete API workflows, authentication flows, and database operations
+- **Total Test Count**: 421 individual tests providing comprehensive coverage across all components
+- **Test Database**: Dedicated PostgreSQL test database with automatic setup and teardown
+- **Mocking Strategy**: External dependencies (database, Redis, external APIs) properly mocked in unit tests
+- **Real Integration Testing**: Complete request/response flows tested with actual database and service integrations
 
 ### Quick Commands
 
@@ -285,7 +293,7 @@ The project features comprehensive test coverage with both unit and integration 
     npm test
     ```
 
-- **Run Unit Tests Only (Fast - ~10 seconds):**
+- **Run Unit Tests Only (Fast - ~1.5 seconds):**
 
     ```bash
     npm run test:unit
@@ -325,15 +333,18 @@ The project features comprehensive test coverage with both unit and integration 
 
 ```
 tests/
-├── unit/                           # Unit tests with mocked dependencies (30 files)
+├── unit/                           # Unit tests with mocked dependencies (36 files)
 │   ├── controllers/               # Controller logic tests (8 files)
-│   ├── services/                  # Business logic tests (10 files)
-│   ├── repositories/              # Data access layer tests (6 files)
-│   ├── middlewares/               # Middleware tests (4 files)
+│   ├── services/                  # Business logic tests (14 files)
+│   ├── repositories/              # Data access layer tests (8 files)
+│   ├── middlewares/               # Middleware tests (6 files)
+│   ├── config/                    # Configuration tests (3 files)
+│   ├── db/                        # Database schema tests (4 files)
 │   └── utils/                     # Utility function tests (2 files)
-├── integration/                   # Integration tests with real HTTP requests (6 files)
-│   ├── auth/                      # Complete authentication flow tests
-│   └── routes/                    # API endpoint integration tests
+├── integration/                   # Integration tests with real HTTP requests (10 files)
+│   ├── auth/                      # Authentication workflow integration tests
+│   ├── routes/                    # API endpoint integration tests
+│   └── helpers/                   # RBAC and database integration helpers
 └── helpers/                       # Test utilities, fixtures, and setup helpers
     ├── fixtures/                  # Test data and database fixtures
     ├── test-container.ts          # Dependency injection container for tests
@@ -346,17 +357,19 @@ For detailed testing instructions, see [Testing Guide](./docs/testing.md).
 
 ```
 src/
-├── controllers/           # Request handlers and response logic
-├── services/             # Business logic and external integrations
-├── repositories/         # Data access layer with Drizzle ORM
+├── controllers/           # Request handlers and response logic (4 controllers)
+├── services/             # Business logic and external integrations (10+ services)
+├── repositories/         # Data access layer with Drizzle ORM (8 repositories)
 ├── middlewares/          # Express middlewares (auth, validation, rate limiting)
-├── routes/               # API route definitions and OpenAPI documentation
+├── routes/               # API route definitions and OpenAPI documentation (6 route modules)
 ├── db/                   # Database schemas, migrations, and seed scripts
-│   ├── schemas/          # Drizzle database schema definitions
-│   ├── migrations/       # Database migration files
-│   └── seed/             # Database seeding scripts for RBAC and sample data
+│   ├── schemas/          # Drizzle database schema definitions (6 schema files)
+│   ├── migrations/       # Database migration files (5 migrations)
+│   └── seeds/            # Database seeding scripts for RBAC and sample data (5 seeders)
+├── scripts/              # Utility scripts for database management (4 scripts)
 ├── di/                   # Dependency injection container configuration
 ├── config/               # Application configuration and environment variables
+├── adapters/             # External service adapters (logging, etc.)
 ├── types/                # TypeScript type definitions and interfaces
 └── utils/                # Utility functions and helpers
 ```
@@ -365,34 +378,36 @@ src/
 
 ### ✅ Completed Features
 
-- **Authentication System**: Complete JWT-based authentication with refresh tokens and session management
-- **Email Verification**: Full email verification workflow with token validation and resend capabilities
-- **Password Reset**: Secure password reset flow with email-based token validation
-- **Role-Based Access Control (RBAC)**: Complete implementation with roles, permissions, and user assignments
-- **User Management**: Registration, login, profile management, and administrative controls
-- **Security**: Rate limiting, password hashing, input validation, and comprehensive middleware protection
-- **Testing**: Comprehensive test suite with 36 test files covering unit and integration scenarios
-- **Code Quality**: TypeScript strict mode, ESLint, Prettier integration, and pre-commit hooks
-- **Database**: PostgreSQL with Drizzle ORM, migrations, and seeding system
-- **Development Environment**: Complete Docker-based development setup with all required services
-- **API Documentation**: Interactive OpenAPI 3.0 documentation with Swagger UI
-- **CI/CD Pipeline**: Advanced GitHub Actions workflows with separate fast and comprehensive testing strategies
+- **🔐 Authentication System**: Complete JWT-based authentication with refresh tokens, session management, and secure cookie handling
+- **📧 Email Verification**: Full email verification workflow with token validation, resend capabilities, and error handling
+- **🔑 Password Reset**: Secure password reset flow with email-based token validation and comprehensive security measures
+- **👥 Role-Based Access Control (RBAC)**: Complete implementation with roles, permissions, user assignments, and dynamic authorization
+- **🛡️ Security Features**: Multi-layer rate limiting, brute force protection, input validation, and middleware-based security
+- **🧪 Testing Infrastructure**: Comprehensive test suite with 46 test files, 421 tests, covering unit and integration scenarios
+- **📊 Database Systems**: PostgreSQL with Drizzle ORM, migrations, seeding system, and automated sequence management
+- **🚀 Development Environment**: Complete Docker-based development setup with all required services and tooling
+- **📖 API Documentation**: Interactive OpenAPI 3.0 documentation with Swagger UI and comprehensive endpoint coverage
+- **⚙️ CI/CD Pipeline**: Advanced GitHub Actions workflows with multi-stage testing and quality assurance checks
+- **🏗️ Architecture**: Clean separation of concerns with dependency injection, layered services, and modular design
+- **📝 Code Quality**: TypeScript strict mode, comprehensive linting, formatting, and pre-commit hook integration
 
 ### 🚧 In Development
 
-- Complete auction management system implementation
-- Real-time bidding with WebSocket integration
-- Payment processing integration
-- Advanced search and filtering capabilities
+- Enhanced user profile management endpoints (get/update profile)
+- Database seeding automation scripts (npm run db:seed commands)
+- Sequence management utilities (npm run db:fix-sequence commands)
 
 ### 📋 Future Roadmap
 
-- Auction categories and advanced search functionality
-- Image upload and media management for auction items
-- Real-time notification system (email, push, in-app)
-- Advanced admin dashboard with analytics
-- Mobile API optimizations and dedicated endpoints
-- Multi-currency support and internationalization
+- **🏪 Auction Management System**: Complete auction creation, bidding, and management functionality
+- **⚡ Real-time Features**: WebSocket integration for live bidding and real-time notifications
+- **💳 Payment Integration**: Payment processing system with multiple payment provider support
+- **🔍 Advanced Search**: Elasticsearch integration with filtering, sorting, and advanced search capabilities
+- **� Mobile Optimization**: Mobile API optimizations and dedicated mobile endpoints
+- **🌍 Internationalization**: Multi-language support, currency handling, and localization features
+- **📊 Analytics Dashboard**: Advanced admin dashboard with analytics, reporting, and business intelligence
+- **🖼️ Media Management**: Image upload, processing, and media management for auction items
+- **🔔 Notification System**: Multi-channel notifications (email, push, SMS, in-app) with preferences
 
 ## Contributing
 
@@ -404,14 +419,13 @@ src/
 
 ### Development Guidelines
 
-- Follow TypeScript strict mode requirements
-- Write tests for new features (maintain comprehensive test coverage)
-- Use conventional commit messages
-- Ensure all linting, formatting, and type checks pass
-- Update API documentation for new endpoints
-- Follow the established RBAC patterns for permission-based features
-- Use the dependency injection container for new services and repositories
-- Maintain database migrations for schema changes
+- **TypeScript Standards**: Follow strict TypeScript requirements with comprehensive type safety
+- **Testing Requirements**: Write tests for new features maintaining high coverage (unit + integration)
+- **Code Standards**: Use conventional commit messages and ensure all quality checks pass
+- **Documentation**: Update API documentation for new endpoints and maintain consistency
+- **Architecture**: Follow established RBAC patterns and dependency injection practices
+- **Database**: Use migrations for schema changes and follow established repository patterns
+- **Security**: Implement proper authentication/authorization for all protected endpoints
 
 ### Setting Up Development Environment
 
@@ -424,9 +438,9 @@ src/
 
 The development environment includes:
 
-- **PostgreSQL** (port 5432) - Main database
-- **Redis** (port 6379) - Session store and caching
-- **MailHog** (port 1025 SMTP, 8025 Web UI) - Email testing
+- **PostgreSQL** (port 5432) - Main application database
+- **Redis** (port 6379) - Session store, caching, and rate limiting
+- **MailHog** (port 1025 SMTP, 8025 Web UI) - Email testing and development
 
 ## License
 
