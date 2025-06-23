@@ -1,7 +1,8 @@
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
 import { type ICacheService } from "@/services/cache.service";
-import { Request, Response, NextFunction } from "express-serve-static-core";
+import type { ILoggerService } from "@/services/logger.service";
+import { NextFunction, Request, Response } from "express-serve-static-core";
 import { inject, injectable } from "inversify";
 import { RateLimiterRedis } from "rate-limiter-flexible";
 
@@ -9,7 +10,10 @@ import { RateLimiterRedis } from "rate-limiter-flexible";
 export default class LoginRateLimiter implements IMiddleware {
     private limiter: RateLimiterRedis;
 
-    constructor(@inject(TYPES.ICacheService) private readonly cacheService: ICacheService) {
+    constructor(
+        @inject(TYPES.ICacheService) private readonly cacheService: ICacheService,
+        @inject(TYPES.ILoggerService) private readonly logger: ILoggerService,
+    ) {
         this.limiter = new RateLimiterRedis({
             storeClient: this.cacheService.client,
             keyPrefix: "rl_login",
@@ -24,7 +28,7 @@ export default class LoginRateLimiter implements IMiddleware {
             res.status(500).json({
                 success: false,
                 data: null,
-                message: "IP address not found",
+                message: "Internal server error",
             });
             return;
         }
@@ -33,11 +37,15 @@ export default class LoginRateLimiter implements IMiddleware {
             await this.limiter.consume(req.ip);
             next();
         } catch (_err) {
-            console.error("Rate limit exceeded for refresh token");
+            this.logger.error("Rate limit exceeded for login attempt", {
+                ip: req.ip,
+                userAgent: req.get("User-Agent"),
+                path: req.path,
+            });
             res.status(429).json({
                 success: false,
                 data: null,
-                message: "Too many login  requests, please wait.",
+                message: "Too many login attempts, please try again later.",
             });
         }
     }

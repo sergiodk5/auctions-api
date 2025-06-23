@@ -4,8 +4,10 @@ jest.mock("jsonwebtoken", () => ({
 
 import { JWT_SECRET } from "@/config/env";
 import AuthenticationGuardMiddleware from "@/middlewares/authentication.guard";
+import type { ILoggerService } from "@/services/logger.service";
 import jwt from "jsonwebtoken";
 import "reflect-metadata";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("AuthenticationGuardMiddleware", () => {
     let tokenRepo: { isAccessTokenRevoked: jest.Mock };
@@ -13,11 +15,15 @@ describe("AuthenticationGuardMiddleware", () => {
     let req: any;
     let res: any;
     let next: jest.Mock;
+    let mockLogger: ILoggerService;
 
     beforeEach(() => {
+        // Create mock logger
+        mockLogger = createMockLoggerService();
+
         // Create a fresh mock repo & middleware
         tokenRepo = { isAccessTokenRevoked: jest.fn() };
-        middleware = new AuthenticationGuardMiddleware(tokenRepo as any);
+        middleware = new AuthenticationGuardMiddleware(tokenRepo as any, mockLogger);
 
         // Fake Express req/res/next
         req = { headers: {}, body: {} };
@@ -26,9 +32,6 @@ describe("AuthenticationGuardMiddleware", () => {
             json: jest.fn(),
         };
         next = jest.fn();
-
-        // Silence console.error
-        jest.spyOn(console, "error").mockImplementation(() => undefined);
 
         // Reset the mock implementation of jwt.verify
         (jwt.verify as jest.Mock).mockReset();
@@ -58,7 +61,7 @@ describe("AuthenticationGuardMiddleware", () => {
         await middleware.handle(req, res, next);
 
         expect(jwt.verify).toHaveBeenCalledWith("badtoken", JWT_SECRET);
-        expect(console.error).toHaveBeenCalledWith("Token verification error:", expect.any(Error));
+        expect(mockLogger.error).toHaveBeenCalledWith("Token verification error", { error: expect.any(Error) });
         expect(res.status).toHaveBeenCalledWith(401); // Changed from 403
         expect(next).not.toHaveBeenCalled();
     });
@@ -87,7 +90,7 @@ describe("AuthenticationGuardMiddleware", () => {
         await middleware.handle(req, res, next);
 
         expect(tokenRepo.isAccessTokenRevoked).toHaveBeenCalledWith("j2");
-        expect(console.error).toHaveBeenCalledWith("Token revoked");
+        expect(mockLogger.error).toHaveBeenCalledWith("Token revoked", { jti: "j2" });
         expect(res.status).toHaveBeenCalledWith(401); // Changed from 403
         expect(next).not.toHaveBeenCalled();
     });

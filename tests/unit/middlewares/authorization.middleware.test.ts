@@ -2,9 +2,11 @@ import AuthorizationMiddleware, { IAuthorizationMiddleware } from "@/middlewares
 import { IAuthorizationService } from "@/services/authorization.service";
 import { NextFunction, Request, Response } from "express";
 import "reflect-metadata";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("AuthorizationMiddleware", () => {
     let mockAuthService: jest.Mocked<IAuthorizationService>;
+    let mockLogger: any;
     let authorizationMiddleware: IAuthorizationMiddleware;
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
@@ -25,8 +27,11 @@ describe("AuthorizationMiddleware", () => {
             invalidateUserCache: jest.fn(),
         };
 
+        // Mock the logger service
+        mockLogger = createMockLoggerService();
+
         // Create the middleware instance
-        authorizationMiddleware = new AuthorizationMiddleware(mockAuthService);
+        authorizationMiddleware = new AuthorizationMiddleware(mockAuthService, mockLogger);
 
         // Mock Express request, response, and next
         mockRequest = {

@@ -11,20 +11,31 @@ jest.mock("rate-limiter-flexible", () => ({
 }));
 
 import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("RefreshRateLimiter", () => {
     let middleware: RefreshRateLimiter;
     let req: any;
     let res: any;
     let next: jest.Mock;
+    let mockLogger: any;
 
     beforeEach(() => {
         // Provide a dummy cacheService with a client
         const cacheService = { client: {} };
-        middleware = new RefreshRateLimiter(cacheService as any);
+
+        // Create mock logger
+        mockLogger = createMockLoggerService();
+
+        middleware = new RefreshRateLimiter(cacheService as any, mockLogger);
 
         // Initialize req with .user and .ip
-        req = { headers: {}, ip: "9.9.9.9", user: undefined };
+        req = {
+            headers: {},
+            ip: "9.9.9.9",
+            user: undefined,
+            get: jest.fn().mockReturnValue("test-agent"),
+        };
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
@@ -70,7 +81,10 @@ describe("RefreshRateLimiter", () => {
         await middleware.handle(req, res, next);
 
         expect(mockConsume).toHaveBeenCalledWith("u7");
-        expect(console.error).toHaveBeenCalledWith("Rate limit exceeded for refresh token");
+        expect(mockLogger.error).toHaveBeenCalledWith("Rate limit exceeded for refresh token", {
+            key: "u7",
+            userAgent: "test-agent",
+        });
         expect(res.status).toHaveBeenCalledWith(429);
         expect(res.json).toHaveBeenCalledWith({
             success: false,

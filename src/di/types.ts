@@ -10,6 +10,8 @@ const TYPES = {
     IDatabaseService: Symbol.for("IDatabaseService"),
     ICacheService: Symbol.for("ICacheService"),
     IValidationService: Symbol.for("IValidationService"),
+    ILoggerService: Symbol.for("ILoggerService"),
+    LoggerTransport: Symbol.for("LoggerTransport"),
 
     IUserService: Symbol.for("IUserService"),
     IAuthenticationService: Symbol.for("IAuthenticationService"),

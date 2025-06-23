@@ -14,6 +14,7 @@ The controllers layer in this TypeScript Express API handles HTTP request/respon
 4. **Interface-Based Design**: Controllers implement well-defined interfaces for consistency
 5. **Error Handling**: Centralized error handling with proper HTTP status codes
 6. **Validation Integration**: Works with validation middleware for input sanitization
+7. **Structured Logging**: Use LoggerService for all logging needs, never console.log/error
 
 ### Controller Types
 
@@ -32,6 +33,7 @@ The controllers layer in this TypeScript Express API handles HTTP request/respon
 import { TYPES } from "@/di/types";
 import { Request, Response } from "express";
 import { inject, injectable } from "inversify";
+import { ILoggerService } from "@/services/logger.service";
 
 export interface IExampleController {
     getResource(req: Request, res: Response): Promise<void>;
@@ -40,7 +42,10 @@ export interface IExampleController {
 
 @injectable()
 export default class ExampleController implements IExampleController {
-    constructor(@inject(TYPES.IExampleService) private readonly exampleService: IExampleService) {}
+    constructor(
+        @inject(TYPES.IExampleService) private readonly exampleService: IExampleService,
+        @inject(TYPES.ILoggerService) private readonly logger: ILoggerService,
+    ) {}
 
     async getResource(req: Request, res: Response): Promise<void> {
         try {
@@ -292,7 +297,7 @@ private handleServiceError(error: unknown, res: Response): void {
             break;
 
         default:
-            console.error("Unhandled service error:", error);
+            this.logger.error("Unhandled service error", { error: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined });
             res.status(500).json({
                 success: false,
                 message: "Internal server error"
@@ -477,7 +482,10 @@ async deleteUser(req: Request, res: Response): Promise<void> {
 ```typescript
 // Avoid exposing internal error details in production
 private handleServiceError(error: unknown, res: Response): void {
-    console.error("Service error:", error); // Log for debugging
+    this.logger.error("Service error in controller", {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+    });
 
     // Return generic error message to client
     res.status(500).json({

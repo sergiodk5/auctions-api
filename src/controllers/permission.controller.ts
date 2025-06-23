@@ -1,4 +1,5 @@
 import { TYPES } from "@/di/types";
+import type { ILoggerService } from "@/services/logger.service";
 import type { IPermissionService } from "@/services/permission.service";
 import { CreatePermissionDto, UpdatePermissionDto } from "@/types/permissions";
 import { Request, Response } from "express";
@@ -14,7 +15,10 @@ export interface IPermissionController {
 
 @injectable()
 export default class PermissionController implements IPermissionController {
-    constructor(@inject(TYPES.IPermissionService) private readonly permissionService: IPermissionService) {}
+    constructor(
+        @inject(TYPES.IPermissionService) private readonly permissionService: IPermissionService,
+        @inject(TYPES.ILoggerService) private readonly logger: ILoggerService,
+    ) {}
 
     async getAllPermissions(req: Request, res: Response): Promise<void> {
         try {
@@ -25,7 +29,7 @@ export default class PermissionController implements IPermissionController {
                 data: permissions,
             });
         } catch (error) {
-            console.error("Error getting all permissions:", error);
+            this.logger.error("Error getting all permissions:", { error });
             res.status(500).json({
                 success: false,
                 message: "Failed to retrieve permissions",
@@ -52,7 +56,7 @@ export default class PermissionController implements IPermissionController {
                 data: permission,
             });
         } catch (error) {
-            console.error("Error getting permission by ID:", error);
+            this.logger.error("Error getting permission by ID:", { error });
             if (error instanceof Error && error.message === "PermissionNotFound") {
                 res.status(404).json({
                     success: false,
@@ -79,7 +83,7 @@ export default class PermissionController implements IPermissionController {
                 data: permission,
             });
         } catch (error) {
-            console.error("Error creating permission:", error);
+            this.logger.error("Error creating permission:", { error });
             if (error instanceof Error && error.message === "PermissionExists") {
                 res.status(409).json({
                     success: false,
@@ -115,7 +119,7 @@ export default class PermissionController implements IPermissionController {
                 data: permission,
             });
         } catch (error) {
-            console.error("Error updating permission:", error);
+            this.logger.error("Error updating permission:", { error });
             if (error instanceof Error && error.message === "PermissionNotFound") {
                 res.status(404).json({
                     success: false,
@@ -154,7 +158,7 @@ export default class PermissionController implements IPermissionController {
                 message: "Permission deleted successfully",
             });
         } catch (error) {
-            console.error("Error deleting permission:", error);
+            this.logger.error("Error deleting permission:", { error });
             if (error instanceof Error && error.message === "PermissionNotFound") {
                 res.status(404).json({
                     success: false,

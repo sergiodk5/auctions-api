@@ -1,5 +1,6 @@
 import { TYPES } from "@/di/types";
 import type { IUserRoleRepository } from "@/repositories/user-role.repository";
+import type { ILoggerService } from "@/services/logger.service";
 import type { IUserService } from "@/services/user.service.ts";
 import { CreateUserDto, UpdateUserDto } from "@/types/user";
 import { Request, Response } from "express-serve-static-core";
@@ -21,6 +22,7 @@ export default class UsersController implements IUsersController {
     constructor(
         @inject(TYPES.IUserService) private readonly userService: IUserService,
         @inject(TYPES.IUserRoleRepository) private readonly userRoleRepository: IUserRoleRepository,
+        @inject(TYPES.ILoggerService) private readonly logger: ILoggerService,
     ) {}
 
     async getAllUsers(_req: Request, res: Response): Promise<void> {
@@ -105,7 +107,7 @@ export default class UsersController implements IUsersController {
                 data: roles,
             });
         } catch (error) {
-            console.error("Error getting user roles:", error);
+            this.logger.error("Error getting user roles", { error });
             res.status(500).json({
                 success: false,
                 message: "Failed to retrieve user roles",
@@ -149,7 +151,7 @@ export default class UsersController implements IUsersController {
                 message: "Roles assigned to user successfully",
             });
         } catch (error) {
-            console.error("Error assigning roles to user:", error);
+            this.logger.error("Error assigning roles to user", { error });
             if (error instanceof Error && error.message === "UserNotFound") {
                 res.status(404).json({
                     success: false,
@@ -187,7 +189,7 @@ export default class UsersController implements IUsersController {
                 message: "Role removed from user successfully",
             });
         } catch (error) {
-            console.error("Error removing role from user:", error);
+            this.logger.error("Error removing role from user", { error });
             if (error instanceof Error && error.message === "UserNotFound") {
                 res.status(404).json({
                     success: false,

@@ -15,13 +15,19 @@ jest.mock("@/config/env", () => ({
 
 import { NODE_ENV, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config/env";
 import CacheService, { ICacheService } from "@/services/cache.service";
+import type { ILoggerService } from "@/services/logger.service";
 import { createClient } from "redis";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("CacheService", () => {
     let mockClient: any;
     let mockCreateClient: jest.MockedFunction<typeof createClient>;
+    let mockLogger: ILoggerService;
 
     beforeEach(() => {
+        // Create mock logger
+        mockLogger = createMockLoggerService();
+
         mockClient = {
             on: jest.fn(),
             connect: jest.fn().mockResolvedValue(undefined),
@@ -41,7 +47,7 @@ describe("CacheService", () => {
 
     describe("constructor", () => {
         it("should create Redis client with correct configuration in production", () => {
-            const service = new CacheService();
+            const service = new CacheService(mockLogger);
 
             expect(mockCreateClient).toHaveBeenCalledWith({
                 socket: {
@@ -54,19 +60,19 @@ describe("CacheService", () => {
         });
 
         it("should set up error event handler", () => {
-            new CacheService();
+            new CacheService(mockLogger);
 
             expect(mockClient.on).toHaveBeenCalledWith("error", expect.any(Function));
         });
 
         it("should set up connect event handler", () => {
-            new CacheService();
+            new CacheService(mockLogger);
 
             expect(mockClient.on).toHaveBeenCalledWith("connect", expect.any(Function));
         });
 
         it("should initiate Redis connection", () => {
-            new CacheService();
+            new CacheService(mockLogger);
 
             expect(mockClient.connect).toHaveBeenCalled();
         });
@@ -75,16 +81,16 @@ describe("CacheService", () => {
             const connectionError = new Error("Connection failed");
             mockClient.connect.mockRejectedValue(connectionError);
 
-            new CacheService();
+            new CacheService(mockLogger);
 
             // Wait for the promise to reject
             await new Promise((resolve) => setTimeout(resolve, 0));
 
-            expect(console.error).toHaveBeenCalledWith("Redis Client Connection Error", connectionError);
+            expect(mockLogger.error).toHaveBeenCalledWith("Redis Client Connection Error", { error: connectionError });
         });
 
         it("should log Redis client errors when error event is emitted", () => {
-            new CacheService();
+            new CacheService(mockLogger);
 
             // Find the error handler and call it
             const errorHandler = mockClient.on.mock.calls.find((call: any) => call[0] === "error")?.[1];
@@ -93,11 +99,11 @@ describe("CacheService", () => {
             const testError = new Error("Redis error");
             errorHandler(testError);
 
-            expect(console.error).toHaveBeenCalledWith("Redis Client Error", testError);
+            expect(mockLogger.error).toHaveBeenCalledWith("Redis Client Error", { error: testError });
         });
 
         it("should log successful connection when connect event is emitted", () => {
-            new CacheService();
+            new CacheService(mockLogger);
 
             // Find the connect handler and call it
             const connectHandler = mockClient.on.mock.calls.find((call: any) => call[0] === "connect")?.[1];
@@ -105,7 +111,7 @@ describe("CacheService", () => {
 
             connectHandler();
 
-            expect(console.log).toHaveBeenCalledWith("Redis Client Connected");
+            expect(mockLogger.info).toHaveBeenCalledWith("Redis Client Connected");
         });
     });
 
@@ -121,7 +127,7 @@ describe("CacheService", () => {
         });
 
         it("should create stub client instead of real Redis client", () => {
-            const service = new CacheService();
+            const service = new CacheService(mockLogger);
 
             // Should not call createClient in test environment
             expect(mockCreateClient).not.toHaveBeenCalled();
@@ -134,14 +140,14 @@ describe("CacheService", () => {
 
     describe("interface compliance", () => {
         it("should implement ICacheService interface", () => {
-            const service: ICacheService = new CacheService();
+            const service: ICacheService = new CacheService(mockLogger);
 
             expect(service).toHaveProperty("client");
             expect(service.client).toBeDefined();
         });
 
         it("should have readonly client property", () => {
-            const service = new CacheService();
+            const service = new CacheService(mockLogger);
 
             // Verify the client property exists and matches the mock
             expect(service.client).toBe(mockClient);
@@ -155,7 +161,7 @@ describe("CacheService", () => {
 
     describe("Redis configuration", () => {
         it("should use correct port number conversion", () => {
-            new CacheService();
+            new CacheService(mockLogger);
 
             expect(mockCreateClient).toHaveBeenCalledWith({
                 socket: {
@@ -172,7 +178,7 @@ describe("CacheService", () => {
             (REDIS_PORT as any) = "6380";
             (REDIS_PASSWORD as any) = "different-password";
 
-            new CacheService();
+            new CacheService(mockLogger);
 
             expect(mockCreateClient).toHaveBeenCalledWith({
                 socket: {

@@ -1,6 +1,7 @@
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
 import { type IAuthorizationService } from "@/services/authorization.service";
+import type { ILoggerService } from "@/services/logger.service";
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { inject, injectable } from "inversify";
 
@@ -35,6 +36,8 @@ export default class AuthorizationMiddleware implements IAuthorizationMiddleware
     constructor(
         @inject(TYPES.IAuthorizationService)
         private readonly authorizationService: IAuthorizationService,
+        @inject(TYPES.ILoggerService)
+        private readonly logger: ILoggerService,
     ) {}
 
     public handle(req: Request, res: Response, next: NextFunction): void {
@@ -86,7 +89,7 @@ export default class AuthorizationMiddleware implements IAuthorizationMiddleware
 
                 next();
             } catch (error) {
-                console.error("Authorization error:", error);
+                this.logger.error("Authorization error", { error });
                 res.status(500).json({
                     success: false,
                     data: null,
@@ -135,7 +138,7 @@ export default class AuthorizationMiddleware implements IAuthorizationMiddleware
 
                 next();
             } catch (error) {
-                console.error("Authorization error:", error);
+                this.logger.error("Authorization error", { error });
                 res.status(500).json({
                     success: false,
                     data: null,
@@ -182,7 +185,7 @@ export default class AuthorizationMiddleware implements IAuthorizationMiddleware
 
                 next();
             } catch (error) {
-                console.error("Authorization error:", error);
+                this.logger.error("Authorization error", { error });
                 res.status(500).json({
                     success: false,
                     data: null,
@@ -248,7 +251,7 @@ export default class AuthorizationMiddleware implements IAuthorizationMiddleware
 
                 next();
             } catch (error) {
-                console.error("Authorization error:", error);
+                this.logger.error("Authorization error", { error });
                 res.status(500).json({
                     success: false,
                     data: null,

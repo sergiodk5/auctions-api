@@ -102,10 +102,13 @@ src/
     authentication.service.ts
     authorization.service.ts
     cache.service.ts
+    logger.service.ts
   repositories/
     user.repository.ts
     permission.repository.ts
     role.repository.ts
+  adapters/
+    winston-transport.adapter.ts
   db/
     schema.ts
     users.schema.ts
@@ -146,7 +149,9 @@ tests/
 - **Separate business logic into services**, keep controllers thin.
 - **Use proper TypeScript interfaces** for all service contracts.
 - **Follow established service patterns** - Implement business logic using the service layer patterns documented in `docs/services/`. Use dependency injection, implement clear interfaces, and follow separation of concerns between controllers, services, and repositories.
-- **Use infrastructure services properly** - Leverage DatabaseService, CacheService, MailerService, and ValidationService following the patterns in `docs/services/infrastructure-services.guide.md`.
+- **Use infrastructure services properly** - Leverage DatabaseService, CacheService, LoggerService, MailerService, and ValidationService following the patterns in `docs/services/infrastructure-services.guide.md`.
+- **Use proper logging patterns** - Always inject and use the LoggerService for all logging needs. Never use console.log/error/warn/info/debug directly. Use appropriate log levels (error, warn, info, debug) with structured metadata. Reference `docs/services/logger-service.guide.md` for comprehensive usage patterns.
+- **Follow adapter patterns** - Use adapter pattern for external dependencies like logging libraries. Reference `docs/adapters/logger-adapter.guide.md` for implementing adapters that abstract external library dependencies.
 - **Implement RBAC (Role-Based Access Control)** using the authorization middleware.
 - **Follow namespace-based API organization** for logical grouping of endpoints.
 - **Use action-based service classes** for specific use cases (CreateUser, DeletePost, etc.).
@@ -168,8 +173,7 @@ tests/
 - **Don't skip authentication/authorization checks** on protected routes.
 - **Avoid mixing database access patterns** - stick to Drizzle ORM consistently through repository layer.
 - **Never disable ESLint rules in generated code** - fix the underlying issue instead.
-- **Don't use `console.log` for logging** - use proper logging patterns when available.
-  // TODO: Replace console.log/console.error calls in src/services/cache.service.ts, src/services/database.service.ts, src/middlewares/authentication.guard.ts, and src/server.ts with proper logging service
+- **Use proper logging patterns** - Use the logger service for all logging needs instead of console.log/console.error. Inject the logger service through dependency injection and use appropriate log levels (error, warn, info, debug, etc.) with structured metadata.
 - **Avoid constructors in service classes** - use dependency injection instead following patterns in `docs/services/services.guide.md`.
 - **Don't create monolithic services** - prefer smaller, focused service classes as documented in service guides.
 - **Don't mix infrastructure concerns with business logic** - use dedicated infrastructure services (DatabaseService, CacheService, etc.) rather than handling these concerns in business services.

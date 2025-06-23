@@ -1,11 +1,14 @@
 import RoleController from "@/controllers/role.controller";
+import { ILoggerService } from "@/services/logger.service";
 import { IRoleService } from "@/services/role.service";
 import { CreateRoleDto, Role, RoleWithPermissions, UpdateRoleDto } from "@/types/permissions";
 import { Request, Response } from "express";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("RoleController", () => {
     let roleController: RoleController;
     let mockRoleService: jest.Mocked<IRoleService>;
+    let mockLogger: jest.Mocked<ILoggerService>;
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
     let statusSpy: jest.SpyInstance;
@@ -40,7 +43,9 @@ describe("RoleController", () => {
             setRolePermissions: jest.fn(),
         };
 
-        roleController = new RoleController(mockRoleService);
+        mockLogger = createMockLoggerService() as jest.Mocked<ILoggerService>;
+
+        roleController = new RoleController(mockRoleService, mockLogger);
 
         mockRequest = {
             params: {},

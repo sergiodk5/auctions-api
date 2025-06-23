@@ -1,5 +1,7 @@
 import { NODE_ENV, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config/env";
-import { injectable } from "inversify";
+import { TYPES } from "@/di/types";
+import type { ILoggerService } from "@/services/logger.service";
+import { inject, injectable } from "inversify";
 import { createClient, RedisClientType } from "redis";
 
 export interface ICacheService {
@@ -10,7 +12,10 @@ export interface ICacheService {
 export default class CacheService implements ICacheService {
     public readonly client: RedisClientType;
 
-    constructor() {
+    constructor(
+        @inject(TYPES.ILoggerService)
+        private readonly logger: ILoggerService,
+    ) {
         if (NODE_ENV === "test") {
             // Mock Redis client for tests with all required methods
             this.client = {
@@ -37,13 +42,13 @@ export default class CacheService implements ICacheService {
                 password: REDIS_PASSWORD,
             });
             this.client.on("error", (err: unknown) => {
-                console.error("Redis Client Error", err);
+                this.logger.error("Redis Client Error", { error: err });
             });
             this.client.connect().catch((err: unknown) => {
-                console.error("Redis Client Connection Error", err);
+                this.logger.error("Redis Client Connection Error", { error: err });
             });
             this.client.on("connect", () => {
-                console.log("Redis Client Connected");
+                this.logger.info("Redis Client Connected");
             });
         }
     }

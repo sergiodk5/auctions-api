@@ -1,5 +1,7 @@
+import { TYPES } from "@/di/types";
+import type { ILoggerService } from "@/services/logger.service";
 import { Response } from "express";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import _ from "lodash";
 import { ZodError, ZodTypeAny } from "zod";
 
@@ -18,6 +20,10 @@ export interface IValidationService {
 
 @injectable()
 export default class ValidationService {
+    constructor(
+        @inject(TYPES.ILoggerService)
+        private readonly logger: ILoggerService,
+    ) {}
     public validateSchema(schema: ValidatableSchema): (payload: unknown) => Record<string, unknown> {
         return (payload: unknown) => {
             const parsed = schema.parse(payload);
@@ -45,7 +51,7 @@ export default class ValidationService {
             }));
             res.status(400).json({ success: false, data: null, message: messages });
         } else {
-            console.error("Unexpected validation error:", error);
+            this.logger.error("Unexpected validation error", { error });
             res.status(500).json({ success: false, data: null, message: "Internal server error" });
         }
     }

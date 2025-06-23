@@ -29,6 +29,7 @@ export default class UsersController implements IUsersController {
     constructor(
         @inject(TYPES.IUserService) private readonly userService: IUserService,
         @inject(TYPES.IUserRoleRepository) private readonly userRoleRepository: IUserRoleRepository,
+        @inject(TYPES.ILoggerService) private readonly logger: ILoggerService,
     ) {}
 }
 ```
@@ -467,7 +468,10 @@ private handleServiceError(error: unknown, res: Response): void {
             break;
 
         default:
-            console.error("Unhandled user service error:", error);
+            this.logger.error("Unhandled user service error", {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined
+            });
             res.status(500).json({
                 success: false,
                 message: "Internal server error"

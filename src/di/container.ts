@@ -1,3 +1,4 @@
+import { WinstonTransportAdapter } from "@/adapters/winston-transport.adapter";
 import {
     MAILER_PROVIDER,
     NODE_ENV,
@@ -34,6 +35,8 @@ import AuthorizationService, { IAuthorizationService } from "@/services/authoriz
 import CacheService, { ICacheService } from "@/services/cache.service";
 import DatabaseService, { IDatabaseService } from "@/services/database.service";
 import { IMailerService } from "@/services/IMailerService";
+import type { ILoggerTransport } from "@/services/logger.service";
+import LoggerService, { ILoggerService } from "@/services/logger.service";
 import { MailerService } from "@/services/mailer.service";
 import PermissionService, { type IPermissionService } from "@/services/permission.service";
 import RoleService, { type IRoleService } from "@/services/role.service";
@@ -71,9 +74,18 @@ container
     })
     .inSingletonScope();
 
+// Logger Transport - configure Winston adapter (like MailerTransporter)
+container
+    .bind<ILoggerTransport>(TYPES.LoggerTransport)
+    .toDynamicValue(() => {
+        return new WinstonTransportAdapter();
+    })
+    .inSingletonScope();
+
 // Database
 container.bind<IDatabaseService>(TYPES.IDatabaseService).to(DatabaseService);
 container.bind<ICacheService>(TYPES.ICacheService).to(CacheService);
+container.bind<ILoggerService>(TYPES.ILoggerService).to(LoggerService);
 
 // Repositories
 container.bind<ITokenRepository>(TYPES.ITokenRepository).to(TokenRepository);

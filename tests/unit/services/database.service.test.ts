@@ -21,8 +21,10 @@ jest.mock("@/config/env", () => ({
 }));
 
 import DatabaseService from "@/services/database.service";
+import type { ILoggerService } from "@/services/logger.service";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("DatabaseService", () => {
     let mockPool: {
@@ -30,10 +32,14 @@ describe("DatabaseService", () => {
         connect: jest.Mock;
     };
     let mockDrizzle: any;
+    let mockLogger: ILoggerService;
 
     beforeEach(() => {
         jest.clearAllMocks();
         mockNodeEnv = "test"; // Reset to test environment
+
+        // Create mock logger
+        mockLogger = createMockLoggerService();
 
         // Create mock pool instance
         mockPool = {
@@ -52,7 +58,7 @@ describe("DatabaseService", () => {
 
     describe("constructor", () => {
         it("should create database service successfully", () => {
-            const service = new DatabaseService();
+            const service = new DatabaseService(mockLogger);
 
             expect(service.db).toBe(mockDrizzle);
             expect(service).toHaveProperty("db");
@@ -60,7 +66,7 @@ describe("DatabaseService", () => {
 
         it("should use TEST_DATABASE_URL in test environment", () => {
             mockNodeEnv = "test";
-            new DatabaseService();
+            new DatabaseService(mockLogger);
 
             expect(Pool).toHaveBeenCalledWith({
                 connectionString: "postgresql://localhost:5432/auction_test_db",
@@ -69,7 +75,7 @@ describe("DatabaseService", () => {
 
         it("should use DATABASE_URL in non-test environment", () => {
             mockNodeEnv = "production";
-            new DatabaseService();
+            new DatabaseService(mockLogger);
 
             expect(Pool).toHaveBeenCalledWith({
                 connectionString: "postgresql://localhost:5432/auction_db",
@@ -77,14 +83,13 @@ describe("DatabaseService", () => {
         });
 
         it("should setup error handler for pool", () => {
-            new DatabaseService();
+            new DatabaseService(mockLogger);
 
             expect(mockPool.on).toHaveBeenCalledWith("error", expect.any(Function));
         });
 
         it("should handle pool errors by logging them", () => {
-            const consoleSpy = jest.spyOn(console, "error").mockImplementation();
-            new DatabaseService();
+            new DatabaseService(mockLogger);
 
             // Get the error handler function and call it
             const calls = mockPool.on.mock.calls;
@@ -100,18 +105,17 @@ describe("DatabaseService", () => {
                 errorHandler(testError);
             }
 
-            expect(consoleSpy).toHaveBeenCalledWith("PostgreSQL Pool Error", testError);
-            consoleSpy.mockRestore();
+            expect(mockLogger.error).toHaveBeenCalledWith("PostgreSQL Pool Error", { error: testError });
         });
 
         it("should call drizzle with the pool", () => {
-            new DatabaseService();
+            new DatabaseService(mockLogger);
 
             expect(drizzle).toHaveBeenCalledWith(mockPool);
         });
 
         it("should implement IDatabaseService interface", () => {
-            const service = new DatabaseService();
+            const service = new DatabaseService(mockLogger);
 
             expect(service).toHaveProperty("db");
             expect(typeof service.db).toBe("object");
@@ -131,7 +135,7 @@ describe("DatabaseService", () => {
             mockNodeEnv = "production";
 
             // Create a new instance to test production behavior
-            const service = new DatabaseService();
+            const service = new DatabaseService(mockLogger);
 
             // Should still create the database service
             expect(service.db).toBe(mockDrizzle);
@@ -144,10 +148,9 @@ describe("DatabaseService", () => {
         });
 
         it("should handle connection success logging in production", () => {
-            const consoleSpy = jest.spyOn(console, "log").mockImplementation();
             mockNodeEnv = "production";
 
-            const service = new DatabaseService();
+            const service = new DatabaseService(mockLogger);
 
             // Find the connect handler and verify it exists
             const calls = mockPool.on.mock.calls;
@@ -162,21 +165,18 @@ describe("DatabaseService", () => {
                 connectHandler();
             }
 
-            expect(consoleSpy).toHaveBeenCalledWith("PostgreSQL Pool Connected");
+            expect(mockLogger.info).toHaveBeenCalledWith("PostgreSQL Pool Connected");
             expect(service.db).toBe(mockDrizzle);
-
-            consoleSpy.mockRestore();
         });
 
         it("should handle connection errors in production", async () => {
-            const consoleSpy = jest.spyOn(console, "error").mockImplementation();
             const connectionError = new Error("Failed to connect");
             mockNodeEnv = "production";
 
             // Mock connect to reject
             mockPool.connect.mockRejectedValue(connectionError);
 
-            const service = new DatabaseService();
+            const service = new DatabaseService(mockLogger);
 
             // Wait for the promise rejection to be handled
             await new Promise((resolve) => setTimeout(resolve, 10));
@@ -184,14 +184,15 @@ describe("DatabaseService", () => {
             // Verify the service was created and connect was called
             expect(service.db).toBe(mockDrizzle);
             expect(mockPool.connect).toHaveBeenCalled();
-
-            consoleSpy.mockRestore();
+            expect(mockLogger.error).toHaveBeenCalledWith("PostgreSQL Pool Connection Error", {
+                error: connectionError,
+            });
         });
 
         it("should not setup production handlers in test environment", () => {
             mockNodeEnv = "test";
 
-            const service = new DatabaseService();
+            const service = new DatabaseService(mockLogger);
 
             // Should not call connect in test environment
             expect(mockPool.connect).not.toHaveBeenCalled();

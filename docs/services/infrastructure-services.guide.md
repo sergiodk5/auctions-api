@@ -219,6 +219,96 @@ export default class ValidationService implements IValidationService {
 - Consistent error messaging
 - Integration with Drizzle schemas
 
+### LoggerService
+
+The `LoggerService` provides structured logging capabilities throughout the application using the adapter pattern.
+
+```typescript
+export interface ILoggerService {
+    error(message: string | Error, meta?: Record<string, any>): void;
+    warn(message: string, meta?: Record<string, any>): void;
+    info(message: string, meta?: Record<string, any>): void;
+    http(message: string, meta?: Record<string, any>): void;
+    verbose(message: string, meta?: Record<string, any>): void;
+    debug(message: string, meta?: Record<string, any>): void;
+    silly(message: string, meta?: Record<string, any>): void;
+    child(defaultMeta: Record<string, any>): ILoggerService;
+}
+
+@injectable()
+export default class LoggerService implements ILoggerService {
+    constructor(
+        @inject(TYPES.LoggerTransport)
+        private readonly logger: ILoggerTransport,
+    ) {}
+
+    public error(message: string | Error, meta?: Record<string, any>): void {
+        if (message instanceof Error) {
+            this.logger.error(message.message, { ...meta, error: message, stack: message.stack });
+        } else {
+            this.logger.error(message, meta);
+        }
+    }
+
+    // ... other log level methods
+
+    public child(defaultMeta: Record<string, any>): ILoggerService {
+        const childLogger = this.logger.child(defaultMeta);
+        const childService = Object.create(LoggerService.prototype);
+        childService.logger = childLogger;
+        return childService as ILoggerService;
+    }
+}
+```
+
+**Key Features:**
+
+- Library-independent logging through adapter pattern
+- Multiple log levels (error, warn, info, http, verbose, debug, silly)
+- Structured logging with metadata support
+- Environment-specific configuration (development, production, test)
+- Child logger support for contextual logging
+- Error object handling with stack traces
+- File-based logging in production
+- Silent logging in test environment
+
+**Usage Pattern:**
+
+```typescript
+@injectable()
+export default class UserService implements IUserService {
+    constructor(
+        @inject(TYPES.ILoggerService)
+        private readonly logger: ILoggerService,
+        @inject(TYPES.IUserRepository)
+        private readonly userRepository: IUserRepository,
+    ) {}
+
+    async createUser(userData: CreateUserDto): Promise<User> {
+        this.logger.info("Creating new user", { email: userData.email });
+
+        try {
+            const user = await this.userRepository.create(userData);
+            this.logger.info("User created successfully", { userId: user.id, email: user.email });
+            return user;
+        } catch (error) {
+            this.logger.error("Failed to create user", { error, email: userData.email });
+            throw error;
+        }
+    }
+}
+```
+
+**Adapter Configuration:**
+
+The LoggerService uses the `WinstonTransportAdapter` to provide Winston-based logging:
+
+```typescript
+// Environment-specific configuration
+container.bind<ILoggerTransport>(TYPES.LoggerTransport).to(WinstonTransportAdapter).inSingletonScope();
+container.bind<ILoggerService>(TYPES.ILoggerService).to(LoggerService).inSingletonScope();
+```
+
 ## Service Registration
 
 Infrastructure services are registered in the DI container:
@@ -227,6 +317,10 @@ Infrastructure services are registered in the DI container:
 // Database and Cache
 container.bind<IDatabaseService>(TYPES.IDatabaseService).to(DatabaseService);
 container.bind<ICacheService>(TYPES.ICacheService).to(CacheService);
+
+// Logger with adapter pattern
+container.bind<ILoggerTransport>(TYPES.LoggerTransport).to(WinstonTransportAdapter).inSingletonScope();
+container.bind<ILoggerService>(TYPES.ILoggerService).to(LoggerService).inSingletonScope();
 
 // Mailer with dynamic provider selection
 container
@@ -295,6 +389,37 @@ this.client.on("error", (err: unknown) => {
 this.client.on("connect", () => {
     console.log("Redis Client Connected");
 });
+```
+
+### Logging Best Practices
+
+For infrastructure services, logging should follow these patterns:
+
+- **Service initialization logs**: Use console.log during service startup/initialization (before logger service is available)
+- **Runtime operations**: Use injected LoggerService for all runtime logging
+- **Error handling**: Always use LoggerService for error logging during operation
+
+```typescript
+@injectable()
+export default class ExampleInfrastructureService {
+    constructor(@inject(TYPES.ILoggerService) private readonly logger: ILoggerService) {
+        // Initialization logs can use console during startup
+        console.log("ExampleInfrastructureService initializing...");
+    }
+
+    public async performOperation(data: any): Promise<void> {
+        // Runtime logs should use logger service
+        this.logger.info("Performing operation", { operation: "example", dataSize: data.length });
+
+        try {
+            // ... operation logic
+            this.logger.debug("Operation completed successfully");
+        } catch (error) {
+            this.logger.error("Operation failed", { error: error instanceof Error ? error.message : String(error) });
+            throw error;
+        }
+    }
+}
 ```
 
 ## Testing Infrastructure Services

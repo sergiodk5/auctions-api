@@ -1,11 +1,14 @@
 import PermissionController from "@/controllers/permission.controller";
+import { ILoggerService } from "@/services/logger.service";
 import { IPermissionService } from "@/services/permission.service";
 import { Permission } from "@/types/permissions";
 import { Request, Response } from "express";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("PermissionController", () => {
     let permissionController: PermissionController;
     let mockPermissionService: jest.Mocked<IPermissionService>;
+    let mockLogger: jest.Mocked<ILoggerService>;
     let mockRequest: Partial<Request>;
     let mockResponse: Partial<Response>;
 
@@ -27,7 +30,9 @@ describe("PermissionController", () => {
             deletePermission: jest.fn(),
         };
 
-        permissionController = new PermissionController(mockPermissionService);
+        mockLogger = createMockLoggerService() as jest.Mocked<ILoggerService>;
+
+        permissionController = new PermissionController(mockPermissionService, mockLogger);
 
         mockRequest = {
             params: {},

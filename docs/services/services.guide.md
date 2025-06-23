@@ -30,6 +30,7 @@ The services layer in this TypeScript Express API provides the business logic an
 - **CacheService**: Redis client management and caching operations
 - **MailerService**: Email sending and template management
 - **ValidationService**: Data validation and schema enforcement
+- **LoggerService**: Structured logging with environment-specific configuration
 
 ## Service Structure
 
@@ -257,11 +258,13 @@ describe("UserService", () => {
 - [Authentication Service Guide](./authentication-service.guide.md)
 - [Authorization Service Guide](./authorization-service.guide.md)
 - [User Service Guide](./user-service.guide.md)
+- [Logger Service Guide](./logger-service.guide.md)
 - [Infrastructure Services Guide](./infrastructure-services.guide.md)
 
 ## Related Documentation
 
 - [Repository Layer Guide](../repositories/repositories.guide.md)
+- [Logger Adapter Guide](../adapters/logger-adapter.guide.md)
 - [Dependency Injection Guide](../di/container.guide.md)
 - [Types Registry Guide](../di/types.guide.md)
 - [Testing Guide](../testing.md)

@@ -11,20 +11,31 @@ jest.mock("rate-limiter-flexible", () => ({
 }));
 
 import LoginRateLimiter from "@/middlewares/login-rate-limiter";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("LoginRateLimiter", () => {
     let middleware: LoginRateLimiter;
     let req: any;
     let res: any;
     let next: jest.Mock;
+    let mockLogger: any;
 
     beforeEach(() => {
         // Provide a dummy cacheService with a .client property
         const cacheService = { client: {} };
-        middleware = new LoginRateLimiter(cacheService as any);
+
+        // Create mock logger
+        mockLogger = createMockLoggerService();
+
+        middleware = new LoginRateLimiter(cacheService as any, mockLogger);
 
         // Fake Express req/res/next
-        req = { headers: {}, ip: undefined };
+        req = {
+            headers: {},
+            ip: undefined,
+            get: jest.fn().mockReturnValue("test-agent"),
+            path: "/test",
+        };
         res = {
             status: jest.fn().mockReturnThis(),
             json: jest.fn(),
@@ -50,7 +61,7 @@ describe("LoginRateLimiter", () => {
         expect(res.json).toHaveBeenCalledWith({
             success: false,
             data: null,
-            message: "IP address not found",
+            message: "Internal server error",
         });
         expect(next).not.toHaveBeenCalled();
     });
@@ -74,12 +85,16 @@ describe("LoginRateLimiter", () => {
         await middleware.handle(req, res, next);
 
         expect(mockConsume).toHaveBeenCalledWith("5.6.7.8");
-        expect(console.error).toHaveBeenCalledWith("Rate limit exceeded for refresh token");
+        expect(mockLogger.error).toHaveBeenCalledWith("Rate limit exceeded for login attempt", {
+            ip: "5.6.7.8",
+            userAgent: "test-agent",
+            path: "/test",
+        });
         expect(res.status).toHaveBeenCalledWith(429);
         expect(res.json).toHaveBeenCalledWith({
             success: false,
             data: null,
-            message: "Too many login  requests, please wait.",
+            message: "Too many login attempts, please try again later.",
         });
         expect(next).not.toHaveBeenCalled();
     });

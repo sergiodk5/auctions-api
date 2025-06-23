@@ -1,13 +1,17 @@
+import type { ILoggerService } from "@/services/logger.service";
 import ValidationService from "@/services/validation.service";
 import "reflect-metadata";
 import { z, ZodError } from "zod";
+import { createMockLoggerService } from "../../mocks/services/mock-logger.service";
 
 describe("ValidationService", () => {
     describe("validateSchema", () => {
         let svc: ValidationService;
+        let mockLogger: ILoggerService;
 
         beforeEach(() => {
-            svc = new ValidationService();
+            mockLogger = createMockLoggerService();
+            svc = new ValidationService(mockLogger);
         });
 
         it("parses valid input and strips extra keys", () => {
@@ -32,14 +36,15 @@ describe("ValidationService", () => {
     describe("handleError", () => {
         let svc: ValidationService;
         let res: any;
+        let mockLogger: ILoggerService;
 
         beforeEach(() => {
-            svc = new ValidationService();
+            mockLogger = createMockLoggerService();
+            svc = new ValidationService(mockLogger);
             res = {
                 status: jest.fn().mockReturnThis(),
                 json: jest.fn(),
             };
-            jest.spyOn(console, "error").mockImplementation(() => undefined);
         });
 
         it("responds 400 with messages for ZodError", () => {
@@ -71,7 +76,7 @@ describe("ValidationService", () => {
             const err = new Error("oops");
             svc.handleError(res, err);
 
-            expect(console.error).toHaveBeenCalledWith("Unexpected validation error:", err);
+            expect(mockLogger.error).toHaveBeenCalledWith("Unexpected validation error", { error: err });
             expect(res.status).toHaveBeenCalledWith(500);
             expect(res.json).toHaveBeenCalledWith({
                 success: false,

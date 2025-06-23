@@ -1,6 +1,7 @@
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
 import { type ICacheService } from "@/services/cache.service";
+import type { ILoggerService } from "@/services/logger.service";
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { inject, injectable } from "inversify";
 import { RateLimiterRedis } from "rate-limiter-flexible";
@@ -9,7 +10,10 @@ import { RateLimiterRedis } from "rate-limiter-flexible";
 export default class RefreshRateLimiter implements IMiddleware {
     private limiter: RateLimiterRedis;
 
-    constructor(@inject(TYPES.ICacheService) private readonly cacheService: ICacheService) {
+    constructor(
+        @inject(TYPES.ICacheService) private readonly cacheService: ICacheService,
+        @inject(TYPES.ILoggerService) private readonly logger: ILoggerService,
+    ) {
         this.limiter = new RateLimiterRedis({
             storeClient: this.cacheService.client,
             keyPrefix: "rl_refresh",
@@ -25,7 +29,7 @@ export default class RefreshRateLimiter implements IMiddleware {
             await this.limiter.consume(key);
             next();
         } catch (_err) {
-            console.error("Rate limit exceeded for refresh token");
+            this.logger.error("Rate limit exceeded for refresh token", { key, userAgent: req.get("User-Agent") });
             res.status(429).json({
                 success: false,
                 data: null,

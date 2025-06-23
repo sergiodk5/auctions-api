@@ -1,4 +1,5 @@
 import { TYPES } from "@/di/types";
+import type { ILoggerService } from "@/services/logger.service";
 import type { IRoleService } from "@/services/role.service";
 import { AssignRolePermissionDto, CreateRoleDto, UpdateRoleDto } from "@/types/permissions";
 import { Request, Response } from "express";
@@ -17,7 +18,10 @@ export interface IRoleController {
 
 @injectable()
 export default class RoleController implements IRoleController {
-    constructor(@inject(TYPES.IRoleService) private readonly roleService: IRoleService) {}
+    constructor(
+        @inject(TYPES.IRoleService) private readonly roleService: IRoleService,
+        @inject(TYPES.ILoggerService) private readonly logger: ILoggerService,
+    ) {}
 
     async getAllRoles(req: Request, res: Response): Promise<void> {
         try {
@@ -39,7 +43,7 @@ export default class RoleController implements IRoleController {
                 });
             }
         } catch (error) {
-            console.error("Error getting all roles:", error);
+            this.logger.error("Error getting all roles:", { error });
             res.status(500).json({
                 success: false,
                 message: "Failed to retrieve roles",
@@ -77,7 +81,7 @@ export default class RoleController implements IRoleController {
                 });
             }
         } catch (error) {
-            console.error("Error getting role by ID:", error);
+            this.logger.error("Error getting role by ID:", { error });
             if (error instanceof Error && error.message === "RoleNotFound") {
                 res.status(404).json({
                     success: false,
@@ -104,7 +108,7 @@ export default class RoleController implements IRoleController {
                 data: role,
             });
         } catch (error) {
-            console.error("Error creating role:", error);
+            this.logger.error("Error creating role:", { error });
             if (error instanceof Error && error.message === "RoleExists") {
                 res.status(409).json({
                     success: false,
@@ -140,7 +144,7 @@ export default class RoleController implements IRoleController {
                 data: role,
             });
         } catch (error) {
-            console.error("Error updating role:", error);
+            this.logger.error("Error updating role:", { error });
             if (error instanceof Error && error.message === "RoleNotFound") {
                 res.status(404).json({
                     success: false,
@@ -179,7 +183,7 @@ export default class RoleController implements IRoleController {
                 message: "Role deleted successfully",
             });
         } catch (error) {
-            console.error("Error deleting role:", error);
+            this.logger.error("Error deleting role:", { error });
             if (error instanceof Error && error.message === "RoleNotFound") {
                 res.status(404).json({
                     success: false,
@@ -220,7 +224,7 @@ export default class RoleController implements IRoleController {
                 message: "Permission assigned to role successfully",
             });
         } catch (error) {
-            console.error("Error assigning permission to role:", error);
+            this.logger.error("Error assigning permission to role:", { error });
             if (error instanceof Error && error.message === "RoleNotFound") {
                 res.status(404).json({
                     success: false,
@@ -256,7 +260,7 @@ export default class RoleController implements IRoleController {
                 message: "Permission removed from role successfully",
             });
         } catch (error) {
-            console.error("Error removing permission from role:", error);
+            this.logger.error("Error removing permission from role:", { error });
             if (error instanceof Error && error.message === "RolePermissionNotFound") {
                 res.status(404).json({
                     success: false,
@@ -294,7 +298,7 @@ export default class RoleController implements IRoleController {
                 message: "Role permissions updated successfully",
             });
         } catch (error) {
-            console.error("Error setting role permissions:", error);
+            this.logger.error("Error setting role permissions:", { error });
             if (error instanceof Error && error.message === "RoleNotFound") {
                 res.status(404).json({
                     success: false,

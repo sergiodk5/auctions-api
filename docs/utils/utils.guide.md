@@ -458,25 +458,28 @@ describe("String Utilities", () => {
 
 ## Environment Integration
 
-The utilities integrate with the environment configuration:
+The utilities integrate with the environment configuration and follow logging best practices:
 
 ```typescript
-// Password utility respects NODE_ENV for logging
-import { NODE_ENV } from "@/config/env";
+// Password utility should use logger service for error logging
+import { container } from "@/di/container";
+import { TYPES } from "@/di/types";
+import { ILoggerService } from "@/services/logger.service";
 
 export async function hashPassword(password: string): Promise<string> {
     try {
         const saltRounds = 10;
         return await bcrypt.hash(password, saltRounds);
     } catch (error) {
-        // Only log in non-test environments
-        if (NODE_ENV !== "test") {
-            console.error("Error hashing password:", error);
-        }
+        // Use logger service instead of console.error
+        const logger = container.get<ILoggerService>(TYPES.ILoggerService);
+        logger.error("Error hashing password", { error });
         throw new Error("Failed to hash password");
     }
 }
 ```
+
+**Important**: Utility functions should use the logger service for all logging needs instead of `console.log`, `console.error`, etc. This ensures consistent logging behavior across the application and respects environment-specific configuration.
 
 ## Future Utilities
 

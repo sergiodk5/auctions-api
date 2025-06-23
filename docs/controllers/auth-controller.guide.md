@@ -30,6 +30,8 @@ export default class AuthController implements IAuthController {
     constructor(
         @inject(TYPES.IAuthenticationService)
         private readonly authenticationService: IAuthenticationService,
+        @inject(TYPES.ILoggerService)
+        private readonly logger: ILoggerService,
     ) {}
 }
 ```
@@ -371,7 +373,11 @@ public async resendVerificationEmail(req: Request, res: Response): Promise<void>
 ```typescript
 // Generic error handling to prevent information disclosure
 catch (error) {
-    console.error("Authentication error:", error); // Log for debugging
+    this.logger.error("Authentication error during login", {
+        error: error instanceof Error ? error.message : String(error),
+        userAgent: req.headers['user-agent'],
+        ip: req.ip
+    });
 
     // Return generic message to prevent enumeration
     res.status(401).json({
