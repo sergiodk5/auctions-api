@@ -495,7 +495,7 @@ paths:
   /api/v1/auth/refresh:
     post:
       summary: Refresh access token
-      description: Get a new access token using refresh token
+      description: Get a new access token using the refresh token cookie
       tags:
         - Authentication
       security:

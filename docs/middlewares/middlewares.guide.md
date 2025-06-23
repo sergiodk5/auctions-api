@@ -23,6 +23,7 @@ The middlewares layer in this TypeScript Express API provides cross-cutting conc
 - **AuthorizationMiddleware**: Permission and role-based access control
 - **ValidationMiddleware**: Request data validation using Zod schemas
 - **LoginRateLimiter**: Rate limiting for authentication endpoints
+- **RefreshTokenGuardMiddleware**: Validates refresh token cookie on the refresh route
 - **RefreshRateLimiter**: Rate limiting for token refresh endpoints
 - **JsonErrorHandler**: Global error handling and response formatting
 
