@@ -1,8 +1,8 @@
 import { JWT_REFRESH_SECRET } from "@/config/env";
 import { TYPES } from "@/di/types";
 import IMiddleware from "@/middlewares/IMiddleware";
-import { ITokenRepository } from "@/repositories/token.repository";
-import { ILoggerService } from "@/services/logger.service";
+import type { ITokenRepository } from "@/repositories/token.repository";
+import type { ILoggerService } from "@/services/logger.service";
 import { JwtRefreshPayload } from "@/types/auth";
 import { NextFunction, Request, Response } from "express-serve-static-core";
 import { inject, injectable } from "inversify";

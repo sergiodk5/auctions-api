@@ -118,9 +118,7 @@ container.bind<IMiddleware>(TYPES.IAuthenticationGuardMiddleware).to(Authenticat
 container.bind<IAuthorizationMiddleware>(TYPES.IAuthorizationMiddleware).to(AuthorizationMiddleware);
 container.bind<IMiddleware>(TYPES.IRefreshRateLimiter).to(RefreshRateLimiter);
 container.bind<IMiddleware>(TYPES.ILoginRateLimiter).to(LoginRateLimiter);
-container
-    .bind<IMiddleware>(TYPES.IRefreshTokenGuardMiddleware)
-    .to(RefreshTokenGuardMiddleware);
+container.bind<IMiddleware>(TYPES.IRefreshTokenGuardMiddleware).to(RefreshTokenGuardMiddleware);
 container.bind<IValidationMiddleware>(TYPES.IValidationMiddleware).to(ValidationMiddleware);
 
 export default container;
