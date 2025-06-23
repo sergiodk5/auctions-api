@@ -19,6 +19,7 @@ import AuthorizationMiddleware, { IAuthorizationMiddleware } from "@/middlewares
 import IMiddleware from "@/middlewares/IMiddleware";
 import LoginRateLimiter from "@/middlewares/login-rate-limiter";
 import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
+import RefreshTokenGuardMiddleware from "@/middlewares/refresh-token.guard";
 import { IValidationMiddleware, ValidationMiddleware } from "@/middlewares/validation.middleware";
 import {
     EmailVerificationRepository,
@@ -117,6 +118,9 @@ container.bind<IMiddleware>(TYPES.IAuthenticationGuardMiddleware).to(Authenticat
 container.bind<IAuthorizationMiddleware>(TYPES.IAuthorizationMiddleware).to(AuthorizationMiddleware);
 container.bind<IMiddleware>(TYPES.IRefreshRateLimiter).to(RefreshRateLimiter);
 container.bind<IMiddleware>(TYPES.ILoginRateLimiter).to(LoginRateLimiter);
+container
+    .bind<IMiddleware>(TYPES.IRefreshTokenGuardMiddleware)
+    .to(RefreshTokenGuardMiddleware);
 container.bind<IValidationMiddleware>(TYPES.IValidationMiddleware).to(ValidationMiddleware);
 
 export default container;

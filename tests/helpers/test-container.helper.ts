@@ -28,6 +28,7 @@ import AuthenticationGuardMiddleware from "@/middlewares/authentication.guard";
 import AuthorizationMiddleware from "@/middlewares/authorization.middleware";
 import LoginRateLimiter from "@/middlewares/login-rate-limiter";
 import RefreshRateLimiter from "@/middlewares/refresh-rate-limiter";
+import RefreshTokenGuardMiddleware from "@/middlewares/refresh-token.guard";
 import { ValidationMiddleware } from "@/middlewares/validation.middleware";
 import { EmailVerificationRepository } from "@/repositories/email-verification.repository";
 import PermissionRepository from "@/repositories/permission.repository";
@@ -90,6 +91,9 @@ export function createTestContainer(): Container {
     container.bind<IAuthorizationMiddleware>(TYPES.IAuthorizationMiddleware).to(AuthorizationMiddleware);
     container.bind<IMiddleware>(TYPES.IRefreshRateLimiter).to(RefreshRateLimiter);
     container.bind<IMiddleware>(TYPES.ILoginRateLimiter).to(LoginRateLimiter);
+    container
+        .bind<IMiddleware>(TYPES.IRefreshTokenGuardMiddleware)
+        .to(RefreshTokenGuardMiddleware);
     container.bind<IValidationMiddleware>(TYPES.IValidationMiddleware).to(ValidationMiddleware);
 
     return container;
