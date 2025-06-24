@@ -215,7 +215,7 @@ If you prefer to set up services manually:
 
 - `POST /api/v1/auth/register` - Register a new user
 - `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/refresh` - Refresh JWT token
+- `POST /api/v1/auth/refresh` - Refresh JWT token (requires refresh token cookie)
 - `POST /api/v1/auth/revoke` - Revoke refresh token
 - `POST /api/v1/auth/logout` - User logout
 - `POST /api/v1/auth/verify-email` - Verify email address with token

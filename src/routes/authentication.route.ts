@@ -13,6 +13,7 @@ import { IValidationMiddleware } from "@/middlewares/validation.middleware";
 import { Router } from "express";
 
 const authenticationGuardMiddleware = container.get<IMiddleware>(TYPES.IAuthenticationGuardMiddleware);
+const refreshTokenGuardMiddleware = container.get<IMiddleware>(TYPES.IRefreshTokenGuardMiddleware);
 const refreshRateLimiter = container.get<IMiddleware>(TYPES.IRefreshRateLimiter);
 const loginRateLimiter = container.get<IMiddleware>(TYPES.ILoginRateLimiter);
 const authController = container.get<IAuthController>(TYPES.IAuthController);
@@ -35,6 +36,7 @@ authenticationRoute.post(
 
 authenticationRoute.post(
     "/refresh",
+    refreshTokenGuardMiddleware.handle.bind(refreshTokenGuardMiddleware),
     refreshRateLimiter.handle.bind(refreshRateLimiter),
     authController.refresh.bind(authController),
 );

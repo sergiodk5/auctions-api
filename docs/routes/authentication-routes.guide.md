@@ -25,6 +25,7 @@ import { IValidationMiddleware } from "@/middlewares/validation.middleware";
 import { Router } from "express";
 
 const authenticationGuardMiddleware = container.get<IMiddleware>(TYPES.IAuthenticationGuardMiddleware);
+const refreshTokenGuardMiddleware = container.get<IMiddleware>(TYPES.IRefreshTokenGuardMiddleware);
 const refreshRateLimiter = container.get<IMiddleware>(TYPES.IRefreshRateLimiter);
 const loginRateLimiter = container.get<IMiddleware>(TYPES.ILoginRateLimiter);
 const authController = container.get<IAuthController>(TYPES.IAuthController);
@@ -144,23 +145,16 @@ authenticationRoute.post(
 // POST /api/v1/auth/refresh
 authenticationRoute.post(
     "/refresh",
+    refreshTokenGuardMiddleware.handle.bind(refreshTokenGuardMiddleware),
     refreshRateLimiter.handle.bind(refreshRateLimiter),
     authController.refresh.bind(authController),
 );
 ```
 
 **Purpose**: Refresh access token using refresh token
-**Authentication**: Refresh token in request body
+**Authentication**: Refresh token cookie validated by `RefreshTokenGuardMiddleware`
 **Validation**: None (handled by controller)
 **Rate Limiting**: `refreshRateLimiter` (20 attempts per minute per user/IP)
-
-**Request Body**:
-
-```typescript
-{
-    refreshToken: string; // Valid refresh token
-}
-```
 
 **Response**:
 

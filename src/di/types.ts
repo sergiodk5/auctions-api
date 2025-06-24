@@ -31,6 +31,7 @@ const TYPES = {
     IAuthorizationMiddleware: Symbol.for("IAuthorizationMiddleware"),
     IRefreshRateLimiter: Symbol.for("IRefreshRateLimiter"),
     ILoginRateLimiter: Symbol.for("ILoginRateLimiter"),
+    IRefreshTokenGuardMiddleware: Symbol.for("IRefreshTokenGuardMiddleware"),
     IValidationMiddleware: Symbol.for("IValidationMiddleware"),
 };
 
