@@ -19,10 +19,33 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+      description: |
+        JWT Bearer authentication. Include the access token in the Authorization header as:
+        `Authorization: Bearer <access_token>`
+
+        **Token Details:**
+        - **Lifetime**: 15 minutes
+        - **Format**: JWT with payload containing `sub` (user ID) and `jti` (token ID)
+        - **Usage**: Required for all protected endpoints
+        - **Refresh**: Use `/api/v1/auth/refresh` endpoint when token expires
+
+        **Example:**
+        ```
+        Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        ```
     cookieAuth:
       type: apiKey
       in: cookie
       name: refreshToken
+      description: |
+        Refresh token for obtaining new access tokens. Can be sent as:
+        1. HTTP-only secure cookie (recommended for web applications)
+        2. Request body parameter for mobile/SPA applications
+
+        **Token Details:**
+        - **Lifetime**: 7 days
+        - **Security**: Implements token rotation to prevent reuse attacks
+        - **Usage**: Used with `/api/v1/auth/refresh` endpoint
 
   schemas:
     User:
@@ -160,7 +183,76 @@ components:
               $ref: "#/components/schemas/User"
             accessToken:
               type: string
-              description: JWT access token
+              description: |
+                JWT access token for API authentication.
+
+                **Payload Structure:**
+                ```json
+                {
+                  "sub": "123",
+                  "jti": "uuid-v4",
+                  "iat": 1640995200,
+                  "exp": 1640996100
+                }
+                ```
+
+                **Usage:** Include in Authorization header as `Bearer <token>`
+                **Lifetime:** 15 minutes
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJqdGkiOiJ1dWlkLXY0IiwiaWF0IjoxNjQwOTk1MjAwLCJleHAiOjE2NDA5OTYxMDB9..."
+            refreshToken:
+              type: string
+              description: |
+                JWT refresh token for obtaining new access tokens.
+
+                **Payload Structure:**
+                ```json
+                {
+                  "sub": "123",
+                  "jti": "uuid-v4", 
+                  "family_id": "uuid-v4",
+                  "iat": 1640995200,
+                  "exp": 1641600000
+                }
+                ```
+
+                **Security:** Implements token rotation to prevent reuse attacks
+                **Lifetime:** 7 days
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJqdGkiOiJ1dWlkLXY0IiwiZmFtaWx5X2lkIjoidXVpZC12NCIsImlhdCI6MTY0MDk5NTIwMCwiZXhwIjoxNjQxNjAwMDAwfQ..."
+
+    TokenRefreshResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the request was successful
+        message:
+          type: string
+          description: Response message
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+              description: New JWT access token (15 minute lifetime)
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+            refreshToken:
+              type: string
+              description: New JWT refresh token (7 day lifetime)
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+    RefreshTokenRequest:
+      type: object
+      required:
+        - refreshToken
+      properties:
+        refreshToken:
+          type: string
+          description: |
+            Valid refresh token obtained from login or previous refresh.
+
+            **Security Note:** Each refresh operation generates a new token pair.
+            Old refresh tokens are automatically revoked.
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
     ApiResponse:
       type: object
@@ -495,24 +587,62 @@ paths:
   /api/v1/auth/refresh:
     post:
       summary: Refresh access token
-      description: Get a new access token using the refresh token cookie
+      description: |
+        Get a new access token using a valid refresh token. This endpoint supports two methods:
+
+        1. **Cookie-based** (recommended for web apps): Send refresh token as HTTP-only cookie
+        2. **Body-based** (for mobile/SPA): Send refresh token in request body
+
+        **Security Features:**
+        - Implements token rotation (new token pair generated each time)
+        - Detects and prevents token reuse attacks
+        - Automatically revokes compromised token families
       tags:
         - Authentication
+      requestBody:
+        description: Refresh token (alternative to cookie-based auth)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshTokenRequest"
+            example:
+              refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
       security:
         - cookieAuth: []
+        - {} # Allow requests without security for body-based refresh
       responses:
         "200":
           description: Successfully refreshed token
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/AuthResponse"
+                $ref: "#/components/schemas/TokenRefreshResponse"
+              example:
+                success: true
+                message: "Token refreshed successfully"
+                data:
+                  accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         "401":
           description: Invalid or expired refresh token
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                data: null
+                message: "Access denied"
+        "403":
+          description: Refresh token reuse detected (security violation)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                success: false
+                data: null
+                message: "Access denied"
         "429":
           description: Too many refresh attempts
           content:

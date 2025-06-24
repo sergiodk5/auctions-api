@@ -213,9 +213,74 @@ If you prefer to set up services manually:
 
 ### Authentication
 
+#### User Registration
+
+```bash
+curl -X POST http://localhost:8090/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword"
+  }'
+```
+
+#### User Login
+
+```bash
+curl -X POST http://localhost:8090/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "securepassword"
+  }'
+```
+
+**Response includes JWT tokens:**
+
+```json
+{
+    "success": true,
+    "data": {
+        "user": {
+            "id": 123,
+            "email": "user@example.com",
+            "emailVerified": true
+        },
+        "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+        "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+    }
+}
+```
+
+#### Using JWT Tokens
+
+```bash
+# Use the access token in Authorization header
+curl -X GET http://localhost:8090/api/v1/users/123 \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIs..."
+```
+
+**JWT Token Details:**
+
+- **Access Token**: 15-minute lifetime, used for API authentication
+- **Refresh Token**: 7-day lifetime, used to obtain new access tokens
+- **Security**: Implements token rotation and revocation for enhanced security
+
+#### Token Refresh
+
+```bash
+curl -X POST http://localhost:8090/api/v1/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIs..."
+  }'
+```
+
+**Complete Authentication Endpoints:**
+
 - `POST /api/v1/auth/register` - Register a new user
-- `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/refresh` - Refresh JWT token (requires refresh token cookie)
+- `POST /api/v1/auth/login` - User login (returns JWT tokens)
+- `POST /api/v1/auth/refresh` - Refresh JWT token (requires refresh token)
 - `POST /api/v1/auth/revoke` - Revoke refresh token
 - `POST /api/v1/auth/logout` - User logout
 - `POST /api/v1/auth/verify-email` - Verify email address with token

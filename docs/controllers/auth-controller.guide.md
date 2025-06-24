@@ -4,6 +4,12 @@
 
 The `AuthController` handles all authentication-related HTTP endpoints including user registration, login, token refresh, logout, password reset, and email verification. It serves as the HTTP interface to the authentication service layer.
 
+> **📚 Related Documentation:**
+>
+> - [JWT Tokens Guide](../authentication/jwt-tokens.guide.md) - Comprehensive JWT token documentation
+> - [Authentication Service Guide](../services/authentication-service.guide.md) - Service layer implementation
+> - [Authentication Middleware Guide](../middlewares/authentication-middleware.guide.md) - Token validation middleware
+
 ## Interface
 
 ```typescript
