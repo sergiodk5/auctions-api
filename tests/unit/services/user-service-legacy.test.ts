@@ -65,14 +65,18 @@ describe("UserService Unit Tests", () => {
         const data: UpdateUserDto = { email: "d@w.com" };
         it("should update and return user when exists", async () => {
             const updated: User = { id: 5, email: "d@w.com", emailVerified: false };
+            mockRepo.findByEmail.mockResolvedValue(undefined); // No existing user with this email
             mockRepo.update.mockResolvedValue(updated);
             await expect(userService.updateUser(5, data)).resolves.toEqual(updated);
+            expect(mockRepo.findByEmail).toHaveBeenCalledWith("d@w.com");
             expect(mockRepo.update).toHaveBeenCalledWith(5, data);
         });
 
         it("should throw when user not found", async () => {
+            mockRepo.findByEmail.mockResolvedValue(undefined); // No existing user with this email
             mockRepo.update.mockResolvedValue(undefined);
             await expect(userService.updateUser(6, data)).rejects.toThrow("UserNotFound");
+            expect(mockRepo.findByEmail).toHaveBeenCalledWith("d@w.com");
             expect(mockRepo.update).toHaveBeenCalledWith(6, data);
         });
     });
