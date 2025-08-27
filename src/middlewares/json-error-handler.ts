@@ -14,36 +14,36 @@ interface SafeError {
 
 const sanitizeError = (err: any): SafeError => {
     // Handle known safe error types
-    if (err.name === 'ValidationError' || err.name === 'ZodError') {
+    if (err.name === "ValidationError" || err.name === "ZodError") {
         return {
             message: "Validation failed",
             code: "VALIDATION_ERROR",
-            statusCode: 400
+            statusCode: 400,
         };
     }
-    
-    if (err.name === 'UnauthorizedError') {
+
+    if (err.name === "UnauthorizedError") {
         return {
             message: "Unauthorized",
             code: "UNAUTHORIZED",
-            statusCode: 401
+            statusCode: 401,
         };
     }
-    
+
     // Production: Only show generic errors
-    if (NODE_ENV === 'production') {
+    if (NODE_ENV === "production") {
         return {
             message: "Internal server error",
             code: "INTERNAL_ERROR",
-            statusCode: 500
+            statusCode: 500,
         };
     }
-    
+
     // Development: Show more details but still sanitized
     return {
         message: err.message ?? "Internal server error",
         code: err.code ?? "INTERNAL_ERROR",
-        statusCode: err.statusCode ?? 500
+        statusCode: err.statusCode ?? 500,
     };
 };
 
@@ -62,7 +62,7 @@ const jsonErrorHandler: ErrorRequestHandler = (err, req, res, _next) => {
             ip: req.ip,
         },
     });
-    
+
     // Send only safe error details to client
     const safeError = sanitizeError(err);
     res.status(safeError.statusCode ?? 500).json({

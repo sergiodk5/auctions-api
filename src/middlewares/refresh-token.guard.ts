@@ -29,8 +29,8 @@ export default class RefreshTokenGuardMiddleware implements IMiddleware {
 
         let payload: JwtRefreshPayload;
         try {
-            payload = jwt.verify(token, JWT_REFRESH_SECRET, { 
-                algorithms: ['HS256'] 
+            payload = jwt.verify(token, JWT_REFRESH_SECRET, {
+                algorithms: ["HS256"],
             }) as JwtRefreshPayload;
 
             if (typeof payload !== "object" || !payload?.jti || !payload?.sub) {

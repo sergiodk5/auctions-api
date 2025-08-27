@@ -30,8 +30,8 @@ export default class AuthenticationGuardMiddleware implements IMiddleware {
 
         let payload: JwtAccessPayload;
         try {
-            payload = jwt.verify(token, JWT_SECRET, { 
-                algorithms: ['HS256'] 
+            payload = jwt.verify(token, JWT_SECRET, {
+                algorithms: ["HS256"],
             }) as JwtAccessPayload;
 
             if (typeof payload !== "object" || !payload?.sub || !payload?.jti) {

@@ -60,7 +60,7 @@ describe("AuthenticationGuardMiddleware", () => {
 
         await middleware.handle(req, res, next);
 
-        expect(jwt.verify).toHaveBeenCalledWith("badtoken", JWT_SECRET, { algorithms: ['HS256'] });
+        expect(jwt.verify).toHaveBeenCalledWith("badtoken", JWT_SECRET, { algorithms: ["HS256"] });
         expect(mockLogger.error).toHaveBeenCalledWith("Token verification error", { error: expect.any(Error) });
         expect(res.status).toHaveBeenCalledWith(401); // Changed from 403
         expect(next).not.toHaveBeenCalled();
