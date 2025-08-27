@@ -53,7 +53,7 @@ describe("RefreshTokenGuardMiddleware", () => {
 
         await middleware.handle(req, res, next);
 
-        expect(jwt.verify).toHaveBeenCalledWith("bad", JWT_REFRESH_SECRET);
+        expect(jwt.verify).toHaveBeenCalledWith("bad", JWT_REFRESH_SECRET, { algorithms: ['HS256'] });
         expect(mockLogger.error).toHaveBeenCalledWith("Refresh token verification error", { error: expect.any(Error) });
         expect(res.status).toHaveBeenCalledWith(401);
         expect(res.json).toHaveBeenCalledWith({

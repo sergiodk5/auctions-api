@@ -29,13 +29,15 @@ export default class RefreshTokenGuardMiddleware implements IMiddleware {
 
         let payload: JwtRefreshPayload;
         try {
-            payload = jwt.verify(token, JWT_REFRESH_SECRET) as JwtRefreshPayload;
+            payload = jwt.verify(token, JWT_REFRESH_SECRET, { 
+                algorithms: ['HS256'] 
+            }) as JwtRefreshPayload;
 
-            if (typeof payload !== "object" || !payload?.jti) {
+            if (typeof payload !== "object" || !payload?.jti || !payload?.sub) {
                 res.status(401).json({
                     success: false,
                     data: null,
-                    message: "Invalid refresh token",
+                    message: "Invalid refresh token format",
                 });
                 return;
             }

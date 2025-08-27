@@ -30,13 +30,15 @@ export default class AuthenticationGuardMiddleware implements IMiddleware {
 
         let payload: JwtAccessPayload;
         try {
-            payload = jwt.verify(token, JWT_SECRET) as JwtAccessPayload;
+            payload = jwt.verify(token, JWT_SECRET, { 
+                algorithms: ['HS256'] 
+            }) as JwtAccessPayload;
 
-            if (typeof payload !== "object" || !payload?.sub) {
+            if (typeof payload !== "object" || !payload?.sub || !payload?.jti) {
                 res.status(401).json({
                     success: false,
                     data: null,
-                    message: "Unauthorized - Invalid token",
+                    message: "Unauthorized - Invalid token format",
                 });
 
                 return;

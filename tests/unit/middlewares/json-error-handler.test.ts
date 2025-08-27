@@ -42,7 +42,7 @@ describe("jsonErrorHandler", () => {
 
         res = {
             status: jest.fn().mockReturnThis(),
-            send: jest.fn(),
+            json: jest.fn(),
         };
         next = jest.fn();
     });
@@ -61,19 +61,32 @@ describe("jsonErrorHandler", () => {
         await handler(err, req, res, next);
 
         // Logger should be called with error information
-        expect(mockLogger.error).toHaveBeenCalledWith("JSON Error Handler - Path: /test-path", {
-            error: err,
-            method: "GET",
-            url: "/test-path",
-            userAgent: "test-user-agent",
-            ip: "127.0.0.1",
+        expect(mockLogger.error).toHaveBeenCalledWith("Error Handler - GET /test-path", {
+            error: {
+                name: err.name,
+                message: err.message,
+                stack: err.stack,
+            },
+            request: {
+                method: "GET",
+                url: "/test-path",
+                userAgent: "test-user-agent",
+                ip: "127.0.0.1",
+            },
         });
 
         // Response status should be 500
         expect(res.status).toHaveBeenCalledWith(500);
 
-        // Response send should include the error object
-        expect(res.send).toHaveBeenCalledWith({ error: err });
+        // Response should include sanitized error object
+        expect(res.json).toHaveBeenCalledWith({
+            success: false,
+            error: {
+                message: "Something went wrong",
+                code: "INTERNAL_ERROR",
+            },
+            data: null,
+        });
 
         // Next should not be called
         expect(next).not.toHaveBeenCalled();
