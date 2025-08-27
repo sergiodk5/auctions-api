@@ -21,6 +21,46 @@ import { inject, injectable } from "inversify";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 
+// Domain imports
+import { validateUserDoesNotExist, validateUserExists } from "@/domain/user/validation";
+import { prepareCreateUserData } from "@/domain/user/business-rules";
+import {
+    validateUserCredentials,
+    validatePasswordMatch,
+    validateRefreshTokenPayload,
+    validateRefreshTokenNotRevoked,
+    validatePasswordResetToken,
+    validatePasswordResetTokenExists,
+    validateUserCanResetPassword,
+} from "@/domain/authentication/validation";
+import {
+    canRegisterUser,
+    canUserLogin,
+    canRefreshToken,
+    canRequestPasswordReset,
+    shouldRevokeAccessToken,
+    calculateAccessTokenTTL,
+    shouldRevokeTokenFamily,
+    prepareLoginResponse,
+    prepareTokenResponse,
+    shouldSendVerificationEmail,
+    isAuthenticationSuccessful,
+} from "@/domain/authentication/business-rules";
+import {
+    validateVerificationTokenExists,
+    validateUserExistsForVerification,
+    validateEmailNotVerified,
+    validateCanResendVerificationEmail,
+} from "@/domain/email-verification/validation";
+import {
+    shouldSendVerificationEmail as shouldSendEmailVerification,
+    canResendVerificationEmail,
+    generateVerificationToken,
+    createVerificationLink,
+    createPasswordResetLink,
+    shouldCleanupOldTokens,
+} from "@/domain/email-verification/business-rules";
+
 export interface IAuthenticationService {
     register(data: CreateUserDto): Promise<User>;
     login(email: string, password: string): Promise<AuthLoginDto>;
@@ -43,29 +83,42 @@ export default class AuthenticationService {
     ) {}
 
     public async register(data: CreateUserDto): Promise<User> {
-        const existing = await this.userRepo.findByEmail(data.email);
-        if (existing) throw new Error("UserExists");
+        // Prepare data according to business rules
+        const preparedData = prepareCreateUserData(data);
 
-        const user = await this.userRepo.create(data);
+        // Check if user already exists
+        const existing = await this.userRepo.findByEmail(preparedData.email);
+        validateUserDoesNotExist(existing, preparedData.email);
 
-        // Generate verification token and send welcome email
-        await this.generateAndSendVerificationEmail(user.id, user.email);
+        // Apply business rule
+        if (!canRegisterUser(existing)) {
+            throw new Error("UserExists");
+        }
+
+        const user = await this.userRepo.create(preparedData);
+
+        // Generate verification token and send welcome email if needed
+        if (shouldSendVerificationEmail(user)) {
+            await this.generateAndSendVerificationEmail(user.id, user.email);
+        }
 
         return user;
     }
 
     private async generateAndSendVerificationEmail(userId: number, email: string): Promise<void> {
-        // Delete any existing verification tokens for this user
-        await this.emailVerificationRepo.deleteByUserId(userId);
+        // Apply business rule for cleanup
+        if (shouldCleanupOldTokens(userId)) {
+            await this.emailVerificationRepo.deleteByUserId(userId);
+        }
 
-        // Generate a secure verification token
-        const verificationToken = crypto.randomBytes(32).toString("hex");
+        // Generate a secure verification token using domain logic
+        const verificationToken = generateVerificationToken();
 
         // Store the verification token
         await this.emailVerificationRepo.create(userId, verificationToken);
 
-        // Create verification link
-        const verificationLink = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
+        // Create verification link using domain logic
+        const verificationLink = createVerificationLink(verificationToken);
 
         // Send welcome email with verification link
         await this.mailer.sendWelcomeEmail(email, verificationLink);
@@ -73,26 +126,58 @@ export default class AuthenticationService {
 
     public async login(email: string, password: string): Promise<AuthLoginDto> {
         const user = await this.userRepo.findByEmail(email);
-        if (!user?.password || !(await comparePassword(password, user?.password))) {
+        
+        // Validate user credentials using domain logic
+        validateUserCredentials(user, password);
+        
+        // Check if user can login
+        if (!canUserLogin(user)) {
             throw new Error("AuthFailed");
         }
+
+        // At this point we know user exists and has password due to validation
+        const validatedUser = user as User & { password: string };
+
+        // Verify password
+        const passwordMatch = await comparePassword(password, validatedUser.password);
+        validatePasswordMatch(passwordMatch);
+
+        // Check authentication success
+        if (!isAuthenticationSuccessful(validatedUser, passwordMatch)) {
+            throw new Error("AuthFailed");
+        }
+
+        // Generate tokens
         const familyId = uuidv4();
         const jti = uuidv4();
-        const accessToken = jwt.sign({ sub: user.id.toString(), jti }, JWT_SECRET, { expiresIn: ACCESS_LIFETIME });
-        const refreshToken = jwt.sign({ sub: user.id.toString(), jti, family_id: familyId }, JWT_REFRESH_SECRET, {
+        const accessToken = jwt.sign({ sub: validatedUser.id.toString(), jti }, JWT_SECRET, { expiresIn: ACCESS_LIFETIME });
+        const refreshToken = jwt.sign({ sub: validatedUser.id.toString(), jti, family_id: familyId }, JWT_REFRESH_SECRET, {
             expiresIn: REFRESH_IDLE_TTL,
         });
         await this.tokenRepo.storeRefreshToken(jti, familyId);
-        return { user, accessToken, refreshToken };
+        
+        // Prepare response using domain logic
+        return prepareLoginResponse(validatedUser, accessToken, refreshToken);
     }
 
     public async refresh(refreshToken: string): Promise<AuthTokensDto> {
         const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as JwtRefreshPayload;
-        const { sub, jti: oldJti, family_id } = payload;
-        if (!oldJti || !(await this.tokenRepo.isRefreshTokenValid(oldJti))) {
+        
+        // Validate refresh token payload using domain logic
+        const { sub, jti: oldJti, family_id } = validateRefreshTokenPayload(payload);
+        
+        // Check if token is valid
+        const isTokenValid = await this.tokenRepo.isRefreshTokenValid(oldJti);
+        
+        // Apply business rule for refresh eligibility
+        if (!canRefreshToken(isTokenValid)) {
             await this.tokenRepo.revokeFamily(family_id);
             throw new Error("InvalidRefresh");
         }
+
+        // Validate token is not revoked
+        validateRefreshTokenNotRevoked(isTokenValid, family_id);
+
         await this.tokenRepo.revokeRefreshToken(oldJti);
         const newJti = uuidv4();
         const accessToken = jwt.sign({ sub, jti: newJti }, JWT_SECRET, { expiresIn: ACCESS_LIFETIME });
@@ -100,7 +185,9 @@ export default class AuthenticationService {
             expiresIn: REFRESH_IDLE_TTL,
         });
         await this.tokenRepo.storeRefreshToken(newJti, family_id);
-        return { accessToken, refreshToken: newRefreshToken };
+        
+        // Prepare response using domain logic
+        return prepareTokenResponse(accessToken, newRefreshToken);
     }
 
     public async revokeAccess(jti: string, ttl: number): Promise<void> {
@@ -108,11 +195,19 @@ export default class AuthenticationService {
     }
 
     public async logout(accessJti: string, accessExp: number, refreshToken: string): Promise<void> {
-        const ttl = Math.max(0, Math.ceil((accessExp * 1000 - Date.now()) / 1000));
-        if (ttl > 0) await this.tokenRepo.addToDenyList(accessJti, ttl);
+        // Apply business rule for access token revocation
+        if (shouldRevokeAccessToken(accessExp)) {
+            const ttl = calculateAccessTokenTTL(accessExp);
+            await this.tokenRepo.addToDenyList(accessJti, ttl);
+        }
+
         try {
-            const { family_id } = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as JwtRefreshPayload;
-            await this.tokenRepo.revokeFamily(family_id);
+            const payload = jwt.verify(refreshToken, JWT_REFRESH_SECRET) as JwtRefreshPayload;
+            
+            // Apply business rule for token family revocation
+            if (shouldRevokeTokenFamily(payload)) {
+                await this.tokenRepo.revokeFamily(payload.family_id);
+            }
         } catch {
             /* do nothing */
         }
@@ -120,19 +215,27 @@ export default class AuthenticationService {
 
     public async requestPasswordReset(email: string): Promise<void> {
         const user = await this.userRepo.findByEmail(email);
-        if (!user) throw new Error("UserNotFound");
+        
+        // Validate user exists and can reset password
+        const validatedUser = validateUserCanResetPassword(user);
+
+        // Apply business rule for password reset eligibility
+        if (!canRequestPasswordReset(validatedUser)) {
+            throw new Error("UserNotFound");
+        }
 
         const jti = uuidv4();
-        const token = jwt.sign({ sub: user.id, jti }, JWT_RESET_SECRET, {
+        const token = jwt.sign({ sub: validatedUser.id, jti }, JWT_RESET_SECRET, {
             expiresIn: Number(RESET_PASSWORD_TTL),
         });
 
-        await this.cacheSvc.client.set(`pwreset:jti:${jti}`, user.id.toString(), {
+        await this.cacheSvc.client.set(`pwreset:jti:${jti}`, validatedUser.id.toString(), {
             EX: Number(RESET_PASSWORD_TTL),
         });
 
-        const link = `${FRONTEND_URL}/reset-password?token=${token}`;
-        await this.mailer.sendPasswordReset(user.email, link);
+        // Create reset link using domain logic
+        const link = createPasswordResetLink(token);
+        await this.mailer.sendPasswordReset(validatedUser.email, link);
     }
 
     public async resetPassword(token: string, newPassword: string): Promise<void> {
@@ -143,51 +246,55 @@ export default class AuthenticationService {
             throw new Error("InvalidOrExpiredToken");
         }
 
-        const key = `pwreset:jti:${payload.jti}`;
+        // Validate password reset token using domain logic
+        const validatedPayload = validatePasswordResetToken(payload);
+
+        const key = `pwreset:jti:${validatedPayload.jti}`;
         const userIdStr = await this.cacheSvc.client.get(key);
-        if (!userIdStr) throw new Error("InvalidOrExpiredToken");
+        
+        // Validate token exists using domain logic
+        const validatedUserIdStr = validatePasswordResetTokenExists(userIdStr);
 
         await this.cacheSvc.client.del(key);
 
         const hashed = await hashPassword(newPassword);
-        await this.userRepo.update(Number(userIdStr), { password: hashed });
+        await this.userRepo.update(Number(validatedUserIdStr), { password: hashed });
     }
 
     public async verifyEmail(token: string): Promise<void> {
         const verification = await this.emailVerificationRepo.findByToken(token);
-        if (!verification) {
-            throw new Error("InvalidOrExpiredToken");
-        }
+        
+        // Validate verification token exists using domain logic
+        const validVerification = validateVerificationTokenExists(verification);
 
         // Check if user exists
-        const user = await this.userRepo.findById(verification.userId);
-        if (!user) {
-            throw new Error("UserNotFound");
-        }
+        const user = await this.userRepo.findById(validVerification.userId);
+        
+        // Validate user exists using domain logic
+        const validUser = validateUserExistsForVerification(user);
 
-        // Check if email is already verified
-        if (user.emailVerified) {
-            throw new Error("EmailAlreadyVerified");
-        }
+        // Check if email is already verified using domain logic
+        validateEmailNotVerified(validUser);
 
         // Mark verification as used
-        await this.emailVerificationRepo.markAsVerified(verification.id);
+        await this.emailVerificationRepo.markAsVerified(validVerification.id);
 
         // Mark user email as verified
-        await this.userRepo.markEmailAsVerified(verification.userId);
+        await this.userRepo.markEmailAsVerified(validVerification.userId);
     }
 
     public async resendVerificationEmail(email: string): Promise<void> {
         const user = await this.userRepo.findByEmail(email);
-        if (!user) {
-            throw new Error("UserNotFound");
-        }
+        
+        // Validate user can receive verification email using domain logic
+        const validUser = validateCanResendVerificationEmail(user);
 
-        if (user.emailVerified) {
+        // Apply business rule for resending verification email
+        if (!canResendVerificationEmail(validUser)) {
             throw new Error("EmailAlreadyVerified");
         }
 
         // Generate and send new verification email
-        await this.generateAndSendVerificationEmail(user.id, user.email);
+        await this.generateAndSendVerificationEmail(validUser.id, validUser.email);
     }
 }
